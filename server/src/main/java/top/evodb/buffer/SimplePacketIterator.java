@@ -18,7 +18,7 @@
 package top.evodb.buffer;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class SimplePacketIterator implements PacketIterator {
     private ProtocolBuffer protocolBuffer;

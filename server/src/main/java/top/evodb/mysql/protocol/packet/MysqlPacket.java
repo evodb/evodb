@@ -23,7 +23,7 @@ import top.evodb.buffer.ProtocolBuffer;
 /**
  * Mysql protocol packet.
  *
- * @author ynfeng
+ * @author evodb
  */
 public interface MysqlPacket extends Packet {
     int PACKET_OFFSET = 3;

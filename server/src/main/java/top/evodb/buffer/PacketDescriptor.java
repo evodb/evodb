@@ -19,7 +19,7 @@ package top.evodb.buffer;
 /**
  * The tool for manipulating the descriptor.
  *
- * @author ynfeng
+ * @author evodb
  */
 public final class PacketDescriptor {
 

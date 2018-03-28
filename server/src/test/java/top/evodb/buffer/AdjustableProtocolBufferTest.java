@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class AdjustableProtocolBufferTest {
     private static final int CHUNK_SIZE = 15;

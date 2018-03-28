@@ -24,7 +24,7 @@ import top.evodb.mysql.protocol.ServerStatus;
 import top.evodb.util.BitUtil;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class OKPacket extends AbstractMysqlPacket {
     public long affectedRows;

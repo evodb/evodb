@@ -21,7 +21,7 @@ package top.evodb.buffer;
  * Each of which keeps its internal state until the {@link PacketIterator#reset()} method calls.
  * Note:For performance reasons, try to create only one iterator.
  *
- * @author ynfeng
+ * @author evodb
  */
 @SuppressWarnings("unused")
 public interface IterableBuffer {

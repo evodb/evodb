@@ -25,7 +25,7 @@ import java.nio.channels.SocketChannel;
  * When the buffer space is insufficient automatically grow. When {@link ProtocolBuffer#compact()} or {@link
  * ProtocolBuffer#clear()} called ,discardable space will be released.
  *
- * @author ynfeng
+ * @author evodb
  */
 public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
     private static final int INITIAL_SLOT_SIZE = 5;

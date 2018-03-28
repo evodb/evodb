@@ -24,7 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class MysqlPacketFactoryTests {
     private static final int CHUNK_SIZE = 15;

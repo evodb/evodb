@@ -27,7 +27,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class OKPacketTests {
     private static final int CHUNK_SIZE = 15;

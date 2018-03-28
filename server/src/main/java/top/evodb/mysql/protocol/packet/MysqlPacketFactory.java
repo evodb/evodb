@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  * Not thread safe.
  *
- * @author ynfeng
+ * @author evodb
  */
 public final class MysqlPacketFactory {
     private ProtocolBufferAllocator protocolBufferAllocator;

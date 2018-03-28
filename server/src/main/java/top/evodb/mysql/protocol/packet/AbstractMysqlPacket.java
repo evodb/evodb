@@ -20,7 +20,7 @@ package top.evodb.mysql.protocol.packet;
 import top.evodb.buffer.ProtocolBuffer;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public abstract class AbstractMysqlPacket implements MysqlPacket {
     protected ProtocolBuffer protocolBuffer;

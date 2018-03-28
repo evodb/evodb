@@ -23,7 +23,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class ReflectionUtil {
 

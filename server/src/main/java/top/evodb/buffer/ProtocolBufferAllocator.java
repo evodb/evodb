@@ -19,7 +19,7 @@ package top.evodb.buffer;
 /**
  * @param <T> The type of ProtocolBuffer
  *
- * @author ynfeng
+ * @author evodb
  */
 public interface ProtocolBufferAllocator<T extends ProtocolBuffer> {
     /**

@@ -17,7 +17,7 @@
 package top.evodb.buffer;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public interface PacketIterator {
 

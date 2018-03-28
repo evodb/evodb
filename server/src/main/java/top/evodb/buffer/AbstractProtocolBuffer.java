@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * The base class of the ProtocolBuffer.
  *
- * @author ynfeng
+ * @author evodb
  */
 public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
     private int writeIndex;

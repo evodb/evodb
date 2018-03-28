@@ -65,7 +65,7 @@ import java.nio.channels.SocketChannel;
  * Read-prefix methods will cause {@code readIndex} increase. Write-prefix methods will cause {@code writeIndex}
  * increase.
  *
- * @author ynfeng
+ * @author evodb
  */
 @SuppressWarnings("unused")
 public interface ProtocolBuffer extends IterableBuffer {

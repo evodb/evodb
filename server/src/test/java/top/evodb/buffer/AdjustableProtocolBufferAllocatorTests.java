@@ -21,7 +21,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class AdjustableProtocolBufferAllocatorTests {
     private static final int CHUNK_SIZE = 15;

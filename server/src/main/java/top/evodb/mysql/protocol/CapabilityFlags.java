@@ -18,7 +18,7 @@
 package top.evodb.mysql.protocol;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class CapabilityFlags {
     public static final int CLIENT_LONG_PASSWORD = 0x00000001;

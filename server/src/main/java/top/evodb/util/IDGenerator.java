@@ -20,7 +20,7 @@ package top.evodb.util;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class IDGenerator {
     private static final AtomicLong atomicLong = new AtomicLong();

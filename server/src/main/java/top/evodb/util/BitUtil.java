@@ -18,7 +18,7 @@
 package top.evodb.util;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class BitUtil {
     public static boolean checkBit(int src, int target) {

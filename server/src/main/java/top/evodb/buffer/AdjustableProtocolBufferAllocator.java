@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class AdjustableProtocolBufferAllocator implements ProtocolBufferAllocator<AdjustableProtocolBuffer> {
     private final int chunkSize;
