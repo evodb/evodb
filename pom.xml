@@ -32,7 +32,6 @@
   <packaging>pom</packaging>
 
   <properties>
-    <app.encoding>UTF-8</app.encoding>
     <version.junit>4.4</version.junit>
     <version.slf4j-api>1.7.12</version.slf4j-api>
     <version.log4j-slf4j-impl>2.3</version.log4j-slf4j-impl>
@@ -40,6 +39,7 @@
     <version.build-helper-maven-plugin>1.4</version.build-helper-maven-plugin>
     <version.guava>23.0</version.guava>
     <version.mockito-core>2.16.0</version.mockito-core>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <dependencyManagement>
@@ -83,10 +83,30 @@
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
-          <encoding>${app.encoding}</encoding>
+          <encoding>${project.build.sourceEncoding>}</encoding>
         </configuration>
       </plugin>
-
+      <plugin>
+        <groupId>org.eluder.coveralls</groupId>
+        <artifactId>coveralls-maven-plugin</artifactId>
+        <version>4.3.0</version>
+        <configuration>
+          <repoToken></repoToken>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.7.6.201602180812</version>
+        <executions>
+          <execution>
+            <id>prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <!--<plugin>-->
       <!--<groupId>org.apache.maven.plugins</groupId>-->
       <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
