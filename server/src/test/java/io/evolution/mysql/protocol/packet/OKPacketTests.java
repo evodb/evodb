@@ -22,10 +22,9 @@ import io.evolution.buffer.ProtocolBufferAllocator;
 import io.evolution.exception.MysqlPacketFactoryException;
 import io.evolution.mysql.protocol.CapabilityFlags;
 import io.evolution.mysql.protocol.ServerStatus;
-import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author ynfeng
