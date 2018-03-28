@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inspections version="1.0" is_locked="false">
-  <option name="myName" value="Evolution project"/>
+  <option name="myName" value="Evodb project"/>
   <option name="myLocal" value="true"/>
   <inspection_tool class="AccessToNonThreadSafeStaticFieldFromInstance" enabled="true" level="WARNING"
                    enabled_by_default="true">
