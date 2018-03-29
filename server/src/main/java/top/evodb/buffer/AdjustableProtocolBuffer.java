@@ -85,11 +85,11 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
     @Override
     public int transferFromChannel(SocketChannel socketChannel) throws IOException {
         check(writeIndex(), chunkSize - 1);
-        ensureSpace(chunkSize);
+        ensureSpace(writeIndex(), chunkSize);
         int totalReadBytes = 0;
         for (; ; ) {
             ByteBuffer byteBuffer = fromSlot(writeIndex());
-            byteBuffer.limit(chunkSize - 1);
+            byteBuffer.limit(chunkSize);
             byteBuffer.position(toInternalIndex(writeIndex()));
             int readed = socketChannel.read(byteBuffer);
             totalReadBytes += readed;
@@ -99,7 +99,7 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
                 return totalReadBytes;
             } else if (byteBuffer.remaining() == 0) {
                 writeIndex(writeIndex() + readed);
-                ensureSpace(chunkSize);
+                ensureSpace(writeIndex(), chunkSize);
             } else {
                 writeIndex(writeIndex() + readed);
                 return totalReadBytes;
@@ -117,7 +117,7 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
         }
         int index0 = toInternalIndex(index);
         int offset = 0;
-        byteBuffer.limit(chunkSize - 1);
+        byteBuffer.limit(chunkSize);
         byteBuffer.position(index0);
         for (; ; ) {
             int readableLength = byteBuffer.limit() - byteBuffer.position();
@@ -134,7 +134,7 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
                 if (byteBuffer == null) {
                     throw new IndexOutOfBoundsException();
                 }
-                byteBuffer.limit(chunkSize - 1);
+                byteBuffer.limit(chunkSize);
                 byteBuffer.position(index0);
             }
         }
@@ -143,7 +143,7 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
 
     @Override
     public ProtocolBuffer putBytes(int index, int length, byte[] bytes) {
-        ensureSpace(length + index);
+        ensureSpace(index, length);
         check(index, length);
         if (length > 0 && length > bytes.length) {
             throw new IndexOutOfBoundsException();
@@ -154,7 +154,7 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
         }
         int index0 = toInternalIndex(index);
         int offset = 0;
-        byteBuffer.limit(chunkSize - 1);
+        byteBuffer.limit(chunkSize);
         byteBuffer.position(index0);
         for (; ; ) {
             int writeableLength = byteBuffer.limit() - byteBuffer.position();
@@ -171,7 +171,7 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
                 if (byteBuffer == null) {
                     throw new IndexOutOfBoundsException();
                 }
-                byteBuffer.limit(chunkSize - 1);
+                byteBuffer.limit(chunkSize);
                 byteBuffer.position(index0);
             }
         }
@@ -193,20 +193,18 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
     }
 
     private int toSlotIndex(int index) {
-        return index / (chunkSize - 1);
+        return index / chunkSize;
     }
 
     private int toInternalIndex(int index) {
-        return index % (chunkSize - 1);
+        return index % chunkSize;
     }
 
-    private void ensureSpace(int reqSpace) {
-        long freeSpace = capacity - writeIndex();
-        while (freeSpace <= reqSpace) {
+    private void ensureSpace(int index, int reqSpace) {
+        while (index + reqSpace >= capacity) {
             ByteBuffer byteBuffer = allocator.allocateByteBuffer();
             putIntoSlot(byteBuffer);
             capacity += byteBuffer.capacity();
-            freeSpace = capacity - writeIndex();
         }
     }
 
@@ -226,16 +224,40 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
     }
 
     @Override
-    public ProtocolBuffer compact() {
-        super.compact();
-        return null;
+    void compactInternalBuffer() {
+        int compactSize = readIndex();
+        int numOfCompatBuffers = compactSize / chunkSize;
+        int internalCompactSize = compactSize % chunkSize;
+        int i;
+        for (i = 0; i < numOfCompatBuffers; i++) {
+            ByteBuffer byteBuffer = slots[i];
+            byteBuffer.clear();
+            allocator.recyleAllocateByteBuffer(byteBuffer);
+            slots[i] = null;
+        }
+        if (internalCompactSize != 0) {
+            ByteBuffer byteBuffer = slots[i];
+            byteBuffer.position(internalCompactSize);
+            byteBuffer.limit(chunkSize);
+            byteBuffer.compact();
+        }
+        if (i > 0) {
+            int newNumOfSlots = slots.length - i;
+            ByteBuffer[] newSlots;
+            if (newNumOfSlots < INITIAL_SLOT_SIZE) {
+                newSlots = new ByteBuffer[INITIAL_SLOT_SIZE];
+            } else {
+                newSlots = new ByteBuffer[newNumOfSlots];
+            }
+            System.arraycopy(slots, i, newSlots, 0, newNumOfSlots);
+            slots = newSlots;
+        }
     }
 
     @Override
     public int capacity() {
         return capacity;
     }
-
 
     public AdjustableProtocolBufferAllocator getAllocator() {
         return allocator;

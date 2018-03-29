@@ -427,4 +427,38 @@ public class AdjustableProtocolBufferTest {
         allocator.recyle(protocolBuffer);
         protocolBuffer.putBytes(-1, 10, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
     }
+
+    @Test
+    public void testCompact() {
+        String data = "1234567890";
+        ProtocolBuffer protocolBuffer = allocator.allocate();
+        protocolBuffer.writeFixString(data);
+        protocolBuffer.readBytes(5);
+        protocolBuffer.compact();
+        String rv = protocolBuffer.readFixString(5);
+        assertEquals("67890", rv);
+    }
+
+    @Test
+    public void testCompactWithMultiBuffer() {
+        String data = "123456789012345";
+        ProtocolBuffer protocolBuffer = allocator.allocate();
+        protocolBuffer.writeFixString(data);
+        protocolBuffer.writeFixString(data);
+        protocolBuffer.writeFixString(data);
+        protocolBuffer.writeFixString(data);
+
+        String rv;
+        rv = protocolBuffer.readFixString(15);
+        assertEquals("123456789012345", rv);
+        rv = protocolBuffer.readFixString(15);
+        assertEquals("123456789012345", rv);
+        rv = protocolBuffer.readFixString(16);
+        assertEquals("1234567890123451", rv);
+
+        protocolBuffer.compact();
+
+        rv = protocolBuffer.readFixString(14);
+        assertEquals("23456789012345", rv);
+    }
 }

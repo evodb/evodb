@@ -116,20 +116,16 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
 
     @Override
     public ProtocolBuffer compact() {
-//        if (defaultPacketIterator instanceof SimplePacketIterator) {
-//            adjustIterator((SimplePacketIterator) defaultPacketIterator);
-//        }
-//        if (namedPacketIteratorMap != null) {
-//            for (PacketIterator packetIterator : namedPacketIteratorMap.values()) {
-//                if (packetIterator instanceof SimplePacketIterator) {
-//                    adjustIterator((SimplePacketIterator) defaultPacketIterator);
-//                }
-//            }
-//        }
-//        writeIndex(writeIndex() - readIndex());
-//        readIndex(0);
+        compactInternalBuffer();
+        writeIndex(writeIndex() - readIndex());
+        readIndex(0);
         return this;
     }
+
+    /**
+     * Compat internal buffer
+     */
+    abstract void compactInternalBuffer();
 
     @Override
     public long readLenencInt() {
