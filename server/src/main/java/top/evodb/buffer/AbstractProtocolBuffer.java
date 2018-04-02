@@ -28,9 +28,7 @@ import java.util.Map;
 public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
     private int writeIndex;
     private int readIndex;
-    private PacketIterator defaultPacketIterator;
     private Map<String, PacketIterator> namedPacketIteratorMap;
-    private long mark;
 
     protected AbstractProtocolBuffer() {
         writeIndex = 0;
@@ -360,9 +358,6 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
 
     @Override
     public void clear() {
-        if (defaultPacketIterator != null) {
-            defaultPacketIterator.reset();
-        }
         if (namedPacketIteratorMap != null) {
             namedPacketIteratorMap.clear();
             namedPacketIteratorMap = null;

@@ -1,7 +1,7 @@
 /*
  * Copyright 2017-2018 The Evodb Project
  *
- * The Evodb Project licenses this file to you under the Apache License,
+ * The Evolution Project licenses this file to you under the Apache License,
  * version 2.0 (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at:
  *
@@ -19,40 +19,35 @@ package top.evodb.buffer;
 
 import org.junit.Test;
 
-import java.nio.ByteBuffer;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author evodb
  */
-public class AdjustableProtocolBufferAllocatorTests {
+public class SimplePacketIteratorTests {
     private static final int CHUNK_SIZE = 15;
     private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
 
     @Test
-    public void testAllocate() {
+    public void testGetDefaultPacketIterator() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        assertNotNull(protocolBuffer);
+        PacketIterator packetIterator = protocolBuffer.packetIterator();
+        assertNotNull(packetIterator);
     }
 
     @Test
-    public void testRecyle() {
+    public void testGetNamedPacketIterator() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        allocator.recyle(protocolBuffer);
+        PacketIterator packetIterator = protocolBuffer.packetIterator("other");
+        assertNotNull(packetIterator);
     }
 
     @Test
-    public void testRecyleWithFalse() {
-        ProtocolBuffer protocolBuffer = new AdjustableProtocolBuffer(new AdjustableProtocolBufferAllocator(CHUNK_SIZE));
-        boolean rv = allocator.recyle(protocolBuffer);
-        assertFalse(rv);
+    public void testGetPacketIteratorWithClear() {
+        ProtocolBuffer protocolBuffer = allocator.allocate();
+        protocolBuffer.packetIterator("other");
+        protocolBuffer.packetIterator();
+        protocolBuffer.clear();
     }
 
-    @Test
-    public void testRecyleByteBufferWith16Bytes() {
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(16);
-        boolean rv = ((AdjustableProtocolBufferAllocator) allocator).recyleAllocateByteBuffer(byteBuffer);
-        assertFalse(rv);
-    }
 }

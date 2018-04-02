@@ -18,6 +18,7 @@
 package top.evodb.buffer;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -84,6 +85,12 @@ public class AdjustableProtocolBufferTest {
         ProtocolBuffer protocolBuffer = allocator.allocate();
         protocolBuffer.writeFixInt(1, 200);
         protocolBuffer.writeIndex(10);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testSetWriteIndexWithNegative() {
+        ProtocolBuffer protocolBuffer = allocator.allocate();
+        protocolBuffer.writeIndex(-1);
     }
 
     @Test
@@ -401,6 +408,33 @@ public class AdjustableProtocolBufferTest {
     }
 
     @Test
+    public void testTransferFromChannelFullByteBuffer() throws IOException {
+        final int[] readTime = { 1 };
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(15);
+
+        SocketChannel socketChannel = mock(SocketChannel.class);
+        when(socketChannel.read((ByteBuffer) any())).thenReturn(1);
+
+        AdjustableProtocolBufferAllocator spyAllocator = spy((AdjustableProtocolBufferAllocator) allocator);
+        when(spyAllocator.allocateByteBuffer()).thenReturn(byteBuffer);
+
+        doAnswer(readBuffer -> {
+            if (readTime[0] == 1) {
+                byteBuffer.limit(15);
+                byteBuffer.position(15);
+                readTime[0]++;
+                return 15;
+            } else {
+                return 0;
+            }
+        }).when(socketChannel).read(byteBuffer);
+
+        ProtocolBuffer protocolBuffer = new AdjustableProtocolBuffer(spyAllocator);
+        int readed = protocolBuffer.transferFromChannel(socketChannel);
+        assertEquals(15, readed);
+    }
+
+    @Test
     public void testTransferFromChannelWith10Bytes() throws IOException {
         SocketChannel socketChannel = mock(SocketChannel.class);
         when(socketChannel.read((ByteBuffer) any())).thenReturn(10);
@@ -460,5 +494,29 @@ public class AdjustableProtocolBufferTest {
 
         rv = protocolBuffer.readFixString(14);
         assertEquals("23456789012345", rv);
+    }
+
+    @Test
+    public void testCompactWithLargeData() {
+        String data = "123456789012345";
+        ProtocolBuffer protocolBuffer = allocator.allocate();
+        protocolBuffer.writeFixString(data);
+        protocolBuffer.writeFixString(data);
+        protocolBuffer.writeFixString(data);
+        protocolBuffer.writeFixString(data);
+        protocolBuffer.writeFixString(data);
+        protocolBuffer.writeFixString(data);
+        protocolBuffer.writeFixString(data);
+        protocolBuffer.writeFixString(data);
+        protocolBuffer.writeFixString(data);
+        protocolBuffer.writeFixString(data);
+        protocolBuffer.writeFixString(data);
+        protocolBuffer.writeFixString(data);
+        protocolBuffer.writeFixString(data);
+
+        String rv;
+        rv = protocolBuffer.readFixString(15);
+        assertEquals("123456789012345", rv);
+        protocolBuffer.compact();
     }
 }

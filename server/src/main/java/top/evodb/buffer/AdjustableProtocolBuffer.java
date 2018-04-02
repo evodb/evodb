@@ -84,12 +84,12 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
 
     @Override
     public int transferFromChannel(SocketChannel socketChannel) throws IOException {
-        check(writeIndex(), chunkSize - 1);
+        check(writeIndex(), chunkSize);
         ensureSpace(writeIndex(), chunkSize);
         int totalReadBytes = 0;
         for (; ; ) {
             ByteBuffer byteBuffer = fromSlot(writeIndex());
-            byteBuffer.limit(chunkSize);
+            byteBuffer.limit(allocator.getChunkSize());
             byteBuffer.position(toInternalIndex(writeIndex()));
             int readed = socketChannel.read(byteBuffer);
             totalReadBytes += readed;
@@ -112,9 +112,6 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
         check(index, length);
         byte[] bytes = new byte[length];
         ByteBuffer byteBuffer = fromSlot(index);
-        if (byteBuffer == null) {
-            throw new IndexOutOfBoundsException();
-        }
         int index0 = toInternalIndex(index);
         int offset = 0;
         byteBuffer.limit(chunkSize);
@@ -131,9 +128,6 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
                 offset += readableLength;
                 index += readableLength;
                 byteBuffer = fromSlot(index);
-                if (byteBuffer == null) {
-                    throw new IndexOutOfBoundsException();
-                }
                 byteBuffer.limit(chunkSize);
                 byteBuffer.position(index0);
             }
@@ -149,9 +143,6 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
             throw new IndexOutOfBoundsException();
         }
         ByteBuffer byteBuffer = fromSlot(index);
-        if (byteBuffer == null) {
-            throw new IndexOutOfBoundsException();
-        }
         int index0 = toInternalIndex(index);
         int offset = 0;
         byteBuffer.limit(chunkSize);
@@ -168,9 +159,6 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
                 offset += writeableLength;
                 index += writeableLength;
                 byteBuffer = fromSlot(index);
-                if (byteBuffer == null) {
-                    throw new IndexOutOfBoundsException();
-                }
                 byteBuffer.limit(chunkSize);
                 byteBuffer.position(index0);
             }
@@ -182,7 +170,7 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
         if (recyleFlag) {
             throw new IllegalStateException("Protocol buffer has been recyled.");
         }
-        if (index < 0 || length <= 0) {
+        if (index < 0 || length < 0) {
             throw new IndexOutOfBoundsException();
         }
     }
