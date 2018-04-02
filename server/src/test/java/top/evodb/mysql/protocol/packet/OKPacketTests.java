@@ -35,29 +35,29 @@ public class OKPacketTests {
     private MysqlPacketFactory factory = new MysqlPacketFactory(allocator);
 
     @Test
-    public void testWriteToBuffer() throws MysqlPacketFactoryException {
+    public void testWrite() throws MysqlPacketFactoryException {
         int capablityFlags = 0;
         capablityFlags |= CapabilityFlags.CLIENT_PROTOCOL_41;
         OKPacket okPacket = factory.getMysqlPacket(MysqlPacket.OK_PACKET);
         okPacket.info = "test";
         okPacket.capabilityFlags = capablityFlags;
 
-        okPacket.writeToBuffer();
+        okPacket.write();
     }
 
     @Test
-    public void testWriteToBufferWithClientTranscations() throws MysqlPacketFactoryException {
+    public void testWriteWithClientTranscations() throws MysqlPacketFactoryException {
         int capablityFlags = 0;
         capablityFlags |= CapabilityFlags.CLIENT_TRANSACTIONS;
         OKPacket okPacket = factory.getMysqlPacket(MysqlPacket.OK_PACKET);
         okPacket.info = "test";
         okPacket.capabilityFlags = capablityFlags;
 
-        okPacket.writeToBuffer();
+        okPacket.write();
     }
 
     @Test
-    public void testWriteToBufferWithSessionTrackAndServerStateChange() throws MysqlPacketFactoryException {
+    public void testWriteWithSessionTrackAndServerStateChange() throws MysqlPacketFactoryException {
         int capablityFlags = 0;
         capablityFlags |= CapabilityFlags.CLIENT_SESSION_TRACK;
         OKPacket okPacket = factory.getMysqlPacket(MysqlPacket.OK_PACKET);
@@ -65,11 +65,11 @@ public class OKPacketTests {
         okPacket.capabilityFlags = capablityFlags;
         okPacket.statusFlag = ServerStatus.SERVER_SESSION_STATE_CHANGED;
         okPacket.sessionStateChanges = "session state change";
-        okPacket.writeToBuffer();
+        okPacket.write();
     }
 
     @Test
-    public void parseFormBuffer() throws MysqlPacketFactoryException {
+    public void testRead() throws MysqlPacketFactoryException {
         int capablityFlags = 0;
         capablityFlags |= CapabilityFlags.CLIENT_PROTOCOL_41;
         capablityFlags |= CapabilityFlags.CLIENT_SESSION_TRACK;
@@ -83,9 +83,9 @@ public class OKPacketTests {
         okPacket.warnings = 200;
         okPacket.info = "test";
         okPacket.sessionStateChanges = "session state change";
-        okPacket.writeToBuffer();
+        okPacket.write();
 
-        okPacket.parseFromBuffer();
+        okPacket.read();
 
         assertEquals(120, okPacket.sequenceId);
         assertEquals(capablityFlags, okPacket.capabilityFlags);
@@ -98,7 +98,7 @@ public class OKPacketTests {
     }
 
     @Test
-    public void parseFormBufferWithClientTransactions() throws MysqlPacketFactoryException {
+    public void testReadWithClientTransactions() throws MysqlPacketFactoryException {
         int capablityFlags = 0;
         capablityFlags |= CapabilityFlags.CLIENT_TRANSACTIONS;
 
@@ -111,9 +111,9 @@ public class OKPacketTests {
         okPacket.warnings = 200;
         okPacket.info = "test";
         okPacket.sessionStateChanges = "session state change";
-        okPacket.writeToBuffer();
+        okPacket.write();
 
-        okPacket.parseFromBuffer();
+        okPacket.read();
 
         assertEquals(120, okPacket.sequenceId);
         assertEquals(capablityFlags, okPacket.capabilityFlags);

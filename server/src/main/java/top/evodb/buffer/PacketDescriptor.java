@@ -22,6 +22,7 @@ package top.evodb.buffer;
  * @author evodb
  */
 public final class PacketDescriptor {
+    public static final int NONE = 0;
 
     private PacketDescriptor() {
     }
@@ -30,7 +31,7 @@ public final class PacketDescriptor {
         return packetDescriptor & ~0x03L | packetType.getValue() & 0x03;
     }
 
-    public static long setCommandType(long packetDescriptor, long commandType) {
+    public static long setCommandType(long packetDescriptor, byte commandType) {
         return packetDescriptor & ~(0xFFL << 2) | (commandType & 0xFF) << 2;
     }
 
@@ -48,16 +49,13 @@ public final class PacketDescriptor {
         PacketType packetType;
         switch (type) {
         case 0:
-            packetType = PacketType.FULL;
+            packetType = PacketType.HALF;
             break;
         case 1:
-            packetType = PacketType.LONG_HALF;
-            break;
-        case 2:
-            packetType = PacketType.SHORT_HALF;
+            packetType = PacketType.FULL;
             break;
         default:
-            throw new IllegalArgumentException("Wrong packetDescriptor " + packetDescriptor);
+            throw new IllegalArgumentException("Wrong packet descriptor " + packetDescriptor);
         }
         return packetType;
     }
@@ -75,7 +73,7 @@ public final class PacketDescriptor {
     }
 
     public enum PacketType {
-        FULL(0), LONG_HALF(1), SHORT_HALF(2);
+        HALF(0), FULL(1);
 
         PacketType(int value) {
             this.value = value;

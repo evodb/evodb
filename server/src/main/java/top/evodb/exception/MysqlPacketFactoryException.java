@@ -31,13 +31,4 @@ public class MysqlPacketFactoryException extends Exception {
     public MysqlPacketFactoryException(String message, Throwable cause) {
         super(message, cause);
     }
-
-    public MysqlPacketFactoryException(Throwable cause) {
-        super(cause);
-    }
-
-    public MysqlPacketFactoryException(String message, Throwable cause, boolean enableSuppression,
-                                       boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

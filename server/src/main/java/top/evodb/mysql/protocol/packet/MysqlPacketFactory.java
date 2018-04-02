@@ -63,7 +63,7 @@ public final class MysqlPacketFactory {
 
     public <T extends MysqlPacket> T getMysqlPacket(ProtocolBuffer protocolBuffer, int startIndex)
             throws MysqlPacketFactoryException {
-        byte cmd = protocolBuffer.getByte(startIndex + MysqlPacket.PAYLOAD_OFFSET);
+        byte cmd = protocolBuffer.getByte(startIndex + MysqlPacket.PACKET_PAYLOAD_OFFSET);
         Class aClass = packetRegistryMap.get(cmd);
         if (aClass == null) {
             throw new MysqlPacketFactoryException("There is no such type '" + cmd + "' packet");

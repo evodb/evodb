@@ -26,8 +26,10 @@ import top.evodb.buffer.ProtocolBuffer;
  * @author evodb
  */
 public interface MysqlPacket extends Packet {
+    int PACKET_START = 0;
     int PACKET_OFFSET = 3;
-    int PAYLOAD_OFFSET = 4;
+    int PACKET_PAYLOAD_OFFSET = 4;
+    int PACKET_CMD_OFFSET = 5;
 
     byte OK_PACKET = 0x00;
 
@@ -50,10 +52,10 @@ public interface MysqlPacket extends Packet {
      *
      * @return ProtocolBuffer
      */
-    ProtocolBuffer writeToBuffer();
+    ProtocolBuffer write();
 
     /**
      * Parse data from protocol buffer.
      */
-    void parseFromBuffer();
+    void read();
 }

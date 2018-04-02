@@ -36,9 +36,8 @@ public interface PacketIterator {
      * | The packet start position in buffer       | The length of packet       |         command type              |   packet type  |
      * +-------------------------------------------+----------------------------+-----------------------------------+----------------+
      * </pre>
-     * A packet up to 16MB,24-bit is enough.
-     * 2-bit packet type may be {@link PacketDescriptor.PacketType#LONG_HALF} or
-     * {@link PacketDescriptor.PacketType#SHORT_HALF} or {@link PacketDescriptor.PacketType#FULL}
+     * A packet up to 16MB.
+     * 2-bit packet type may be {@link PacketDescriptor.PacketType#HALF} or {@link PacketDescriptor.PacketType#FULL}
      * When packet type is {@link PacketDescriptor.PacketType#SHORT_HALF} the packet length and command type are meaningless.
      */
     long nextPacket();

@@ -17,12 +17,16 @@
 
 package top.evodb.buffer;
 
+import top.evodb.buffer.PacketDescriptor.PacketType;
+import top.evodb.mysql.protocol.packet.MysqlPacket;
+
 /**
  * @author evodb
  */
 public class SimplePacketIterator implements PacketIterator {
     private ProtocolBuffer protocolBuffer;
-    private long currentIndex;
+    private int iterateIndex;
+    private int currentPacketLength;
 
     public SimplePacketIterator(ProtocolBuffer protocolBuffer) {
         this.protocolBuffer = protocolBuffer;
@@ -30,17 +34,42 @@ public class SimplePacketIterator implements PacketIterator {
 
     @Override
     public boolean hasPacket() {
-
+        if (iterateIndex + MysqlPacket.PACKET_CMD_OFFSET < protocolBuffer.writeIndex()) {
+            return true;
+        }
         return false;
     }
 
     @Override
     public long nextPacket() {
-        return 0;
+        if (hasPacket()) {
+            long packetDesriptor = 0;
+            int packetLength = (int) protocolBuffer.getFixInt(iterateIndex, MysqlPacket.PACKET_OFFSET);
+            byte cmd = protocolBuffer.getByte(iterateIndex + MysqlPacket.PACKET_PAYLOAD_OFFSET);
+            PacketType packetType = getPacketType(packetLength);
+            currentPacketLength = packetLength;
+            packetDesriptor = PacketDescriptor.setPacketLen(packetDesriptor, packetLength);
+            packetDesriptor = PacketDescriptor.setPacketStartPos(packetDesriptor, iterateIndex);
+            packetDesriptor = PacketDescriptor.setPacketType(packetDesriptor, packetType);
+            packetDesriptor = PacketDescriptor.setCommandType(packetDesriptor, cmd);
+            iterateIndex += packetLength + MysqlPacket.PACKET_OFFSET;
+            return packetDesriptor;
+        } else {
+            return PacketDescriptor.NONE;
+        }
+    }
+
+    private PacketType getPacketType(long packetLength) {
+        if (iterateIndex + packetLength - 1 + MysqlPacket.PACKET_PAYLOAD_OFFSET > protocolBuffer.writeIndex()) {
+            return PacketType.HALF;
+        } else {
+            return PacketType.FULL;
+        }
     }
 
     @Override
     public void reset() {
-        currentIndex = 0;
+        iterateIndex = 0;
+        currentPacketLength = 0;
     }
 }

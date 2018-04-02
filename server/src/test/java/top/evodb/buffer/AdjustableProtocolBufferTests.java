@@ -18,7 +18,6 @@
 package top.evodb.buffer;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -30,7 +29,7 @@ import static org.mockito.Mockito.*;
 /**
  * @author evodb
  */
-public class AdjustableProtocolBufferTest {
+public class AdjustableProtocolBufferTests {
     private static final int CHUNK_SIZE = 15;
     private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
 
@@ -518,5 +517,14 @@ public class AdjustableProtocolBufferTest {
         rv = protocolBuffer.readFixString(15);
         assertEquals("123456789012345", rv);
         protocolBuffer.compact();
+    }
+
+    @Test
+    public void testGetLencintLen() {
+        ProtocolBuffer protocolBuffer = allocator.allocate();
+        assertEquals(1, protocolBuffer.getLenencLength(1));
+        assertEquals(3, protocolBuffer.getLenencLength(1 << 15));
+        assertEquals(4, protocolBuffer.getLenencLength(1 << 20));
+        assertEquals(9, protocolBuffer.getLenencLength(1 << 30));
     }
 }

@@ -40,7 +40,7 @@ public class OKPacket extends AbstractMysqlPacket {
     }
 
     @Override
-    public ProtocolBuffer writeToBuffer() {
+    public ProtocolBuffer write() {
         protocolBuffer.writeIndex(startIndex + PACKET_OFFSET);
         protocolBuffer.writeByte(sequenceId);
         protocolBuffer.writeByte(OK_PACKET);
@@ -65,7 +65,7 @@ public class OKPacket extends AbstractMysqlPacket {
     }
 
     @Override
-    public void parseFromBuffer() {
+    public void read() {
         protocolBuffer.readIndex(startIndex);
         payloadLength = (int) protocolBuffer.readFixInt(PACKET_OFFSET);
         sequenceId = protocolBuffer.readByte();
@@ -84,7 +84,7 @@ public class OKPacket extends AbstractMysqlPacket {
                 sessionStateChanges = protocolBuffer.readLenencString();
             }
         } else {
-            protocolBuffer.writeNULString(info);
+            info = protocolBuffer.readNULString();
         }
     }
 
