@@ -15,7 +15,7 @@ import java.util.LinkedList;
  */
 public final class Reactor {
 
-    private static final String REACTOR_THREAD_NAME_PREFIX = "R_THREAD";
+    private static final String REACTOR_THREAD_NAME_PREFIX = "r_thread";
     private final int numOfReactorThreads;
     private static final int SELECT_TIMEOUT = 500;
     private int currentReactorThread;

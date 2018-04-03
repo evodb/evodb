@@ -3,6 +3,7 @@ package top.evodb;
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import top.evodb.network.Acceptor;
 import top.evodb.network.Reactor;
 
 
@@ -15,9 +16,11 @@ public class Server {
 
     public static void main(String args[]) {
         Reactor reactor;
+        Acceptor acceptor;
         try {
             reactor = Reactor.getInstance();
-            reactor.start();
+            acceptor = Acceptor.getInstance("127.0.0.1", 9600, reactor);
+            acceptor.start();
         } catch (IOException e) {
             LOGGER.error("Start server error.", e);
         }
