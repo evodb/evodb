@@ -14,6 +14,7 @@
  * under the License.
  *
  */
+
 package top.evodb.buffer;
 
 
@@ -307,7 +308,7 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
 
     @Override
     public ProtocolBuffer putByte(int index, byte val) {
-        return putBytes(index, new byte[]{val});
+        return putBytes(index, new byte[] {val});
     }
 
     @Override

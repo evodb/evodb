@@ -2,7 +2,6 @@ package top.evodb.network;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import top.evodb.exception.ReactorPoolException;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
@@ -24,7 +23,7 @@ public final class Reactor {
     private static final Logger LOGGER = LoggerFactory.getLogger(Reactor.class);
     private static volatile Reactor instance;
 
-    public static Reactor getInstance() throws ReactorPoolException {
+    public static Reactor getInstance() throws IOException {
         if (instance == null) {
             synchronized (Reactor.class) {
                 if (instance == null) {
@@ -35,17 +34,12 @@ public final class Reactor {
         return instance;
     }
 
-    private Reactor() throws ReactorPoolException {
+    private Reactor() throws IOException {
         currentReactorThread = 0;
         numOfReactorThreads = Runtime.getRuntime().availableProcessors();
         reactorThreads = new ReactorThread[numOfReactorThreads];
         for (int i = 0; i < reactorThreads.length; i++) {
-            try {
-                reactorThreads[i] = new ReactorThread(REACTOR_THREAD_NAME_PREFIX + i);
-            } catch (IOException e) {
-                throw new ReactorPoolException(
-                    "Create reactor thread[" + reactorThreads[i].getName() + "] error", e);
-            }
+            reactorThreads[i] = new ReactorThread(REACTOR_THREAD_NAME_PREFIX + i);
         }
     }
 

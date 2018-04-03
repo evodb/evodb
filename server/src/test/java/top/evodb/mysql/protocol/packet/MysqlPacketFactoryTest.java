@@ -25,6 +25,7 @@ import top.evodb.exception.MysqlPacketFactoryException;
 import top.evodb.mysql.protocol.CapabilityFlags;
 import top.evodb.mysql.protocol.ServerStatus;
 
+
 import static org.junit.Assert.*;
 
 /**

@@ -14,6 +14,7 @@
  * under the License.
  *
  */
+
 package top.evodb.buffer;
 
 import java.io.IOException;
@@ -85,7 +86,7 @@ public interface ProtocolBuffer extends IterableBuffer {
      * will increase the number of bytes written.
      *
      * @param socketChannel Target channel
-     * @param length Num of bytes
+     * @param length        Num of bytes
      * @return The number of bytes that have been written
      * @throws IOException May cause IOException
      */
@@ -172,7 +173,7 @@ public interface ProtocolBuffer extends IterableBuffer {
     /**
      * Get Protocol::FixedLengthInteger from {@code index},see mysql protocol for details.
      *
-     * @param index read position
+     * @param index  read position
      * @param length length
      * @return value
      */
@@ -206,7 +207,7 @@ public interface ProtocolBuffer extends IterableBuffer {
     /**
      * Get Protocol::FixedLengthString from {@code index},see mysql protocol for details.
      *
-     * @param index read position
+     * @param index  read position
      * @param length string length
      * @return value
      */
@@ -258,9 +259,9 @@ public interface ProtocolBuffer extends IterableBuffer {
     /**
      * Put Protocol::FixedLengthInteger to {@code index}, see mysql protocol for details.
      *
-     * @param index write position
+     * @param index  write position
      * @param length fixInt length
-     * @param val value
+     * @param val    value
      * @return self instance
      */
     ProtocolBuffer putFixInt(int index, int length, long val);
@@ -271,7 +272,7 @@ public interface ProtocolBuffer extends IterableBuffer {
      * length.
      *
      * @param length finxInt length
-     * @param val values
+     * @param val    values
      * @return self instance
      */
     ProtocolBuffer writeFixInt(int length, long val);
@@ -280,7 +281,7 @@ public interface ProtocolBuffer extends IterableBuffer {
      * Put Protocol::LengthEncodedInteger to {@code index}, see mysql protocol for details.
      *
      * @param index write position
-     * @param val value
+     * @param val   value
      * @return self instance
      */
     ProtocolBuffer putLenencInt(int index, long val);
@@ -298,7 +299,7 @@ public interface ProtocolBuffer extends IterableBuffer {
      * Put Protocol::FixedLengthString to {@code index},see mysql protocol for details.
      *
      * @param index write position
-     * @param val value
+     * @param val   value
      * @return self instance
      */
     ProtocolBuffer putFixString(int index, String val);
@@ -316,7 +317,7 @@ public interface ProtocolBuffer extends IterableBuffer {
      * Put Protocol::LengthEncodedString to {@code index},see mysql protocol for details.
      *
      * @param index write position
-     * @param val value
+     * @param val   value
      * @return self instance
      */
     ProtocolBuffer putLenencString(int index, String val);
@@ -335,7 +336,7 @@ public interface ProtocolBuffer extends IterableBuffer {
      * Put Protocol::NulTerminatedString to {@code index},see mysql protocol for details.
      *
      * @param index write position
-     * @param val value
+     * @param val   value
      * @return self instance
      */
     ProtocolBuffer putNULString(int index, String val);
@@ -353,7 +354,7 @@ public interface ProtocolBuffer extends IterableBuffer {
     /**
      * Get bytes from {@code index}.
      *
-     * @param index read position
+     * @param index  read position
      * @param length bytes length
      * @return self instance
      */
@@ -411,9 +412,9 @@ public interface ProtocolBuffer extends IterableBuffer {
     /**
      * Put bytes to {@code index},see mysql protocol for details.
      *
-     * @param index write position
+     * @param index  write position
      * @param length write length
-     * @param bytes bytes array
+     * @param bytes  bytes array
      * @return self instance
      */
     ProtocolBuffer putBytes(int index, int length, byte[] bytes);
@@ -431,7 +432,7 @@ public interface ProtocolBuffer extends IterableBuffer {
      * Put byte to {@code index}.
      *
      * @param index write position
-     * @param val value
+     * @param val   value
      * @return self instance
      */
     ProtocolBuffer putByte(int index, byte val);
@@ -468,7 +469,7 @@ public interface ProtocolBuffer extends IterableBuffer {
      * number of bytes length.
      *
      * @param length bytes array length
-     * @param bytes bytes array
+     * @param bytes  bytes array
      * @return self instance
      */
     ProtocolBuffer writeBytes(int length, byte[] bytes);

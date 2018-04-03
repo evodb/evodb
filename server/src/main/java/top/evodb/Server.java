@@ -1,8 +1,8 @@
 package top.evodb;
 
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import top.evodb.exception.ReactorPoolException;
 import top.evodb.network.Reactor;
 
 
@@ -18,7 +18,7 @@ public class Server {
         try {
             reactor = Reactor.getInstance();
             reactor.start();
-        } catch (ReactorPoolException e) {
+        } catch (IOException e) {
             LOGGER.error("Start server error.", e);
         }
     }
