@@ -25,6 +25,7 @@ import top.evodb.buffer.ProtocolBuffer;
  * @author evodb
  */
 public interface Packet {
+
     int LARGE_PACKET_SIZE = (1 << 24) - 1;
 
     /**

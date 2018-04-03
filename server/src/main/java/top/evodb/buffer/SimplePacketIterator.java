@@ -24,6 +24,7 @@ import top.evodb.mysql.protocol.packet.MysqlPacket;
  * @author evodb
  */
 public class SimplePacketIterator implements PacketIterator {
+
     private ProtocolBuffer protocolBuffer;
     private int iterateIndex;
     private int currentPacketLength;
@@ -44,7 +45,8 @@ public class SimplePacketIterator implements PacketIterator {
     public long nextPacket() {
         if (hasPacket()) {
             long packetDesriptor = 0;
-            int packetLength = (int) protocolBuffer.getFixInt(iterateIndex, MysqlPacket.PACKET_OFFSET);
+            int packetLength = (int) protocolBuffer
+                .getFixInt(iterateIndex, MysqlPacket.PACKET_OFFSET);
             byte cmd = protocolBuffer.getByte(iterateIndex + MysqlPacket.PACKET_PAYLOAD_OFFSET);
             PacketType packetType = getPacketType(packetLength);
             currentPacketLength = packetLength;
@@ -60,7 +62,8 @@ public class SimplePacketIterator implements PacketIterator {
     }
 
     private PacketType getPacketType(long packetLength) {
-        if (iterateIndex + packetLength - 1 + MysqlPacket.PACKET_PAYLOAD_OFFSET > protocolBuffer.writeIndex()) {
+        if (iterateIndex + packetLength - 1 + MysqlPacket.PACKET_PAYLOAD_OFFSET > protocolBuffer
+            .writeIndex()) {
             return PacketType.HALF;
         } else {
             return PacketType.FULL;

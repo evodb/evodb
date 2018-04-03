@@ -23,6 +23,7 @@ import top.evodb.buffer.ProtocolBuffer;
  * @author evodb
  */
 public abstract class AbstractMysqlPacket implements MysqlPacket {
+
     protected ProtocolBuffer protocolBuffer;
     protected int startIndex;
     protected int endIndex;
@@ -30,7 +31,8 @@ public abstract class AbstractMysqlPacket implements MysqlPacket {
     protected byte sequenceId;
     protected byte cmd;
 
-    public AbstractMysqlPacket(ProtocolBuffer protocolBuffer, Integer startIndex, Integer endIndex) {
+    public AbstractMysqlPacket(ProtocolBuffer protocolBuffer, Integer startIndex,
+        Integer endIndex) {
         this.protocolBuffer = protocolBuffer;
         this.startIndex = startIndex;
         this.endIndex = endIndex;

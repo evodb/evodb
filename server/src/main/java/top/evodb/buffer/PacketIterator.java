@@ -31,14 +31,13 @@ public interface PacketIterator {
      * If {@link #hasPacket()} return {@code false} this method return 0,{@code true} return a packet descriptor.
      * Packet descriptor is a 64-bit integer,the structure is as follows:
      * <pre>
-     * +-------------------------------------------+----------------------------+-----------------------------------+----------------+
-     * |                30 bits                    |           24 bits          |           8 bits                  |      2 bits    |
-     * | The packet start position in buffer       | The length of packet       |         command type              |   packet type  |
-     * +-------------------------------------------+----------------------------+-----------------------------------+----------------+
+     * +-------------------------------------------+----------------------------+-----------------------------------+
+     * |                30 bits                    |           24 bits          |   8 bits         |      2 bits    |
+     * | The packet start position in buffer       | The length of packet       |  command type    |   packet type  |
+     * +-------------------------------------------+----------------------------+-----------------------------------+
      * </pre>
      * A packet up to 16MB.
      * 2-bit packet type may be {@link PacketDescriptor.PacketType#HALF} or {@link PacketDescriptor.PacketType#FULL}
-     * When packet type is {@link PacketDescriptor.PacketType#SHORT_HALF} the packet length and command type are meaningless.
      */
     long nextPacket();
 

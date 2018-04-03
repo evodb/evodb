@@ -27,16 +27,18 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class ReflectionUtil {
 
-    public static <T> T newInstance(Constructor<?> constructor, Object... args) throws ReflectionException {
+    public static <T> T newInstance(Constructor<?> constructor, Object... args)
+        throws ReflectionException {
         try {
             return (T) constructor.newInstance(args);
         } catch (IllegalAccessException
-                | InstantiationException | InvocationTargetException e) {
+            | InstantiationException | InvocationTargetException e) {
             throw new ReflectionException(e);
         }
     }
 
-    public static Constructor<?> getConstructor(Class<?> clazz, Class<?>... paramTypes) throws ReflectionException {
+    public static Constructor<?> getConstructor(Class<?> clazz, Class<?>... paramTypes)
+        throws ReflectionException {
         try {
             return clazz.getConstructor(paramTypes);
         } catch (NoSuchMethodException e) {

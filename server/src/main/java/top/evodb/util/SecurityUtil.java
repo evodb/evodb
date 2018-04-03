@@ -23,7 +23,8 @@ import java.security.NoSuchAlgorithmException;
 
 public class SecurityUtil {
 
-    public static final byte[] scramble411(byte[] pass, byte[] seed) throws NoSuchAlgorithmException {
+    public static final byte[] scramble411(byte[] pass, byte[] seed)
+        throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA-1");
         byte[] pass1 = md.digest(pass);
         md.reset();
@@ -38,7 +39,7 @@ public class SecurityUtil {
     }
 
     public static final String scramble323(String pass, String seed) {
-        if ((pass == null) || (pass.length() == 0)) {
+        if (pass == null || pass.length() == 0) {
             return pass;
         }
         byte b;
@@ -73,14 +74,14 @@ public class SecurityUtil {
         long tmp;
         for (int i = 0; i < src.length(); ++i) {
             switch (src.charAt(i)) {
-            case ' ':
-            case '\t':
-                continue;
-            default:
-                tmp = (0xff & src.charAt(i));
-                nr ^= ((((nr & 63) + add) * tmp) + (nr << 8));
-                nr2 += ((nr2 << 8) ^ nr);
-                add += tmp;
+                case ' ':
+                case '\t':
+                    continue;
+                default:
+                    tmp = (0xff & src.charAt(i));
+                    nr ^= ((((nr & 63) + add) * tmp) + (nr << 8));
+                    nr2 += ((nr2 << 8) ^ nr);
+                    add += tmp;
             }
         }
         long[] result = new long[2];

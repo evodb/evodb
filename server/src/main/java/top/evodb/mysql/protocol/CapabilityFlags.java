@@ -21,6 +21,7 @@ package top.evodb.mysql.protocol;
  * @author evodb
  */
 public class CapabilityFlags {
+
     public static final int CLIENT_LONG_PASSWORD = 0x00000001;
     public static final int CLIENT_FOUND_ROWS = 0x00000002;
     public static final int CLIENT_LONG_FLAG = 0x00000004;
@@ -46,7 +47,6 @@ public class CapabilityFlags {
     public static final int CLIENT_CAN_HANDLE_EXPIRED_PASSWORDS = 0x00400000;
     public static final int CLIENT_SESSION_TRACK = 0x00800000;
     public static final int CLIENT_DEPRECATE_EOF = 0x01000000;
-
 
 
 }

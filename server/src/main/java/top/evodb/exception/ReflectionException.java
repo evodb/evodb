@@ -21,6 +21,7 @@ package top.evodb.exception;
  * @author evodb
  */
 public class ReflectionException extends Exception {
+
     public ReflectionException(Throwable cause) {
         super(cause);
     }

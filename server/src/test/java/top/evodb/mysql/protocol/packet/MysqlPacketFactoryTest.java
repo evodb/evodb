@@ -17,12 +17,11 @@
 
 package top.evodb.mysql.protocol.packet;
 
+import org.junit.Test;
 import top.evodb.buffer.AdjustableProtocolBufferAllocator;
 import top.evodb.buffer.ProtocolBuffer;
 import top.evodb.buffer.ProtocolBufferAllocator;
 import top.evodb.exception.MysqlPacketFactoryException;
-import org.junit.Assert;
-import org.junit.Test;
 import top.evodb.mysql.protocol.CapabilityFlags;
 import top.evodb.mysql.protocol.ServerStatus;
 
@@ -32,6 +31,7 @@ import static org.junit.Assert.*;
  * @author evodb
  */
 public class MysqlPacketFactoryTest {
+
     private static final int CHUNK_SIZE = 15;
     private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
     private MysqlPacketFactory factory = new MysqlPacketFactory(allocator);
@@ -64,8 +64,8 @@ public class MysqlPacketFactoryTest {
         assertEquals("test", okPacket.info);
 
         assertEquals(MysqlPacket.OK_PACKET, okPacket.getCmd());
-        assertEquals(0,okPacket.getSequenceId());
-        assertEquals(33,okPacket.getPayloadLength());
+        assertEquals(0, okPacket.getSequenceId());
+        assertEquals(33, okPacket.getPayloadLength());
         assertNotNull(okPacket.getPayload());
     }
 

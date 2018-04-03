@@ -21,6 +21,7 @@ package top.evodb.exception;
  * @author evodb
  */
 public class MysqlPacketFactoryException extends Exception {
+
     public MysqlPacketFactoryException(String message) {
         super(message);
     }

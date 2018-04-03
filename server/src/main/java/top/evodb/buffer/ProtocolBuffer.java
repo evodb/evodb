@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
 /**
- * Network communications dedicated buffer, encapsulated the data type of mysql protocol for reading and writing. </br>
- * the structure is as follows:
+ * Network communications dedicated buffer, encapsulated the data type of mysql protocol for reading
+ * and writing. </br> the structure is as follows:
  * <pre>
  *      +-------------------+------------------+------------------+
  *      | discardable bytes |  readable bytes  |  writable bytes  |
@@ -62,8 +62,8 @@ import java.nio.channels.SocketChannel;
  *      |                  |                                      |
  * readIndex (0) <= writeIndex (compacted)        <=         capacity
  * </pre>
- * Read-prefix methods will cause {@code readIndex} increase. Write-prefix methods will cause {@code writeIndex}
- * increase.
+ * Read-prefix methods will cause {@code readIndex} increase. Write-prefix methods will cause {@code
+ * writeIndex} increase.
  *
  * @author evodb
  */
@@ -71,38 +71,32 @@ import java.nio.channels.SocketChannel;
 public interface ProtocolBuffer extends IterableBuffer {
 
     /**
-     * Write the data between {@code readIndex} and {@code writeIndex} to the {@code socketChannel}. </br> After
-     * operation {@code readIndex} will increase the number of bytes written.
+     * Write the data between {@code readIndex} and {@code writeIndex} to the {@code socketChannel}.
+     * </br> After operation {@code readIndex} will increase the number of bytes written.
      *
      * @param socketChannel Target channel
-     *
      * @return The number of bytes that have been written
-     *
      * @throws IOException May cause IOException
      */
     int transferToChannel(SocketChannel socketChannel) throws IOException;
 
     /**
-     * Write {@code length} bytes to {@code socketChannel}. </br> After operation {@code readIndex} will increase the
-     * number of bytes written.
+     * Write {@code length} bytes to {@code socketChannel}. </br> After operation {@code readIndex}
+     * will increase the number of bytes written.
      *
      * @param socketChannel Target channel
      * @param length Num of bytes
-     *
      * @return The number of bytes that have been written
-     *
      * @throws IOException May cause IOException
      */
     int transferToChannel(SocketChannel socketChannel, int length) throws IOException;
 
     /**
-     * Read data from the {@code socketChannel}. </br> After operation {@code writeIndex} will increase the number of
-     * bytes readed.
+     * Read data from the {@code socketChannel}. </br> After operation {@code writeIndex} will
+     * increase the number of bytes readed.
      *
      * @param socketChannel Source channel
-     *
      * @return The number of bytes that have been readed
-     *
      * @throws IOException May cause IOException
      */
     int transferFromChannel(SocketChannel socketChannel) throws IOException;
@@ -180,17 +174,15 @@ public interface ProtocolBuffer extends IterableBuffer {
      *
      * @param index read position
      * @param length length
-     *
      * @return value
      */
     long getFixInt(int index, int length);
 
     /**
-     * Read Protocol::FixedLengthInteger from {@code readIndex},see mysql protocol for details. </br> After operation
-     * {@code readIndex} will increase the number of {@code length}.
+     * Read Protocol::FixedLengthInteger from {@code readIndex},see mysql protocol for details.
+     * </br> After operation {@code readIndex} will increase the number of {@code length}.
      *
      * @param length lenght of integer
-     *
      * @return value
      */
     long readFixInt(int length);
@@ -199,14 +191,13 @@ public interface ProtocolBuffer extends IterableBuffer {
      * Get Protocol::LengthEncodedInteger from {@code readIndex},see mysql protocol for details.
      *
      * @param index read position
-     *
      * @return value
      */
     long getLenencInt(int index);
 
     /**
-     * Read Protocol::LengthEncodedInteger from {@code readIndex},see mysql protocol for details. </br> After operation
-     * {@code readIndex} will increase the number of EncodedInteger length.
+     * Read Protocol::LengthEncodedInteger from {@code readIndex},see mysql protocol for details.
+     * </br> After operation {@code readIndex} will increase the number of EncodedInteger length.
      *
      * @return value
      */
@@ -217,17 +208,15 @@ public interface ProtocolBuffer extends IterableBuffer {
      *
      * @param index read position
      * @param length string length
-     *
      * @return value
      */
     String getFixString(int index, int length);
 
     /**
-     * Read Protocol::LengthEncodedInteger form {@code readIndex},see mysql protocol for details. </br> After operation
-     * {@code readIndex} will increase the number of {@code length}.
+     * Read Protocol::LengthEncodedInteger form {@code readIndex},see mysql protocol for details.
+     * </br> After operation {@code readIndex} will increase the number of {@code length}.
      *
      * @param length string length
-     *
      * @return value
      */
     String readFixString(int length);
@@ -236,14 +225,14 @@ public interface ProtocolBuffer extends IterableBuffer {
      * Get Protocol::LengthEncodedString from {@code index}, see mysql protocol for details.
      *
      * @param index read position
-     *
      * @return values
      */
     String getLenencString(int index);
 
     /**
-     * Read Protocol::LengthEncodedString from {@code readIndex}, see mysql protocol for details. </br> After operation
-     * {@code readIndex} will increase the number of LengthEncodeString length.
+     * Read Protocol::LengthEncodedString from {@code readIndex}, see mysql protocol for details.
+     * </br> After operation {@code readIndex} will increase the number of LengthEncodeString
+     * length.
      *
      * @return value
      */
@@ -253,14 +242,14 @@ public interface ProtocolBuffer extends IterableBuffer {
      * Get Protocol::NulTerminatedString from {@code index}, see mysql protocol for details.
      *
      * @param index read  position
-     *
      * @return value
      */
     String getNULString(int index);
 
     /**
-     * Read Protocol::NulTerminatedString from {@code readIndex}, see mysql protocol for details. </br> After operation
-     * {@code readIndex} will increase the number of NulTerminatedString length.
+     * Read Protocol::NulTerminatedString from {@code readIndex}, see mysql protocol for details.
+     * </br> After operation {@code readIndex} will increase the number of NulTerminatedString
+     * length.
      *
      * @return value
      */
@@ -272,18 +261,17 @@ public interface ProtocolBuffer extends IterableBuffer {
      * @param index write position
      * @param length fixInt length
      * @param val value
-     *
      * @return self instance
      */
     ProtocolBuffer putFixInt(int index, int length, long val);
 
     /**
-     * Write Protocol::FixedLengthInteger to {@code readIndex}, see mysql protocol for details. </br> After operation
-     * {@code writeIndex} will increase the number of FixedLengthInteger length.
+     * Write Protocol::FixedLengthInteger to {@code readIndex}, see mysql protocol for details.
+     * </br> After operation {@code writeIndex} will increase the number of FixedLengthInteger
+     * length.
      *
      * @param length finxInt length
      * @param val values
-     *
      * @return self instance
      */
     ProtocolBuffer writeFixInt(int length, long val);
@@ -293,17 +281,15 @@ public interface ProtocolBuffer extends IterableBuffer {
      *
      * @param index write position
      * @param val value
-     *
      * @return self instance
      */
     ProtocolBuffer putLenencInt(int index, long val);
 
     /**
-     * Write Protocol::LengthEncodedInteger to {@code index}, see mysql protocol for details. </br> After operation
-     * {@code writeIndex} will increase the number of LengthEncodeInteger length.
+     * Write Protocol::LengthEncodedInteger to {@code index}, see mysql protocol for details. </br>
+     * After operation {@code writeIndex} will increase the number of LengthEncodeInteger length.
      *
      * @param val value
-     *
      * @return self instance
      */
     ProtocolBuffer writeLenencInt(long val);
@@ -313,17 +299,15 @@ public interface ProtocolBuffer extends IterableBuffer {
      *
      * @param index write position
      * @param val value
-     *
      * @return self instance
      */
     ProtocolBuffer putFixString(int index, String val);
 
     /**
-     * Write Protocol::FixedLengthString to {@code readIndex},see mysql protocol for details. </br> After operation
-     * {@code writeIndex} will increase the number of FixedLengthString length.
+     * Write Protocol::FixedLengthString to {@code readIndex},see mysql protocol for details. </br>
+     * After operation {@code writeIndex} will increase the number of FixedLengthString length.
      *
      * @param val value
-     *
      * @return self instance
      */
     ProtocolBuffer writeFixString(String val);
@@ -333,17 +317,16 @@ public interface ProtocolBuffer extends IterableBuffer {
      *
      * @param index write position
      * @param val value
-     *
      * @return self instance
      */
     ProtocolBuffer putLenencString(int index, String val);
 
     /**
-     * Write Protocol::LengthEncodedString to {@code readIndex},see mysql protocol for details. </br> After operation
-     * {@code writeIndex} will increase the number of LengthENcodeString length.
+     * Write Protocol::LengthEncodedString to {@code readIndex},see mysql protocol for details.
+     * </br> After operation {@code writeIndex} will increase the number of LengthENcodeString
+     * length.
      *
      * @param val value
-     *
      * @return self instance
      */
     ProtocolBuffer writeLenencString(String val);
@@ -353,17 +336,16 @@ public interface ProtocolBuffer extends IterableBuffer {
      *
      * @param index write position
      * @param val value
-     *
      * @return self instance
      */
     ProtocolBuffer putNULString(int index, String val);
 
     /**
-     * Write Protocol::NulTerminatedString to {@code readIndex},see mysql protocol for details. </br> After operation
-     * {@code writeIndex} will increase the number of NulTerminatedString length.
+     * Write Protocol::NulTerminatedString to {@code readIndex},see mysql protocol for details.
+     * </br> After operation {@code writeIndex} will increase the number of NulTerminatedString
+     * length.
      *
      * @param val value
-     *
      * @return self instance
      */
     ProtocolBuffer writeNULString(String val);
@@ -373,17 +355,15 @@ public interface ProtocolBuffer extends IterableBuffer {
      *
      * @param index read position
      * @param length bytes length
-     *
      * @return self instance
      */
     byte[] getBytes(int index, int length);
 
     /**
-     * Read bytes from {@code readIndex}. </br> After operation {@code readIndex} will increase the number of bytes
-     * length.
+     * Read bytes from {@code readIndex}. </br> After operation {@code readIndex} will increase the
+     * number of bytes length.
      *
      * @param length bytes length
-     *
      * @return self instance
      */
     byte[] readBytes(int length);
@@ -392,7 +372,6 @@ public interface ProtocolBuffer extends IterableBuffer {
      * Get byte from {@code index}.
      *
      * @param index read position
-     *
      * @return value
      */
     byte getByte(int index);
@@ -408,14 +387,13 @@ public interface ProtocolBuffer extends IterableBuffer {
      * Get LengencBytes from {@code index}, see msyql protocol for details.
      *
      * @param index read position
-     *
      * @return value
      */
     byte[] getLenencBytes(int index);
 
     /**
-     * Read LenencBytes from {@code readIndex}, see mysql protocol for details. </br> After operation {@code readIndex}
-     * will increase the number of LenencBytes length.
+     * Read LenencBytes from {@code readIndex}, see mysql protocol for details. </br> After
+     * operation {@code readIndex} will increase the number of LenencBytes length.
      *
      * @return value
      */
@@ -426,7 +404,6 @@ public interface ProtocolBuffer extends IterableBuffer {
      *
      * @param index write position
      * @param bytes bytes array
-     *
      * @return self instance
      */
     ProtocolBuffer putBytes(int index, byte[] bytes);
@@ -437,7 +414,6 @@ public interface ProtocolBuffer extends IterableBuffer {
      * @param index write position
      * @param length write length
      * @param bytes bytes array
-     *
      * @return self instance
      */
     ProtocolBuffer putBytes(int index, int length, byte[] bytes);
@@ -447,7 +423,6 @@ public interface ProtocolBuffer extends IterableBuffer {
      *
      * @param index write position
      * @param bytes bytes array
-     *
      * @return self instance
      */
     ProtocolBuffer putLenencBytes(int index, byte[] bytes);
@@ -457,47 +432,43 @@ public interface ProtocolBuffer extends IterableBuffer {
      *
      * @param index write position
      * @param val value
-     *
      * @return self instance
      */
     ProtocolBuffer putByte(int index, byte val);
 
     /**
-     * Write LenencBytes to {@code writeIndex},see msyql protocol for details. </br> After operation {@code writeIndex}
-     * will increase the number of LenencBytes length.
+     * Write LenencBytes to {@code writeIndex},see msyql protocol for details. </br> After operation
+     * {@code writeIndex} will increase the number of LenencBytes length.
      *
      * @param bytes bytes array
-     *
      * @return self instance
      */
     ProtocolBuffer writeLenencBytes(byte[] bytes);
 
     /**
-     * Write bytes to  {@code writeIndex}. </br> After operation {@code writeIndex} will increase 1.
+     * Write bytes to  {@code writeIndex}. </br> After operation {@code writeIndex} will increase
+     * 1.
      *
      * @param val byte
-     *
      * @return self instance
      */
     ProtocolBuffer writeByte(byte val);
 
     /**
-     * Write bytes to {@code writeIndex}. </br> After operation {@code writeIndex} will increase the number of bytes
-     * length.
+     * Write bytes to {@code writeIndex}. </br> After operation {@code writeIndex} will increase the
+     * number of bytes length.
      *
      * @param bytes bytes array
-     *
      * @return self instance
      */
     ProtocolBuffer writeBytes(byte[] bytes);
 
     /**
-     * Write bytes to {@code writeIndex}. </br> After operation {@code writeIndex} will increase the number of bytes
-     * length.
+     * Write bytes to {@code writeIndex}. </br> After operation {@code writeIndex} will increase the
+     * number of bytes length.
      *
      * @param length bytes array length
      * @param bytes bytes array
-     *
      * @return self instance
      */
     ProtocolBuffer writeBytes(int length, byte[] bytes);
@@ -506,7 +477,6 @@ public interface ProtocolBuffer extends IterableBuffer {
      * Get "Length Encode Data Type" length,see mysql protocol for details.
      *
      * @param lenenc Length Encode
-     *
      * @return The Length of Length Encode
      */
     default int getLenencLength(long lenenc) {

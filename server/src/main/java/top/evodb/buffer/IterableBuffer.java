@@ -17,9 +17,9 @@
 package top.evodb.buffer;
 
 /**
- * The class that implements this interface can create multiple iterators,
- * Each of which keeps its internal state until the {@link PacketIterator#reset()} method calls.
- * Note:For performance reasons, try to create only one iterator.
+ * The class that implements this interface can create multiple iterators, Each of which keeps its
+ * internal state until the {@link PacketIterator#reset()} method calls. Note:For performance
+ * reasons, try to create only one iterator.
  *
  * @author evodb
  */

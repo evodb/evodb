@@ -27,6 +27,7 @@ import static org.junit.Assert.*;
  * @author evodb
  */
 public class AdjustableProtocolBufferAllocatorTest {
+
     private static final int CHUNK_SIZE = 15;
     private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
 
@@ -44,7 +45,8 @@ public class AdjustableProtocolBufferAllocatorTest {
 
     @Test
     public void testRecyleWithFalse() {
-        ProtocolBuffer protocolBuffer = new AdjustableProtocolBuffer(new AdjustableProtocolBufferAllocator(CHUNK_SIZE));
+        ProtocolBuffer protocolBuffer = new AdjustableProtocolBuffer(
+            new AdjustableProtocolBufferAllocator(CHUNK_SIZE));
         boolean rv = allocator.recyle(protocolBuffer);
         assertFalse(rv);
     }
@@ -52,7 +54,8 @@ public class AdjustableProtocolBufferAllocatorTest {
     @Test
     public void testRecyleByteBufferWith16Bytes() {
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(16);
-        boolean rv = ((AdjustableProtocolBufferAllocator) allocator).recyleAllocateByteBuffer(byteBuffer);
+        boolean rv = ((AdjustableProtocolBufferAllocator) allocator)
+            .recyleAllocateByteBuffer(byteBuffer);
         assertFalse(rv);
     }
 }

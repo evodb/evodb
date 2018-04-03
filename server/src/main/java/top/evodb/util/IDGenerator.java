@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author evodb
  */
 public class IDGenerator {
+
     private static final AtomicLong atomicLong = new AtomicLong();
 
     public static long getId() {

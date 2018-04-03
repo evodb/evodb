@@ -26,6 +26,7 @@ import java.util.Map;
  * @author evodb
  */
 public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
+
     private int writeIndex;
     private int readIndex;
     private Map<String, PacketIterator> namedPacketIteratorMap;
@@ -306,7 +307,7 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
 
     @Override
     public ProtocolBuffer putByte(int index, byte val) {
-        return putBytes(index, new byte[] { val });
+        return putBytes(index, new byte[]{val});
     }
 
     @Override

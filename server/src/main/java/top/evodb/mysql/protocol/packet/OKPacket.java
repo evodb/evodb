@@ -27,6 +27,7 @@ import top.evodb.util.BitUtil;
  * @author evodb
  */
 public class OKPacket extends AbstractMysqlPacket {
+
     public long affectedRows;
     public long lastInsertId;
     public short statusFlag;

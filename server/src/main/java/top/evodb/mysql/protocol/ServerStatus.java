@@ -18,6 +18,7 @@
 package top.evodb.mysql.protocol;
 
 public class ServerStatus {
+
     public static final short SERVER_STATUS_IN_TRANS = 0x0001;
     public static final short SERVER_STATUS_AUTOCOMMIT = 0x0002;
     public static final short SERVER_MORE_RESULTS_EXISTS = 0x0008;

@@ -22,12 +22,13 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 /**
- * When the buffer space is insufficient automatically grow. When {@link ProtocolBuffer#compact()} or {@link
- * ProtocolBuffer#clear()} called ,discardable space will be released.
+ * When the buffer space is insufficient automatically grow. When {@link ProtocolBuffer#compact()}
+ * or {@link ProtocolBuffer#clear()} called ,discardable space will be released.
  *
  * @author evodb
  */
 public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
+
     private static final int INITIAL_SLOT_SIZE = 5;
     private static final int SLOT_INC_STEP = 5;
 

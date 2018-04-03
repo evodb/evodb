@@ -22,6 +22,7 @@ package top.evodb.buffer;
  * @author evodb
  */
 public final class PacketDescriptor {
+
     public static final int NONE = 0;
 
     private PacketDescriptor() {
@@ -48,14 +49,14 @@ public final class PacketDescriptor {
         int type = (int) (packetDescriptor & 0x03);
         PacketType packetType;
         switch (type) {
-        case 0:
-            packetType = PacketType.HALF;
-            break;
-        case 1:
-            packetType = PacketType.FULL;
-            break;
-        default:
-            throw new IllegalArgumentException("Wrong packet descriptor " + packetDescriptor);
+            case 0:
+                packetType = PacketType.HALF;
+                break;
+            case 1:
+                packetType = PacketType.FULL;
+                break;
+            default:
+                throw new IllegalArgumentException("Wrong packet descriptor " + packetDescriptor);
         }
         return packetType;
     }

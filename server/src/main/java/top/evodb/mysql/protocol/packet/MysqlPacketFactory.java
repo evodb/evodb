@@ -33,6 +33,7 @@ import java.util.Map;
  * @author evodb
  */
 public final class MysqlPacketFactory {
+
     private ProtocolBufferAllocator protocolBufferAllocator;
     private static final Map<Byte, Class> packetRegistryMap = new HashMap<>();
 
@@ -51,8 +52,9 @@ public final class MysqlPacketFactory {
         }
         MysqlPacket mysqlPacket;
         try {
-            Object[] params = { protocolBufferAllocator.allocate(), Integer.valueOf(0), Integer.valueOf(0) };
-            Class<?>[] paramTypes = { ProtocolBuffer.class, Integer.class, Integer.class };
+            Object[] params = {protocolBufferAllocator.allocate(), Integer.valueOf(0),
+                Integer.valueOf(0)};
+            Class<?>[] paramTypes = {ProtocolBuffer.class, Integer.class, Integer.class};
             Constructor<?> constructor = ReflectionUtil.getConstructor(aClass, paramTypes);
             mysqlPacket = ReflectionUtil.newInstance(constructor, params);
         } catch (ReflectionException e) {
@@ -62,7 +64,7 @@ public final class MysqlPacketFactory {
     }
 
     public <T extends MysqlPacket> T getMysqlPacket(ProtocolBuffer protocolBuffer, int startIndex)
-            throws MysqlPacketFactoryException {
+        throws MysqlPacketFactoryException {
         byte cmd = protocolBuffer.getByte(startIndex + MysqlPacket.PACKET_PAYLOAD_OFFSET);
         Class aClass = packetRegistryMap.get(cmd);
         if (aClass == null) {
@@ -70,8 +72,8 @@ public final class MysqlPacketFactory {
         }
         MysqlPacket mysqlPacket;
         try {
-            Object[] params = { protocolBuffer, startIndex, Integer.valueOf(0) };
-            Class<?>[] paramTypes = { ProtocolBuffer.class, Integer.class, Integer.class };
+            Object[] params = {protocolBuffer, startIndex, Integer.valueOf(0)};
+            Class<?>[] paramTypes = {ProtocolBuffer.class, Integer.class, Integer.class};
             Constructor<?> constructor = ReflectionUtil.getConstructor(aClass, paramTypes);
             mysqlPacket = ReflectionUtil.newInstance(constructor, params);
         } catch (ReflectionException e) {

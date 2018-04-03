@@ -18,10 +18,10 @@ package top.evodb.buffer;
 
 /**
  * @param <T> The type of ProtocolBuffer
- *
  * @author evodb
  */
 public interface ProtocolBufferAllocator<T extends ProtocolBuffer> {
+
     /**
      * Allocate ProtocolBuffer.
      *
@@ -33,7 +33,6 @@ public interface ProtocolBufferAllocator<T extends ProtocolBuffer> {
      * Recyle ProtocolBuffer.
      *
      * @param buffer The buffer
-     *
      * @return {@code true} indicates success.{@code false} indicates failure.
      */
     boolean recyle(T buffer);

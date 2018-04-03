@@ -23,7 +23,9 @@ import java.util.LinkedList;
 /**
  * @author evodb
  */
-public class AdjustableProtocolBufferAllocator implements ProtocolBufferAllocator<AdjustableProtocolBuffer> {
+public class AdjustableProtocolBufferAllocator implements
+    ProtocolBufferAllocator<AdjustableProtocolBuffer> {
+
     private final int chunkSize;
     private final LinkedList<AdjustableProtocolBuffer> freeProtocolBufferList;
     private final LinkedList<ByteBuffer> freeByteBufferList;

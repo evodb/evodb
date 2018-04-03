@@ -26,6 +26,7 @@ import top.evodb.buffer.ProtocolBuffer;
  * @author evodb
  */
 public interface MysqlPacket extends Packet {
+
     int PACKET_START = 0;
     int PACKET_OFFSET = 3;
     int PACKET_PAYLOAD_OFFSET = 4;
