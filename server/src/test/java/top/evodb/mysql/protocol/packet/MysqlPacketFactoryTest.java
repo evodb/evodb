@@ -31,7 +31,7 @@ import static org.junit.Assert.*;
 /**
  * @author evodb
  */
-public class MysqlPacketFactoryTests {
+public class MysqlPacketFactoryTest {
     private static final int CHUNK_SIZE = 15;
     private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
     private MysqlPacketFactory factory = new MysqlPacketFactory(allocator);

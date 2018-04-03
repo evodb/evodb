@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
 /**
  * @author evodb
  */
-public class AdjustableProtocolBufferTests {
+public class AdjustableProtocolBufferTest {
     private static final int CHUNK_SIZE = 15;
     private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
 

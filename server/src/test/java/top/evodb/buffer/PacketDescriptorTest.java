@@ -25,9 +25,9 @@ import top.evodb.mysql.protocol.packet.MysqlPacketFactory;
 import static org.junit.Assert.assertEquals;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
-public class PacketDescriptorTests {
+public class PacketDescriptorTest {
     private static final int CHUNK_SIZE = 15;
     private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
     private MysqlPacketFactory factory = new MysqlPacketFactory(allocator);
