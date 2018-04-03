@@ -8,7 +8,7 @@ import top.evodb.network.Reactor;
 
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class Server {
 
