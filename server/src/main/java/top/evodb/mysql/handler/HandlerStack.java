@@ -19,7 +19,7 @@ package top.evodb.mysql.handler;
 import java.util.LinkedList;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public final class HandlerStack {
     private LinkedList<Handler> stack = new LinkedList<>();

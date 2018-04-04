@@ -40,18 +40,20 @@ public interface Connection {
      * write data.
      *
      * @param protocolBuffer buffer
+     * @return writed bytes.
      * @throws IOException write error.
      */
-    void write(ProtocolBuffer protocolBuffer) throws IOException;
+    int write(ProtocolBuffer protocolBuffer) throws IOException;
 
     /**
      * write data.
      *
      * @param protocolBuffer buffer
      * @param length         length of data
+     * @return writed bytes.
      * @throws IOException write error.
      */
-    void write(ProtocolBuffer protocolBuffer, int length) throws IOException;
+    int write(ProtocolBuffer protocolBuffer, int length) throws IOException;
 
     /**
      * Get the name of connection.

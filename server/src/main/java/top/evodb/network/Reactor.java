@@ -110,7 +110,7 @@ public final class Reactor {
         private void doRegister() {
             for (; ; ) {
                 AbstractMysqlConnection mysqlConnection = registerQueue.poll();
-                mysqlConnection.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+                mysqlConnection.register(selector);
                 mysqlConnection.setProtocolBufferAllocator(allocator);
                 LOGGER.debug("Register connection[" + mysqlConnection.getName() + ']');
                 mysqlConnection = registerQueue.poll();

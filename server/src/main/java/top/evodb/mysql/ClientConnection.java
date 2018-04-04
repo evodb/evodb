@@ -17,6 +17,9 @@
 package top.evodb.mysql;
 
 import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +34,16 @@ public class ClientConnection extends AbstractMysqlConnection {
     public ClientConnection(String name, SocketChannel socketChannel) {
         super(name, socketChannel);
         pushHandler(ClientConnectHandler.INSTANCE);
+    }
+
+    @Override
+    public void register(Selector selector) {
+        try {
+            selectionKey = socketChannel.register(selector, SelectionKey.OP_WRITE);
+            selectionKey.attach(this);
+        } catch (ClosedChannelException e) {
+            LOGGER.warn(getName() + " register error.");
+        }
     }
 
     @Override

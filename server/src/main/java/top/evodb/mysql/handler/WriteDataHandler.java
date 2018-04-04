@@ -14,24 +14,29 @@
  *  under the License.
  */
 
-package top.evodb.mysql.handler.client;
+package top.evodb.mysql.handler;
 
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.evodb.mysql.AbstractMysqlConnection;
-import top.evodb.mysql.handler.Handler;
 
 /**
  * @author evodb
  */
-public class ClientConnectHandler implements Handler {
-    public static final ClientConnectHandler INSTANCE = new ClientConnectHandler();
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClientConnectHandler.class);
+public class WriteDataHandler implements Handler {
+    public static final WriteDataHandler INSTANCE = new WriteDataHandler();
+    private static final Logger LOGGER = LoggerFactory.getLogger(WriteDataHandler.class);
 
-    private ClientConnectHandler() {
+    private WriteDataHandler() {
     }
 
     @Override
     public void handle(AbstractMysqlConnection mysqlConnection) {
+        try {
+            mysqlConnection.write(mysqlConnection.getWriteOperationContext().getWriteBuffer());
+        } catch (IOException e) {
+            LOGGER.error(mysqlConnection.getName() + " write data error.");
+        }
     }
 }

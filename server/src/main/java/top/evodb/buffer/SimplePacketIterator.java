@@ -27,7 +27,6 @@ public class SimplePacketIterator implements PacketIterator {
 
     private ProtocolBuffer protocolBuffer;
     private int iterateIndex;
-    private int currentPacketLength;
 
     public SimplePacketIterator(ProtocolBuffer protocolBuffer) {
         this.protocolBuffer = protocolBuffer;
@@ -49,7 +48,6 @@ public class SimplePacketIterator implements PacketIterator {
                 .getFixInt(iterateIndex, MysqlPacket.PACKET_OFFSET);
             byte cmd = protocolBuffer.getByte(iterateIndex + MysqlPacket.PACKET_PAYLOAD_OFFSET);
             PacketType packetType = getPacketType(packetLength);
-            currentPacketLength = packetLength;
             packetDesriptor = PacketDescriptor.setPacketLen(packetDesriptor, packetLength);
             packetDesriptor = PacketDescriptor.setPacketStartPos(packetDesriptor, iterateIndex);
             packetDesriptor = PacketDescriptor.setPacketType(packetDesriptor, packetType);
@@ -73,6 +71,5 @@ public class SimplePacketIterator implements PacketIterator {
     @Override
     public void reset() {
         iterateIndex = 0;
-        currentPacketLength = 0;
     }
 }

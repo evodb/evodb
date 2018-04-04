@@ -18,7 +18,6 @@ package top.evodb.mysql;
 
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -28,6 +27,7 @@ import top.evodb.buffer.ProtocolBuffer;
 import top.evodb.buffer.ProtocolBufferAllocator;
 import top.evodb.mysql.handler.Handler;
 import top.evodb.mysql.handler.HandlerStack;
+import top.evodb.mysql.handler.WriteDataHandler;
 
 /**
  * @author evodb
@@ -37,16 +37,19 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
     private AutoCommit autoCommit = AutoCommit.OFF;
     private Isolation isolation = Isolation.REPEATED_READ;
     protected SocketChannel socketChannel;
-    private SelectionKey selectionKey;
+    protected SelectionKey selectionKey;
     private String name;
     protected ProtocolBufferAllocator<ProtocolBuffer> protocolBufferAllocator;
     protected ProtocolBuffer protocolBuffer;
     protected HandlerStack handlerStack;
+    private WriteOperationContext writeOperationContext;
+
 
     public AbstractMysqlConnection(String name, SocketChannel socketChannel) {
         this.socketChannel = socketChannel;
         this.name = name;
         handlerStack = HandlerStack.newHandlerStack();
+        writeOperationContext = new WriteOperationContext();
     }
 
     @Override
@@ -76,13 +79,35 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
     }
 
     @Override
-    public void write(ProtocolBuffer protocolBuffer) throws IOException {
-        protocolBuffer.transferToChannel(socketChannel);
+    public int write(ProtocolBuffer protocolBuffer) throws IOException {
+        return write(protocolBuffer, protocolBuffer.readableBytes());
     }
 
     @Override
-    public void write(ProtocolBuffer protocolBuffer, int length) throws IOException {
-        protocolBuffer.transferToChannel(socketChannel, length);
+    public int write(ProtocolBuffer protocolBuffer, int length) throws IOException {
+        int writed = protocolBuffer.transferToChannel(socketChannel, length);
+        writeOperationContext.remaining -= writed;
+        if (writeOperationContext.remaining <= 0) {
+            writeOperationContext.writeBuffer = null;
+            disableWrite();
+            enableRead();
+        }
+        return writed;
+    }
+
+    public void asyncWrite(ProtocolBuffer protocolBuffer) throws IOException {
+        asyncWrite(protocolBuffer, protocolBuffer.readableBytes());
+    }
+
+    public void asyncWrite(ProtocolBuffer protocolBuffer, int length) throws IOException {
+        if (writeOperationContext.writeBuffer != null) {
+            throw new IOException("Can't write,there is write option was not completed.");
+        }
+        writeOperationContext.writeBuffer = protocolBuffer;
+        writeOperationContext.remaining = length;
+        pushHandler(WriteDataHandler.INSTANCE);
+        enableWrite();
+        disableRead();
     }
 
     @Override
@@ -99,14 +124,12 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
         return null;
     }
 
-    public void register(Selector selector, int ops) {
-        try {
-            selectionKey = socketChannel.register(selector, ops);
-            selectionKey.attach(this);
-        } catch (ClosedChannelException e) {
-            LOGGER.warn(getName() + " register error.");
-        }
-    }
+    /**
+     * Register to selector.
+     *
+     * @param selector selector
+     */
+    public abstract void register(Selector selector);
 
     public void setProtocolBufferAllocator(ProtocolBufferAllocator protocolBufferAllocator) {
         this.protocolBufferAllocator = protocolBufferAllocator;
@@ -148,4 +171,22 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
         disableWrite();
         disableRead();
     }
+
+    public class WriteOperationContext {
+        private ProtocolBuffer writeBuffer;
+        private int remaining;
+
+        public ProtocolBuffer getWriteBuffer() {
+            return writeBuffer;
+        }
+
+        public int getRemaining() {
+            return remaining;
+        }
+    }
+
+    public WriteOperationContext getWriteOperationContext() {
+        return writeOperationContext;
+    }
+
 }

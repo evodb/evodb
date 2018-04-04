@@ -19,7 +19,7 @@ package top.evodb.mysql;
 /**
  * Mysql Connection
  *
- * @author ynfeng
+ * @author evodb
  */
 public interface MysqlConnection extends Connection {
     /**
