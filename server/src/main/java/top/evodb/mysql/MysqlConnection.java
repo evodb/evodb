@@ -12,25 +12,41 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations
  * under the License.
- *
  */
 
-package top.evodb.util;
-
-import java.util.concurrent.atomic.AtomicLong;
+package top.evodb.mysql;
 
 /**
- * @author evodb
+ * Mysql Connection
+ *
+ * @author ynfeng
  */
-public class IDGenerator {
+public interface MysqlConnection extends Connection {
+    /**
+     * Get autocommit
+     *
+     * @return autocommit
+     */
+    AutoCommit getAutoCommit();
 
-    private static final AtomicLong atomicLong = new AtomicLong();
+    /**
+     * Get Isolation
+     *
+     * @return Isolation
+     */
+    Isolation getIsolation();
 
-    public long getId() {
-        return atomicLong.incrementAndGet();
-    }
+    /**
+     * Set autocommit
+     *
+     * @param autoCommit autocommit
+     */
+    void setAutoCommit(AutoCommit autoCommit);
 
-    public static IDGenerator newInstance() {
-        return new IDGenerator();
-    }
+    /**
+     * set Isolation
+     *
+     * @param isolation isolation
+     */
+    void setIsolation(Isolation isolation);
 }

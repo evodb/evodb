@@ -12,11 +12,13 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations
  * under the License.
- *
  */
 
 package top.evodb.mysql.protocol;
 
+/**
+ * @author evodb
+ */
 public class ServerStatus {
 
     public static final short SERVER_STATUS_IN_TRANS = 0x0001;
