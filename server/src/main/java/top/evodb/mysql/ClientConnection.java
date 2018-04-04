@@ -33,7 +33,7 @@ public class ClientConnection extends AbstractMysqlConnection {
 
     public ClientConnection(String name, SocketChannel socketChannel) {
         super(name, socketChannel);
-        pushHandler(ClientConnectHandler.INSTANCE);
+        offerHandler(ClientConnectHandler.INSTANCE);
     }
 
     @Override

@@ -22,5 +22,5 @@ import top.evodb.mysql.AbstractMysqlConnection;
  * @author evodb
  */
 public interface Handler {
-    void handle(AbstractMysqlConnection mysqlConnection);
+    boolean handle(AbstractMysqlConnection mysqlConnection);
 }

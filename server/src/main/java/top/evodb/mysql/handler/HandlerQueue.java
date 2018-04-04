@@ -21,26 +21,26 @@ import java.util.LinkedList;
 /**
  * @author evodb
  */
-public final class HandlerStack {
+public final class HandlerQueue {
     private LinkedList<Handler> stack = new LinkedList<>();
 
-    public static HandlerStack newHandlerStack() {
-        return new HandlerStack();
+    public static HandlerQueue newHandlerQueue() {
+        return new HandlerQueue();
     }
 
-    private HandlerStack() {
+    private HandlerQueue() {
 
     }
 
-    public void pushHandler(Handler handler) {
-        stack.push(handler);
+    public void offerHandler(Handler handler) {
+        stack.offer(handler);
     }
 
-    public Handler popHandler() {
-        if (!stack.isEmpty()) {
-            return stack.pop();
-        } else {
-            return null;
-        }
+    public void pollHandler() {
+        stack.pollFirst();
+    }
+
+    public Handler peekHandler() {
+        return stack.peekFirst();
     }
 }

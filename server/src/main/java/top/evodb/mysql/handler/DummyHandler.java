@@ -16,7 +16,6 @@
 
 package top.evodb.mysql.handler;
 
-import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.evodb.mysql.AbstractMysqlConnection;
@@ -24,23 +23,15 @@ import top.evodb.mysql.AbstractMysqlConnection;
 /**
  * @author evodb
  */
-public class WriteDataHandler implements Handler {
-    public static final WriteDataHandler INSTANCE = new WriteDataHandler();
-    private static final Logger LOGGER = LoggerFactory.getLogger(WriteDataHandler.class);
+public class DummyHandler implements Handler {
+    public static final DummyHandler INSTANCE = new DummyHandler();
+    private static final Logger LOGGER = LoggerFactory.getLogger(DummyHandler.class);
 
-    private WriteDataHandler() {
+    private DummyHandler() {
     }
 
     @Override
     public boolean handle(AbstractMysqlConnection mysqlConnection) {
-        try {
-            mysqlConnection.write(mysqlConnection.getWriteOperationContext().getWriteBuffer());
-            if (mysqlConnection.getWriteOperationContext().getWriteBuffer() == null) {
-                return true;
-            }
-        } catch (IOException e) {
-            LOGGER.error(mysqlConnection.getName() + " write data error.");
-        }
         return false;
     }
 }

@@ -32,6 +32,7 @@ public class ClientConnectHandler implements Handler {
     }
 
     @Override
-    public void handle(AbstractMysqlConnection mysqlConnection) {
+    public boolean handle(AbstractMysqlConnection mysqlConnection) {
+        return true;
     }
 }

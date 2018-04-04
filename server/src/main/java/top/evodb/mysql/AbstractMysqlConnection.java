@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import top.evodb.buffer.ProtocolBuffer;
 import top.evodb.buffer.ProtocolBufferAllocator;
 import top.evodb.mysql.handler.Handler;
-import top.evodb.mysql.handler.HandlerStack;
+import top.evodb.mysql.handler.HandlerQueue;
 import top.evodb.mysql.handler.WriteDataHandler;
 
 /**
@@ -41,14 +41,14 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
     private String name;
     protected ProtocolBufferAllocator<ProtocolBuffer> protocolBufferAllocator;
     protected ProtocolBuffer protocolBuffer;
-    protected HandlerStack handlerStack;
+    protected HandlerQueue handlerQueue;
     private WriteOperationContext writeOperationContext;
 
 
     public AbstractMysqlConnection(String name, SocketChannel socketChannel) {
         this.socketChannel = socketChannel;
         this.name = name;
-        handlerStack = HandlerStack.newHandlerStack();
+        handlerQueue = HandlerQueue.newHandlerQueue();
         writeOperationContext = new WriteOperationContext();
     }
 
@@ -105,7 +105,7 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
         }
         writeOperationContext.writeBuffer = protocolBuffer;
         writeOperationContext.remaining = length;
-        pushHandler(WriteDataHandler.INSTANCE);
+        offerHandler(WriteDataHandler.INSTANCE);
         enableWrite();
         disableRead();
     }
@@ -139,16 +139,18 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
         if (protocolBuffer == null) {
             protocolBuffer = protocolBufferAllocator.allocate();
         }
-        Handler handler = handlerStack.popHandler();
+        Handler handler = handlerQueue.peekHandler();
         if (handler != null) {
-            handler.handle(this);
+            if (handler.handle(this)) {
+                handlerQueue.pollHandler();
+            }
         } else {
             throw new IllegalStateException(getName() + " have no handler,may be a bug.");
         }
     }
 
-    public void pushHandler(Handler handler) {
-        handlerStack.pushHandler(handler);
+    public void offerHandler(Handler handler) {
+        handlerQueue.offerHandler(handler);
     }
 
     public void enableWrite() {
