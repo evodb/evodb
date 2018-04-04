@@ -39,6 +39,7 @@ public final class MysqlPacketFactory {
 
     static {
         packetRegistryMap.put(MysqlPacket.OK_PACKET, OKPacket.class);
+        packetRegistryMap.put(MysqlPacket.HANDSHAKE_PACKET_V10, HandshakeV10Packet.class);
     }
 
     public MysqlPacketFactory(ProtocolBufferAllocator protocolBufferAllocator) {

@@ -39,7 +39,7 @@ public class OKPacketTest {
     @Test
     public void testWrite() throws MysqlPacketFactoryException {
         int capablityFlags = 0;
-        capablityFlags |= CapabilityFlags.CLIENT_PROTOCOL_41;
+        capablityFlags |= CapabilityFlags.PROTOCOL_41;
         OKPacket okPacket = factory.getMysqlPacket(MysqlPacket.OK_PACKET);
         okPacket.info = "test";
         okPacket.capabilityFlags = capablityFlags;
@@ -50,7 +50,7 @@ public class OKPacketTest {
     @Test
     public void testWriteWithClientTranscations() throws MysqlPacketFactoryException {
         int capablityFlags = 0;
-        capablityFlags |= CapabilityFlags.CLIENT_TRANSACTIONS;
+        capablityFlags |= CapabilityFlags.TRANSACTIONS;
         OKPacket okPacket = factory.getMysqlPacket(MysqlPacket.OK_PACKET);
         okPacket.info = "test";
         okPacket.capabilityFlags = capablityFlags;
@@ -61,7 +61,7 @@ public class OKPacketTest {
     @Test
     public void testWriteWithSessionTrackAndServerStateChange() throws MysqlPacketFactoryException {
         int capablityFlags = 0;
-        capablityFlags |= CapabilityFlags.CLIENT_SESSION_TRACK;
+        capablityFlags |= CapabilityFlags.SESSION_TRACK;
         OKPacket okPacket = factory.getMysqlPacket(MysqlPacket.OK_PACKET);
         okPacket.info = "test";
         okPacket.capabilityFlags = capablityFlags;
@@ -73,8 +73,8 @@ public class OKPacketTest {
     @Test
     public void testRead() throws MysqlPacketFactoryException {
         int capablityFlags = 0;
-        capablityFlags |= CapabilityFlags.CLIENT_PROTOCOL_41;
-        capablityFlags |= CapabilityFlags.CLIENT_SESSION_TRACK;
+        capablityFlags |= CapabilityFlags.PROTOCOL_41;
+        capablityFlags |= CapabilityFlags.SESSION_TRACK;
 
         OKPacket okPacket = factory.getMysqlPacket(MysqlPacket.OK_PACKET);
         okPacket.setSequenceId((byte) 120);
@@ -102,7 +102,7 @@ public class OKPacketTest {
     @Test
     public void testReadWithClientTransactions() throws MysqlPacketFactoryException {
         int capablityFlags = 0;
-        capablityFlags |= CapabilityFlags.CLIENT_TRANSACTIONS;
+        capablityFlags |= CapabilityFlags.TRANSACTIONS;
 
         OKPacket okPacket = factory.getMysqlPacket(MysqlPacket.OK_PACKET);
         okPacket.setSequenceId((byte) 120);

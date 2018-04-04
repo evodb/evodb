@@ -51,7 +51,7 @@ public class MysqlPacketFactoryTest {
     @Test
     public void testGetMysqlPacketWithProtocolBuffer() throws MysqlPacketFactoryException {
         int capablityFlags = 0;
-        capablityFlags |= CapabilityFlags.CLIENT_SESSION_TRACK;
+        capablityFlags |= CapabilityFlags.SESSION_TRACK;
         OKPacket okPacket = factory.getMysqlPacket(MysqlPacket.OK_PACKET);
         okPacket.info = "test";
         okPacket.capabilityFlags = capablityFlags;

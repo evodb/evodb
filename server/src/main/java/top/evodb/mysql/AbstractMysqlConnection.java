@@ -28,6 +28,7 @@ import top.evodb.buffer.ProtocolBufferAllocator;
 import top.evodb.mysql.handler.Handler;
 import top.evodb.mysql.handler.HandlerQueue;
 import top.evodb.mysql.handler.WriteDataHandler;
+import top.evodb.mysql.protocol.packet.MysqlPacketFactory;
 
 /**
  * @author evodb
@@ -43,7 +44,7 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
     protected ProtocolBuffer protocolBuffer;
     protected HandlerQueue handlerQueue;
     private WriteOperationContext writeOperationContext;
-
+    private MysqlPacketFactory mysqlPacketFactory;
 
     public AbstractMysqlConnection(String name, SocketChannel socketChannel) {
         this.socketChannel = socketChannel;
@@ -185,6 +186,14 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
         public int getRemaining() {
             return remaining;
         }
+    }
+
+    public MysqlPacketFactory getMysqlPacketFactory() {
+        return mysqlPacketFactory;
+    }
+
+    public void setMysqlPacketFactory(MysqlPacketFactory mysqlPacketFactory) {
+        this.mysqlPacketFactory = mysqlPacketFactory;
     }
 
     public WriteOperationContext getWriteOperationContext() {

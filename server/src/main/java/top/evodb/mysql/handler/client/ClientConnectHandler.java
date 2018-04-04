@@ -16,10 +16,17 @@
 
 package top.evodb.mysql.handler.client;
 
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import top.evodb.buffer.ProtocolBuffer;
+import top.evodb.exception.MysqlPacketFactoryException;
 import top.evodb.mysql.AbstractMysqlConnection;
+import top.evodb.mysql.Constants;
 import top.evodb.mysql.handler.Handler;
+import top.evodb.mysql.protocol.ServerStatus;
+import top.evodb.mysql.protocol.packet.HandshakeV10Packet;
+import top.evodb.mysql.protocol.packet.MysqlPacket;
 
 /**
  * @author evodb
@@ -33,6 +40,17 @@ public class ClientConnectHandler implements Handler {
 
     @Override
     public boolean handle(AbstractMysqlConnection mysqlConnection) {
+        try {
+            HandshakeV10Packet handshakeV10Packet = mysqlConnection.getMysqlPacketFactory().getMysqlPacket(MysqlPacket.HANDSHAKE_PACKET_V10);
+            handshakeV10Packet.capabilityFlags = Constants.SERVER_CAPABILITY;
+            handshakeV10Packet.statusFlag = ServerStatus.SERVER_STATUS_AUTOCOMMIT;
+            ProtocolBuffer buffer = handshakeV10Packet.write();
+            mysqlConnection.asyncWrite(buffer);
+        } catch (MysqlPacketFactoryException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return true;
     }
 }

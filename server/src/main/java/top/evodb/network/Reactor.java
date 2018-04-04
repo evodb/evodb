@@ -28,6 +28,7 @@ import top.evodb.buffer.AdjustableProtocolBuffer;
 import top.evodb.buffer.AdjustableProtocolBufferAllocator;
 import top.evodb.buffer.ProtocolBufferAllocator;
 import top.evodb.mysql.AbstractMysqlConnection;
+import top.evodb.mysql.protocol.packet.MysqlPacketFactory;
 
 /**
  * @author evodb
@@ -37,12 +38,13 @@ public final class Reactor {
     private static final String REACTOR_THREAD_NAME_PREFIX = "r_thread";
     private static final int CHUNK_SIZE = 128;
     private final int numOfReactorThreads;
-    private static final int SELECT_TIMEOUT = 500;
+    private static final int SELECT_TIMEOUT = 1000;
     private int currentReactorThread;
     private final ReactorThread[] reactorThreads;
     private static final Logger LOGGER = LoggerFactory.getLogger(Reactor.class);
     private static volatile Reactor instance;
     private final ProtocolBufferAllocator<AdjustableProtocolBuffer> allocator;
+    private final MysqlPacketFactory mysqlPacketFactory;
 
     public static Reactor getInstance() throws IOException {
         if (instance == null) {
@@ -60,6 +62,7 @@ public final class Reactor {
         numOfReactorThreads = Runtime.getRuntime().availableProcessors();
         reactorThreads = new ReactorThread[numOfReactorThreads];
         allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
+        mysqlPacketFactory = new MysqlPacketFactory(allocator);
         for (int i = 0; i < reactorThreads.length; i++) {
             reactorThreads[i] = new ReactorThread(REACTOR_THREAD_NAME_PREFIX + i);
         }
@@ -112,6 +115,7 @@ public final class Reactor {
                 AbstractMysqlConnection mysqlConnection = registerQueue.poll();
                 mysqlConnection.register(selector);
                 mysqlConnection.setProtocolBufferAllocator(allocator);
+                mysqlConnection.setMysqlPacketFactory(mysqlPacketFactory);
                 LOGGER.debug("Register connection[" + mysqlConnection.getName() + ']');
                 mysqlConnection = registerQueue.poll();
                 if (mysqlConnection == null) {

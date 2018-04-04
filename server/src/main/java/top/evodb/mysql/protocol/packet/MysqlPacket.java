@@ -33,6 +33,7 @@ public interface MysqlPacket extends Packet {
     int PACKET_CMD_OFFSET = 5;
 
     byte OK_PACKET = 0x00;
+    byte HANDSHAKE_PACKET_V10 = 0x0a;
 
     /**
      * Get the command in mysql packet.

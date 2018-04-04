@@ -47,13 +47,13 @@ public class OKPacket extends AbstractMysqlPacket {
         protocolBuffer.writeByte(OK_PACKET);
         protocolBuffer.writeLenencInt(affectedRows);
         protocolBuffer.writeLenencInt(lastInsertId);
-        if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.CLIENT_PROTOCOL_41)) {
+        if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.PROTOCOL_41)) {
             protocolBuffer.writeFixInt(2, statusFlag);
             protocolBuffer.writeFixInt(2, warnings);
-        } else if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.CLIENT_TRANSACTIONS)) {
+        } else if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.TRANSACTIONS)) {
             protocolBuffer.writeFixInt(2, statusFlag);
         }
-        if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.CLIENT_SESSION_TRACK)) {
+        if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.SESSION_TRACK)) {
             protocolBuffer.writeLenencString(info);
             if (BitUtil.checkBit(statusFlag, ServerStatus.SERVER_SESSION_STATE_CHANGED)) {
                 protocolBuffer.writeLenencString(sessionStateChanges);
@@ -73,13 +73,13 @@ public class OKPacket extends AbstractMysqlPacket {
         cmd = protocolBuffer.readByte();
         affectedRows = protocolBuffer.readLenencInt();
         lastInsertId = protocolBuffer.readLenencInt();
-        if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.CLIENT_PROTOCOL_41)) {
+        if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.PROTOCOL_41)) {
             statusFlag = (short) protocolBuffer.readFixInt(2);
             warnings = (short) protocolBuffer.readFixInt(2);
-        } else if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.CLIENT_TRANSACTIONS)) {
+        } else if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.TRANSACTIONS)) {
             statusFlag = (short) protocolBuffer.readFixInt(2);
         }
-        if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.CLIENT_SESSION_TRACK)) {
+        if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.SESSION_TRACK)) {
             info = protocolBuffer.readLenencString();
             if (BitUtil.checkBit(statusFlag, ServerStatus.SERVER_SESSION_STATE_CHANGED)) {
                 sessionStateChanges = protocolBuffer.readLenencString();
