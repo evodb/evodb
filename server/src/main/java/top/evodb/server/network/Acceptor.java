@@ -68,7 +68,7 @@ public final class Acceptor extends Thread {
         setName("acceptor-thread");
     }
 
-    private void shutdown() {
+    public void shutdown() {
         interrupt();
     }
 
@@ -76,30 +76,27 @@ public final class Acceptor extends Thread {
     public void run() {
         while (!isInterrupted()) {
             try {
-                int numOfReadyKey = 0;
                 try {
-                    numOfReadyKey = selector.select(SELECT_TIMEOUT);
+                    selector.select(SELECT_TIMEOUT);
                 } catch (IOException e) {
                     LOGGER.warn(getName() + " select error.", e);
                 }
-                if (numOfReadyKey > 0) {
-                    Set<SelectionKey> selectKeys = selector.selectedKeys();
-                    Iterator<SelectionKey> it = selectKeys.iterator();
-                    while (it.hasNext()) {
-                        SelectionKey selectionKey = it.next();
-                        if (selectionKey.isAcceptable()) {
-                            try {
-                                SocketChannel socketChannel = serverSocketChannel.accept();
-                                socketChannel.configureBlocking(false);
-                                ClientConnection clientConnection = clientConnectionFactory.makeConnection(socketChannel);
-                                LOGGER.debug(clientConnection + " accepted.");
-                                reactor.register(clientConnection);
-                            } catch (IOException e) {
-                                LOGGER.warn(getName() + " accpet error.", e);
-                            }
+                Set<SelectionKey> selectKeys = selector.selectedKeys();
+                Iterator<SelectionKey> it = selectKeys.iterator();
+                while (it.hasNext()) {
+                    SelectionKey selectionKey = it.next();
+                    if (selectionKey.isAcceptable()) {
+                        try {
+                            SocketChannel socketChannel = serverSocketChannel.accept();
+                            socketChannel.configureBlocking(false);
+                            ClientConnection clientConnection = clientConnectionFactory.makeConnection(socketChannel);
+                            LOGGER.debug(clientConnection + " accepted.");
+                            reactor.register(clientConnection);
+                        } catch (IOException e) {
+                            LOGGER.warn(getName() + " accpet error.", e);
                         }
-                        it.remove();
                     }
+                    it.remove();
                 }
             } catch (Exception e) {
                 LOGGER.error("Acceptor error.", e);
