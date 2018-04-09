@@ -28,6 +28,7 @@ import top.evodb.server.buffer.AdjustableProtocolBuffer;
 import top.evodb.server.buffer.AdjustableProtocolBufferAllocator;
 import top.evodb.server.buffer.ProtocolBufferAllocator;
 import top.evodb.server.mysql.AbstractMysqlConnection;
+import top.evodb.server.mysql.ErrorCode;
 import top.evodb.server.mysql.protocol.packet.MysqlPacketFactory;
 
 /**
@@ -113,9 +114,10 @@ public final class Reactor {
         private void doRegister() {
             for (; ; ) {
                 AbstractMysqlConnection mysqlConnection = registerQueue.poll();
-                mysqlConnection.register(selector);
+
                 mysqlConnection.setProtocolBufferAllocator(allocator);
                 mysqlConnection.setMysqlPacketFactory(mysqlPacketFactory);
+                mysqlConnection.register(selector);
                 LOGGER.debug("Register connection[" + mysqlConnection.getName() + ']');
                 mysqlConnection = registerQueue.poll();
                 if (mysqlConnection == null) {
@@ -128,21 +130,23 @@ public final class Reactor {
         public void run() {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    int numOfReadKey = 0;
                     try {
-                        numOfReadKey = selector.select(SELECT_TIMEOUT);
+                        selector.select(SELECT_TIMEOUT);
                     } catch (IOException e) {
                         LOGGER.warn("Select error.", e);
                     }
-                    if (numOfReadKey > 0) {
-                        Set<SelectionKey> selectedKeys = selector.selectedKeys();
-                        Iterator<SelectionKey> it = selectedKeys.iterator();
-                        while (it.hasNext()) {
-                            SelectionKey selectionKey = it.next();
-                            AbstractMysqlConnection mysqlConnection = (AbstractMysqlConnection) selectionKey.attachment();
+                    Set<SelectionKey> selectedKeys = selector.selectedKeys();
+                    Iterator<SelectionKey> it = selectedKeys.iterator();
+                    while (it.hasNext()) {
+                        SelectionKey selectionKey = it.next();
+                        AbstractMysqlConnection mysqlConnection = (AbstractMysqlConnection) selectionKey.attachment();
+                        try {
                             mysqlConnection.fireIOEvent();
-                            it.remove();
+                        } catch (IllegalStateException e) {
+                            selectionKey.cancel();
+                            LOGGER.error("FireIOEvent error:", e);
                         }
+                        it.remove();
                     }
                     if (!registerQueue.isEmpty()) {
                         doRegister();
@@ -153,7 +157,5 @@ public final class Reactor {
             }
             LOGGER.info("Shoutdown.");
         }
-
     }
-
 }

@@ -190,7 +190,7 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
         }
         Handler handler = handlerQueue.peekHandler();
         if (handler != null) {
-            LOGGER.debug("Call handler " + getName() + "." + handler.getClass());
+            LOGGER.debug("Call handler " + getName() + '[' + handler.getClass().getName() + ']');
             if (handler.handle(this)) {
                 handlerQueue.pollHandler();
             }
