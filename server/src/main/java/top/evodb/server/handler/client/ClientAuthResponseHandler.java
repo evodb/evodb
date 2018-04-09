@@ -88,6 +88,9 @@ public class ClientAuthResponseHandler implements Handler {
         } catch (MysqlPacketFactoryException e) {
             LOGGER.warn(mysqlConnection.getName() + " Create packet error.", e);
             closeConnection(mysqlConnection, ErrorCode.ER_ACCESS_DENIED_ERROR, "Protocol error.");
+        } catch (Exception e) {
+            LOGGER.warn(mysqlConnection.getName() + "Unexcept error.", e);
+            closeConnection(mysqlConnection, ErrorCode.ER_ACCESS_DENIED_ERROR, "Protocol error.");
         }
         return true;
     }
