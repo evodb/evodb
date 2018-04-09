@@ -14,13 +14,12 @@
  *  under the License.
  */
 
-package top.evodb.server.mysql.handler;
-
-import top.evodb.server.mysql.AbstractMysqlConnection;
+package top.evodb.server.mysql;
 
 /**
  * @author evodb
  */
-public interface Handler {
-    boolean handle(AbstractMysqlConnection mysqlConnection);
+public class Charset {
+    public String charset;
+    public byte charsetIndex;
 }

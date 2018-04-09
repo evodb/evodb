@@ -22,7 +22,7 @@ import top.evodb.server.mysql.protocol.CapabilityFlags;
  * @author evodb
  */
 public class Constants {
-    public static final String VERSION = "5.7.21-evodb";
+    public static final String AUTH_PLUGIN_NAME = "mysql_native_password";
     public static final int SERVER_CAPABILITY = CapabilityFlags.LONG_PASSWORD |
         CapabilityFlags.FOUND_ROWS |
         CapabilityFlags.LONG_FLAG |

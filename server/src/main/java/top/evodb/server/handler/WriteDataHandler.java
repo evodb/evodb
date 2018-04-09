@@ -14,32 +14,33 @@
  *  under the License.
  */
 
-package top.evodb.server;
+package top.evodb.server.handler;
 
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import top.evodb.server.network.Acceptor;
-import top.evodb.server.network.Reactor;
-
+import top.evodb.server.mysql.AbstractMysqlConnection;
 
 /**
  * @author evodb
  */
-public class Server {
+public class WriteDataHandler implements Handler {
+    public static final WriteDataHandler INSTANCE = new WriteDataHandler();
+    private static final Logger LOGGER = LoggerFactory.getLogger(WriteDataHandler.class);
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
+    private WriteDataHandler() {
+    }
 
-    public static void main(String args[]) {
-        Reactor reactor;
-        Acceptor acceptor;
+    @Override
+    public boolean handle(AbstractMysqlConnection mysqlConnection) {
         try {
-            reactor = Reactor.getInstance();
-            acceptor = Acceptor.getInstance("127.0.0.1", 6666, reactor);
-            acceptor.start();
-            reactor.start();
+            mysqlConnection.write(mysqlConnection.getWriteOperation().getWriteBuffer());
+            if (mysqlConnection.getWriteOperation().getWriteBuffer() == null) {
+                return true;
+            }
         } catch (IOException e) {
-            LOGGER.error("Start server error.", e);
+            LOGGER.warn(mysqlConnection.getName() + " write data error.", e);
         }
+        return false;
     }
 }

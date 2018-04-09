@@ -38,7 +38,7 @@ public final class MysqlPacketFactory {
 
     static {
         packetRegistryMap.put(MysqlPacket.OK_PACKET, OKPacket.class);
-        packetRegistryMap.put(MysqlPacket.HANDSHAKE_PACKET_V10, HandshakeV10Packet.class);
+        packetRegistryMap.put(MysqlPacket.ERR_PACKET, ErrorPacket.class);
     }
 
     public MysqlPacketFactory(ProtocolBufferAllocator protocolBufferAllocator) {
@@ -59,6 +59,35 @@ public final class MysqlPacketFactory {
             mysqlPacket = ReflectionUtil.newInstance(constructor, params);
         } catch (ReflectionException e) {
             throw new MysqlPacketFactoryException("Can't instantiate " + aClass, e);
+        }
+        return (T) mysqlPacket;
+    }
+
+    public <T extends MysqlPacket> T getMysqlPacket(Class clazz) throws MysqlPacketFactoryException {
+        ProtocolBuffer protocolBuffer = protocolBufferAllocator.allocate();
+        Class<?>[] paramTypes = {ProtocolBuffer.class, Integer.class, Integer.class};
+        Object[] params = {protocolBuffer, Integer.valueOf(0), Integer.valueOf(0)};
+        MysqlPacket mysqlPacket;
+        try {
+            Constructor<?> constructor = ReflectionUtil.getConstructor(clazz, paramTypes);
+            mysqlPacket = ReflectionUtil.newInstance(constructor, params);
+        } catch (ReflectionException e) {
+            throw new MysqlPacketFactoryException("Can't instantiate " + clazz, e);
+        }
+        return (T) mysqlPacket;
+
+    }
+
+    public <T extends MysqlPacket> T getMysqlPacket(Class clazz, ProtocolBuffer protocolBuffer)
+        throws MysqlPacketFactoryException {
+        MysqlPacket mysqlPacket;
+        try {
+            Object[] params = {protocolBuffer, Integer.valueOf(0), Integer.valueOf(0)};
+            Class<?>[] paramTypes = {ProtocolBuffer.class, Integer.class, Integer.class};
+            Constructor<?> constructor = ReflectionUtil.getConstructor(clazz, paramTypes);
+            mysqlPacket = ReflectionUtil.newInstance(constructor, params);
+        } catch (ReflectionException e) {
+            throw new MysqlPacketFactoryException("Can't instantiate " + clazz, e);
         }
         return (T) mysqlPacket;
     }

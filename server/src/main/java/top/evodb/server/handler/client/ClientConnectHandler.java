@@ -14,19 +14,20 @@
  *  under the License.
  */
 
-package top.evodb.server.mysql.handler.client;
+package top.evodb.server.handler.client;
 
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import top.evodb.server.ServerContext;
 import top.evodb.server.buffer.ProtocolBuffer;
 import top.evodb.server.exception.MysqlPacketFactoryException;
+import top.evodb.server.handler.Handler;
 import top.evodb.server.mysql.AbstractMysqlConnection;
 import top.evodb.server.mysql.Constants;
-import top.evodb.server.mysql.handler.Handler;
+import top.evodb.server.mysql.ErrorCode;
 import top.evodb.server.mysql.protocol.ServerStatus;
 import top.evodb.server.mysql.protocol.packet.HandshakeV10Packet;
-import top.evodb.server.mysql.protocol.packet.MysqlPacket;
 
 /**
  * @author evodb
@@ -41,15 +42,22 @@ public class ClientConnectHandler implements Handler {
     @Override
     public boolean handle(AbstractMysqlConnection mysqlConnection) {
         try {
-            HandshakeV10Packet handshakeV10Packet = mysqlConnection.getMysqlPacketFactory().getMysqlPacket(MysqlPacket.HANDSHAKE_PACKET_V10);
+            HandshakeV10Packet handshakeV10Packet = mysqlConnection.getMysqlPacketFactory().getMysqlPacket(HandshakeV10Packet.class);
             handshakeV10Packet.capabilityFlags = Constants.SERVER_CAPABILITY;
             handshakeV10Packet.statusFlag = ServerStatus.SERVER_STATUS_AUTOCOMMIT;
+            handshakeV10Packet.connectionId = ServerContext.getContext().newConnectId();
+            handshakeV10Packet.characterSet = ServerContext.getContext().getCharset().charsetIndex;
+            handshakeV10Packet.serverVersion = ServerContext.getContext().getVersion().getServerVersion();
+            handshakeV10Packet.protocolVersion = ServerContext.getContext().getVersion().getProtocolVersion();
             ProtocolBuffer buffer = handshakeV10Packet.write();
             mysqlConnection.asyncWrite(buffer);
+            mysqlConnection.offerHandler(ClientAuthResponseHandler.INSTANCE);
         } catch (MysqlPacketFactoryException e) {
-            e.printStackTrace();
+            LOGGER.warn(mysqlConnection.getName() + " Create packet error.", e);
+            mysqlConnection.close(ErrorCode.ER_HANDSHAKE_ERROR, "Handshake error.");
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.warn(mysqlConnection.getName() + " Network error.", e);
+            mysqlConnection.close(ErrorCode.ER_HANDSHAKE_ERROR, "Handshake error.");
         }
         return true;
     }

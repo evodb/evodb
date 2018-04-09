@@ -14,21 +14,27 @@
  *  under the License.
  */
 
-package top.evodb.server.util;
+package top.evodb.server.mysql;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
+ * https://dev.mysql.com/doc/refman/5.7/en/error-messages-server.html
+ *
  * @author evodb
  */
-public class IDGenerator {
-    private final AtomicLong atomicLong = new AtomicLong();
+public class ErrorCode {
+    private static Map<Short, String> sqlStateMap = new HashMap<>();
+    public static final short ER_ACCESS_DENIED_ERROR = 1045;
+    public static final short ER_HANDSHAKE_ERROR = 1043;
 
-    public long getId() {
-        return atomicLong.incrementAndGet();
+    static {
+        sqlStateMap.put(ER_ACCESS_DENIED_ERROR, "#28000");
+        sqlStateMap.put(ER_HANDSHAKE_ERROR, "#08S01");
     }
 
-    public static IDGenerator newInstance() {
-        return new IDGenerator();
+    public static String getSqlState(short errCode) {
+        return sqlStateMap.get(errCode);
     }
 }

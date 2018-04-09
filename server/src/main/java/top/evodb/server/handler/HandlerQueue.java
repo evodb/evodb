@@ -14,21 +14,33 @@
  *  under the License.
  */
 
-package top.evodb.server.util;
+package top.evodb.server.handler;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.LinkedList;
 
 /**
  * @author evodb
  */
-public class IDGenerator {
-    private final AtomicLong atomicLong = new AtomicLong();
+public final class HandlerQueue {
+    private LinkedList<Handler> stack = new LinkedList<>();
 
-    public long getId() {
-        return atomicLong.incrementAndGet();
+    public static HandlerQueue newHandlerQueue() {
+        return new HandlerQueue();
     }
 
-    public static IDGenerator newInstance() {
-        return new IDGenerator();
+    private HandlerQueue() {
+
+    }
+
+    public void offerHandler(Handler handler) {
+        stack.offer(handler);
+    }
+
+    public void pollHandler() {
+        stack.pollFirst();
+    }
+
+    public Handler peekHandler() {
+        return stack.peekFirst();
     }
 }

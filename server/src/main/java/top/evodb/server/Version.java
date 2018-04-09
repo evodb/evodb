@@ -14,33 +14,29 @@
  *  under the License.
  */
 
-package top.evodb.server.mysql.handler;
-
-import java.util.LinkedList;
+package top.evodb.server;
 
 /**
  * @author evodb
  */
-public final class HandlerQueue {
-    private LinkedList<Handler> stack = new LinkedList<>();
+public class Version {
+    private String serverVersion= "5.7.21-evodb";
 
-    public static HandlerQueue newHandlerQueue() {
-        return new HandlerQueue();
+    private byte protocolVersion = 10;
+
+    public String getServerVersion() {
+        return serverVersion;
     }
 
-    private HandlerQueue() {
-
+    public void setServerVersion(String serverVersion) {
+        this.serverVersion = serverVersion;
     }
 
-    public void offerHandler(Handler handler) {
-        stack.offer(handler);
+    public byte getProtocolVersion() {
+        return protocolVersion;
     }
 
-    public void pollHandler() {
-        stack.pollFirst();
-    }
-
-    public Handler peekHandler() {
-        return stack.peekFirst();
+    public void setProtocolVersion(byte protocolVersion) {
+        this.protocolVersion = protocolVersion;
     }
 }

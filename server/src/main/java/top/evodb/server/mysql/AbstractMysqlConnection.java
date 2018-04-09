@@ -21,13 +21,15 @@ import java.net.SocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.evodb.server.buffer.ProtocolBuffer;
 import top.evodb.server.buffer.ProtocolBufferAllocator;
-import top.evodb.server.mysql.handler.Handler;
-import top.evodb.server.mysql.handler.HandlerQueue;
-import top.evodb.server.mysql.handler.WriteDataHandler;
+import top.evodb.server.handler.Handler;
+import top.evodb.server.handler.HandlerQueue;
+import top.evodb.server.handler.WriteDataHandler;
 import top.evodb.server.mysql.protocol.packet.MysqlPacketFactory;
 
 /**
@@ -35,6 +37,7 @@ import top.evodb.server.mysql.protocol.packet.MysqlPacketFactory;
  */
 public abstract class AbstractMysqlConnection implements MysqlConnection {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractMysqlConnection.class);
+    public static final String ATTR_PRE_PACKET_ID = "PRE_PACKET_ID";
     private AutoCommit autoCommit = AutoCommit.OFF;
     private Isolation isolation = Isolation.REPEATED_READ;
     protected SocketChannel socketChannel;
@@ -43,14 +46,20 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
     protected ProtocolBufferAllocator<ProtocolBuffer> protocolBufferAllocator;
     protected ProtocolBuffer protocolBuffer;
     protected HandlerQueue handlerQueue;
-    private WriteOperationContext writeOperationContext;
+    private WriteOperation writeOperation;
     private MysqlPacketFactory mysqlPacketFactory;
+    private int capability;
+    private int maxPacketSize;
+    private Charset charset;
+    private final Map<String, Object> attributes;
+
 
     public AbstractMysqlConnection(String name, SocketChannel socketChannel) {
         this.socketChannel = socketChannel;
         this.name = name;
         handlerQueue = HandlerQueue.newHandlerQueue();
-        writeOperationContext = new WriteOperationContext();
+        writeOperation = new WriteOperation();
+        attributes = new HashMap<>();
     }
 
     @Override
@@ -74,6 +83,33 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
     }
 
     @Override
+    public int getCapability() {
+        return capability;
+    }
+
+    @Override
+    public int getMaxPacketSize() {
+        return maxPacketSize;
+    }
+
+    public void setMaxPacketSize(int maxPacketSize) {
+        this.maxPacketSize = maxPacketSize;
+    }
+
+    @Override
+    public Charset getCharset() {
+        return charset;
+    }
+
+    public void setCharset(Charset charset) {
+        this.charset = charset;
+    }
+
+    public void setCapability(int capability) {
+        this.capability = capability;
+    }
+
+    @Override
     public ProtocolBuffer read() throws IOException {
         protocolBuffer.transferFromChannel(socketChannel);
         return protocolBuffer;
@@ -87,9 +123,9 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
     @Override
     public int write(ProtocolBuffer protocolBuffer, int length) throws IOException {
         int writed = protocolBuffer.transferToChannel(socketChannel, length);
-        writeOperationContext.remaining -= writed;
-        if (writeOperationContext.remaining <= 0) {
-            writeOperationContext.writeBuffer = null;
+        writeOperation.remaining -= writed;
+        if (writeOperation.remaining <= 0) {
+            writeOperation.writeBuffer = null;
             disableWrite();
             enableRead();
         }
@@ -101,11 +137,11 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
     }
 
     public void asyncWrite(ProtocolBuffer protocolBuffer, int length) throws IOException {
-        if (writeOperationContext.writeBuffer != null) {
-            throw new IOException("Can't write,there is write option was not completed.");
+        if (writeOperation.writeBuffer != null) {
+            throw new IOException(getName() + " can't write,write option was not completed.");
         }
-        writeOperationContext.writeBuffer = protocolBuffer;
-        writeOperationContext.remaining = length;
+        writeOperation.writeBuffer = protocolBuffer;
+        writeOperation.remaining = length;
         offerHandler(WriteDataHandler.INSTANCE);
         enableWrite();
         disableRead();
@@ -114,6 +150,18 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
     @Override
     public String getName() {
         return name;
+    }
+
+    public void setAttribute(String key, Object value) {
+        attributes.put(key, value);
+    }
+
+    public Object getAttribute(String key) {
+        return attributes.get(key);
+    }
+
+    public void removeAttributes(String key) {
+        attributes.remove(key);
     }
 
     public SocketAddress getRemoteAddress() {
@@ -142,6 +190,7 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
         }
         Handler handler = handlerQueue.peekHandler();
         if (handler != null) {
+            LOGGER.debug("Call handler " + getName() + "." + handler.getClass());
             if (handler.handle(this)) {
                 handlerQueue.pollHandler();
             }
@@ -175,7 +224,14 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
         disableRead();
     }
 
-    public class WriteOperationContext {
+    public void free() {
+        if (protocolBuffer != null) {
+            protocolBufferAllocator.recyle(protocolBuffer);
+        }
+        selectionKey.cancel();
+    }
+
+    public class WriteOperation {
         private ProtocolBuffer writeBuffer;
         private int remaining;
 
@@ -196,8 +252,8 @@ public abstract class AbstractMysqlConnection implements MysqlConnection {
         this.mysqlPacketFactory = mysqlPacketFactory;
     }
 
-    public WriteOperationContext getWriteOperationContext() {
-        return writeOperationContext;
+    public WriteOperation getWriteOperation() {
+        return writeOperation;
     }
 
 }

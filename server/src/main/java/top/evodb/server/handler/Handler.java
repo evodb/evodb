@@ -14,24 +14,13 @@
  *  under the License.
  */
 
-package top.evodb.server.mysql.handler;
+package top.evodb.server.handler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import top.evodb.server.mysql.AbstractMysqlConnection;
 
 /**
  * @author evodb
  */
-public class DummyHandler implements Handler {
-    public static final DummyHandler INSTANCE = new DummyHandler();
-    private static final Logger LOGGER = LoggerFactory.getLogger(DummyHandler.class);
-
-    private DummyHandler() {
-    }
-
-    @Override
-    public boolean handle(AbstractMysqlConnection mysqlConnection) {
-        return false;
-    }
+public interface Handler {
+    boolean handle(AbstractMysqlConnection mysqlConnection);
 }

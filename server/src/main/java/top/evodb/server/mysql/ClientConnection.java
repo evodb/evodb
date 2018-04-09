@@ -17,13 +17,18 @@
 package top.evodb.server.mysql;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import top.evodb.server.mysql.handler.client.ClientConnectHandler;
+import top.evodb.server.exception.MysqlPacketFactoryException;
+import top.evodb.server.handler.client.ClientCloseHandler;
+import top.evodb.server.handler.client.ClientConnectHandler;
+import top.evodb.server.mysql.protocol.packet.ErrorPacket;
+import top.evodb.server.mysql.protocol.packet.MysqlPacket;
 
 /**
  * @author evodb
@@ -47,15 +52,21 @@ public class ClientConnection extends AbstractMysqlConnection {
     }
 
     @Override
-    public void close() {
-        disableAll();
-        if (protocolBufferAllocator != null) {
-            protocolBufferAllocator.recyle(protocolBuffer);
-        }
+    public void close(short errCode, String reason) {
         try {
-            socketChannel.close();
-        } catch (IOException e) {
-            LOGGER.warn(getName() + " socket channel close error", e);
+            ErrorPacket errorPacket = getMysqlPacketFactory().getMysqlPacket(MysqlPacket.ERR_PACKET);
+            Byte lastPacketId = (Byte) getAttribute(AbstractMysqlConnection.ATTR_PRE_PACKET_ID);
+            lastPacketId = lastPacketId == null ? 1 : lastPacketId;
+            removeAttributes(AbstractMysqlConnection.ATTR_PRE_PACKET_ID);
+            errorPacket.capabilities = getCapability();
+            errorPacket.errorCode = errCode;
+            errorPacket.message = reason;
+            errorPacket.setSequenceId(lastPacketId);
+            protocolBuffer = errorPacket.write();
+            asyncWrite(protocolBuffer);
+            offerHandler(ClientCloseHandler.INSTANCE);
+        } catch (MysqlPacketFactoryException | IOException e) {
+            LOGGER.warn("close connection error.", e);
         }
     }
 

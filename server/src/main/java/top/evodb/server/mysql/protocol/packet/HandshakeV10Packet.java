@@ -41,10 +41,7 @@ public class HandshakeV10Packet extends AbstractMysqlPacket {
         authPluginDataPart1 = RandomUtil.randomBytes(8);
         authPluginDataPart2 = RandomUtil.randomBytes(12);
         capabilityFlags = Constants.SERVER_CAPABILITY;
-        authPluginName = "mysql_native_password";
-        serverVersion = Constants.VERSION;
-        protocolVersion = 0x0a;
-        characterSet = 0x08;
+        authPluginName = Constants.AUTH_PLUGIN_NAME;
     }
 
     @Override

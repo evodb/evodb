@@ -14,21 +14,24 @@
  *  under the License.
  */
 
-package top.evodb.server.util;
+package top.evodb.server.handler;
 
-import java.util.concurrent.atomic.AtomicLong;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import top.evodb.server.mysql.AbstractMysqlConnection;
 
 /**
  * @author evodb
  */
-public class IDGenerator {
-    private final AtomicLong atomicLong = new AtomicLong();
+public class DummyHandler implements Handler {
+    public static final DummyHandler INSTANCE = new DummyHandler();
+    private static final Logger LOGGER = LoggerFactory.getLogger(DummyHandler.class);
 
-    public long getId() {
-        return atomicLong.incrementAndGet();
+    private DummyHandler() {
     }
 
-    public static IDGenerator newInstance() {
-        return new IDGenerator();
+    @Override
+    public boolean handle(AbstractMysqlConnection mysqlConnection) {
+        return false;
     }
 }

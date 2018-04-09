@@ -48,6 +48,7 @@ public class AdjustableProtocolBufferAllocator implements
     @Override
     public boolean recyle(AdjustableProtocolBuffer buffer) {
         if (buffer.getAllocator() == this) {
+            buffer.clear();
             buffer.setRecyleFlag(true);
             return freeProtocolBufferList.offer(buffer);
         }

@@ -26,8 +26,11 @@ public interface Connection {
 
     /**
      * Close connection
+     *
+     * @param errCode error code
+     * @param reason  close reason
      */
-    void close();
+    void close(short errCode, String reason);
 
     /**
      * read data.

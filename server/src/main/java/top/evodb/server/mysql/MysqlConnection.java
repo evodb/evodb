@@ -49,4 +49,25 @@ public interface MysqlConnection extends Connection {
      * @param isolation isolation
      */
     void setIsolation(Isolation isolation);
+
+    /**
+     * Get the capability of connection
+     *
+     * @return capability
+     */
+    int getCapability();
+
+    /**
+     * Get the max protocol packet size.
+     *
+     * @return max packet size
+     */
+    int getMaxPacketSize();
+
+    /**
+     * Get the charset.
+     *
+     * @return charset
+     */
+    Charset getCharset();
 }
