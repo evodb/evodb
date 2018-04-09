@@ -33,6 +33,7 @@ import top.evodb.server.mysql.protocol.ServerStatus;
 import top.evodb.server.mysql.protocol.packet.HandshakeResponse41;
 import top.evodb.server.mysql.protocol.packet.MysqlPacket;
 import top.evodb.server.mysql.protocol.packet.OKPacket;
+import top.evodb.server.util.PacketUtil;
 import top.evodb.server.util.SecurityUtil;
 
 /**
@@ -49,8 +50,8 @@ public class ClientAuthResponseHandler implements Handler {
     public boolean handle(AbstractMysqlConnection mysqlConnection) {
         byte lastPacketId = 2;
         try {
-            AbstractProtocolBuffer protocolBuffer = (AbstractProtocolBuffer) mysqlConnection.read();
-            if (protocolBuffer.getPacketType() == PacketDescriptor.PacketType.FULL) {
+            ProtocolBuffer protocolBuffer = mysqlConnection.read();
+            if (PacketUtil.getPacketType(protocolBuffer, protocolBuffer.readIndex()) == PacketDescriptor.PacketType.FULL) {
                 //TODO load charset
                 Charset charset = new Charset();
                 HandshakeResponse41 handshakeResponse41 = mysqlConnection.getMysqlPacketFactory().getMysqlPacket(HandshakeResponse41.class, protocolBuffer);

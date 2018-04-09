@@ -395,13 +395,4 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
         }
         return namedPacketIteratorMap.computeIfAbsent(name, k -> new SimplePacketIterator(this));
     }
-
-    public PacketDescriptor.PacketType getPacketType() {
-        int packetLength = (int) getFixInt(readIndex, 3);
-        if (readIndex + packetLength + 4 >= writeIndex) {
-            return PacketDescriptor.PacketType.FULL;
-        } else {
-            return PacketDescriptor.PacketType.HALF;
-        }
-    }
 }
