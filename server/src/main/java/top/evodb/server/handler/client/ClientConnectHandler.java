@@ -50,6 +50,10 @@ public class ClientConnectHandler implements Handler {
             handshakeV10Packet.serverVersion = ServerContext.getContext().getVersion().getServerVersion();
             handshakeV10Packet.protocolVersion = ServerContext.getContext().getVersion().getProtocolVersion();
             ProtocolBuffer buffer = handshakeV10Packet.write();
+            byte[] authPluginData = new byte[20];
+            System.arraycopy(handshakeV10Packet.authPluginDataPart1, 0, authPluginData, 0, 8);
+            System.arraycopy(handshakeV10Packet.authPluginDataPart2, 0, authPluginData, 8, 12);
+            mysqlConnection.setAttribute(AbstractMysqlConnection.ATTR_AUTH_PLUGIN_DATA, authPluginData);
             mysqlConnection.asyncWrite(buffer);
             mysqlConnection.offerHandler(ClientAuthResponseHandler.INSTANCE);
         } catch (MysqlPacketFactoryException e) {

@@ -37,6 +37,7 @@ public class OKPacket extends AbstractMysqlPacket {
 
     public OKPacket(ProtocolBuffer protocolBuffer, Integer startIndex, Integer endIndex) {
         super(protocolBuffer, startIndex, endIndex);
+        info = "";
     }
 
     @Override
@@ -60,7 +61,8 @@ public class OKPacket extends AbstractMysqlPacket {
         } else {
             protocolBuffer.writeNULString(info);
         }
-        protocolBuffer.putFixInt(startIndex, 3, protocolBuffer.writeIndex() - startIndex);
+        int packetLen = protocolBuffer.writeIndex() - PACKET_OFFSET - startIndex;
+        protocolBuffer.putFixInt(startIndex, 3, packetLen - 1);
         return protocolBuffer;
     }
 

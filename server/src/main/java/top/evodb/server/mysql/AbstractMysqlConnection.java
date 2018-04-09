@@ -38,6 +38,8 @@ import top.evodb.server.mysql.protocol.packet.MysqlPacketFactory;
 public abstract class AbstractMysqlConnection implements MysqlConnection {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractMysqlConnection.class);
     public static final String ATTR_PRE_PACKET_ID = "PRE_PACKET_ID";
+    public static final String ATTR_AUTH_PLUGIN_DATA = "AUTH_PLUGIN_DATA";
+
     private AutoCommit autoCommit = AutoCommit.OFF;
     private Isolation isolation = Isolation.REPEATED_READ;
     protected SocketChannel socketChannel;

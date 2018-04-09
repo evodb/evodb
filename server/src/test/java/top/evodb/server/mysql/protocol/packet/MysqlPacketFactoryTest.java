@@ -65,7 +65,7 @@ public class MysqlPacketFactoryTest {
 
         assertEquals(MysqlPacket.OK_PACKET, okPacket.getCmd());
         assertEquals(0, okPacket.getSequenceId());
-        assertEquals(33, okPacket.getPayloadLength());
+        assertEquals(29, okPacket.getPayloadLength());
         assertNotNull(okPacket.getPayload());
     }
 
