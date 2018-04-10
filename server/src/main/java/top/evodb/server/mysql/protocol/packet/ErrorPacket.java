@@ -53,6 +53,15 @@ public class ErrorPacket extends AbstractMysqlPacket {
 
     @Override
     public void read() {
+        protocolBuffer.writeIndex(startIndex + PACKET_OFFSET);
+        payloadLength = (int) protocolBuffer.readFixInt(3);
+        sequenceId = protocolBuffer.readByte();
 
+        cmd = protocolBuffer.readByte();
+        errorCode = (short) protocolBuffer.readFixInt(2);
+        if (BitUtil.checkBit(capabilities, CapabilityFlags.PROTOCOL_41)) {
+            sqlState = protocolBuffer.readFixString(6);
+        }
+        message = protocolBuffer.readFixString(payloadLength - protocolBuffer.readIndex() - startIndex + MysqlPacket.PACKET_PAYLOAD_OFFSET);
     }
 }

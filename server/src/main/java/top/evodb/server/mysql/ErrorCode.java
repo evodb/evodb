@@ -25,7 +25,7 @@ import java.util.Map;
  * @author evodb
  */
 public class ErrorCode {
-    private static Map<Short, String> sqlStateMap = new HashMap<>();
+    private static final Map<Short, String> sqlStateMap = new HashMap<>();
     public static final short ER_ACCESS_DENIED_ERROR = 1045;
     public static final short ER_HANDSHAKE_ERROR = 1043;
 

@@ -38,7 +38,30 @@ public class HandshakeResponse41 extends AbstractMysqlPacket {
 
     @Override
     public ProtocolBuffer write() {
-        return null;
+        protocolBuffer.writeIndex(startIndex + PACKET_OFFSET);
+        protocolBuffer.writeByte(sequenceId);
+        protocolBuffer.writeFixInt(4, capability);
+        protocolBuffer.writeFixInt(4, maxPacketSize);
+        protocolBuffer.writeByte(characterSet);
+        protocolBuffer.writeIndex(protocolBuffer.writeIndex() + 23);
+        protocolBuffer.writeNULString(username);
+        if (BitUtil.checkBit(capability, CapabilityFlags.PLUGIN_AUTH_LENENC_CLIENT_DATA)) {
+            protocolBuffer.writeLenencInt(authResponse.length);
+            protocolBuffer.writeBytes(authResponse);
+        } else if (BitUtil.checkBit(capability, CapabilityFlags.SECURE_CONNECTION)) {
+            protocolBuffer.writeByte((byte) authResponse.length);
+            protocolBuffer.writeBytes(authResponse);
+        } else {
+            protocolBuffer.writeBytes(authResponse);
+            protocolBuffer.writeByte((byte) 0);
+        }
+        if (BitUtil.checkBit(capability, CapabilityFlags.CONNECT_WITH_DB)) {
+            protocolBuffer.writeNULString(database);
+        }
+        if (BitUtil.checkBit(capability, CapabilityFlags.PLUGIN_AUTH)) {
+            protocolBuffer.writeNULString(authPluginName);
+        }
+        return protocolBuffer;
     }
 
     @Override
