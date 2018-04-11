@@ -63,6 +63,7 @@ public class HandshakeV10PacketTest {
         assertEquals(Constants.SERVER_CAPABILITY, handshakeV10Packet.capabilityFlags);
         assertEquals(ServerStatus.SERVER_STATUS_AUTOCOMMIT, handshakeV10Packet.statusFlag);
         assertEquals(connectionId, handshakeV10Packet.connectionId);
+        assertEquals(Constants.AUTH_PLUGIN_NAME, handshakeV10Packet.authPluginName);
         assertEquals(ServerContext.getContext().getCharset().charsetIndex, handshakeV10Packet.characterSet);
         assertEquals(ServerContext.getContext().getVersion().getServerVersion(), handshakeV10Packet.serverVersion);
         assertEquals(ServerContext.getContext().getVersion().getProtocolVersion(), handshakeV10Packet.protocolVersion);

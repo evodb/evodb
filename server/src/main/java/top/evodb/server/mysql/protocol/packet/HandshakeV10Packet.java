@@ -93,7 +93,8 @@ public class HandshakeV10Packet extends AbstractMysqlPacket {
         if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.PLUGIN_AUTH)) {
             protocolBuffer.readByte();
         }
-        protocolBuffer.writeIndex(protocolBuffer.writeIndex() + 10);
+        protocolBuffer.readFixInt(5);
+        protocolBuffer.readFixInt(5);
         if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.SECURE_CONNECTION)) {
             authPluginDataPart2 = protocolBuffer.readBytes(12);
             protocolBuffer.readByte();

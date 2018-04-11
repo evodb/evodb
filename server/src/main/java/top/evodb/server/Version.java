@@ -20,7 +20,7 @@ package top.evodb.server;
  * @author evodb
  */
 public class Version {
-    private String serverVersion= "5.7.21-evodb";
+    private String serverVersion = "5.7.21-evodb-1.0.0-PREVIEW";
 
     private byte protocolVersion = 10;
 
@@ -28,15 +28,7 @@ public class Version {
         return serverVersion;
     }
 
-    public void setServerVersion(String serverVersion) {
-        this.serverVersion = serverVersion;
-    }
-
     public byte getProtocolVersion() {
         return protocolVersion;
-    }
-
-    public void setProtocolVersion(byte protocolVersion) {
-        this.protocolVersion = protocolVersion;
     }
 }

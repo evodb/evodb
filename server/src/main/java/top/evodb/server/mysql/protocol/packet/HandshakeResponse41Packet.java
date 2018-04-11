@@ -61,6 +61,9 @@ public class HandshakeResponse41Packet extends AbstractMysqlPacket {
         if (BitUtil.checkBit(capability, CapabilityFlags.PLUGIN_AUTH)) {
             protocolBuffer.writeNULString(authPluginName);
         }
+
+        int packetLen = protocolBuffer.writeIndex() - PACKET_OFFSET - startIndex;
+        protocolBuffer.putFixInt(startIndex, 3, packetLen - 1);
         return protocolBuffer;
     }
 

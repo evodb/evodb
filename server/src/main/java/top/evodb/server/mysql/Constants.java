@@ -45,4 +45,17 @@ public class Constants {
         CapabilityFlags.CAN_HANDLE_EXPIRED_PASSWORDS |
         CapabilityFlags.SESSION_TRACK |
         CapabilityFlags.DEPRECATE_EOF;
+    public static final int CLIENT_CAPABILITY = CapabilityFlags.LONG_PASSWORD |
+        CapabilityFlags.LONG_FLAG |
+        CapabilityFlags.PROTOCOL_41 |
+        CapabilityFlags.TRANSACTIONS |
+        CapabilityFlags.SECURE_CONNECTION |
+        CapabilityFlags.MULTI_STATEMENTS |
+        CapabilityFlags.MULTI_RESULTS |
+        CapabilityFlags.PS_MULTI_RESULTS |
+        CapabilityFlags.PLUGIN_AUTH |
+        CapabilityFlags.PLUGIN_AUTH_LENENC_CLIENT_DATA |
+        CapabilityFlags.CAN_HANDLE_EXPIRED_PASSWORDS |
+        CapabilityFlags.SESSION_TRACK |
+        CapabilityFlags.DEPRECATE_EOF;
 }
