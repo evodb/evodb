@@ -16,12 +16,13 @@
 
 package top.evodb.server.buffer;
 
+import static org.junit.Assert.assertEquals;
+
+
 import org.junit.Test;
 import top.evodb.server.buffer.PacketDescriptor.PacketType;
 import top.evodb.server.exception.MysqlPacketFactoryException;
 import top.evodb.server.mysql.protocol.packet.MysqlPacketFactory;
-
-import static org.junit.Assert.*;
 
 /**
  * @author evodb

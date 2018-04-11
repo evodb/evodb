@@ -27,7 +27,7 @@ import top.evodb.server.mysql.Constants;
 import top.evodb.server.mysql.protocol.CapabilityFlags;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class HandshakeResponse41PacketTest {
     private static final int CHUNK_SIZE = 15;

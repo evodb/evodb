@@ -28,7 +28,6 @@ import top.evodb.server.buffer.AdjustableProtocolBuffer;
 import top.evodb.server.buffer.AdjustableProtocolBufferAllocator;
 import top.evodb.server.buffer.ProtocolBufferAllocator;
 import top.evodb.server.mysql.AbstractMysqlConnection;
-import top.evodb.server.mysql.ErrorCode;
 import top.evodb.server.mysql.protocol.packet.MysqlPacketFactory;
 
 /**

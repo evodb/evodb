@@ -16,15 +16,14 @@
 
 package top.evodb.server.mysql.protocol.packet;
 
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
 import top.evodb.server.buffer.ProtocolBuffer;
 import top.evodb.server.buffer.ProtocolBufferAllocator;
 import top.evodb.server.exception.MysqlPacketFactoryException;
 import top.evodb.server.exception.ReflectionException;
 import top.evodb.server.util.ReflectionUtil;
-
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Not thread safe.

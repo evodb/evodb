@@ -19,8 +19,8 @@ package top.evodb.server.mysql.protocol.packet;
 import top.evodb.server.buffer.ProtocolBuffer;
 import top.evodb.server.mysql.Constants;
 import top.evodb.server.mysql.protocol.CapabilityFlags;
-import top.evodb.server.util.RandomUtil;
 import top.evodb.server.util.BitUtil;
+import top.evodb.server.util.RandomUtil;
 
 /**
  * @author evodb

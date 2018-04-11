@@ -16,15 +16,15 @@
 
 package top.evodb.server.mysql.protocol.packet;
 
+import static org.junit.Assert.assertEquals;
+
+
 import org.junit.Test;
 import top.evodb.server.buffer.AdjustableProtocolBufferAllocator;
 import top.evodb.server.buffer.ProtocolBufferAllocator;
 import top.evodb.server.exception.MysqlPacketFactoryException;
 import top.evodb.server.mysql.protocol.CapabilityFlags;
 import top.evodb.server.mysql.protocol.ServerStatus;
-
-
-import static org.junit.Assert.*;
 
 /**
  * @author evodb

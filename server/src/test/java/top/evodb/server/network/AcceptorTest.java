@@ -26,7 +26,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class AcceptorTest {
     private static Reactor reactor;

@@ -28,7 +28,7 @@ import top.evodb.server.mysql.Constants;
 import top.evodb.server.mysql.protocol.ServerStatus;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class HandshakeV10PacketTest {
     private static final int CHUNK_SIZE = 15;
@@ -45,8 +45,6 @@ public class HandshakeV10PacketTest {
         handshakeV10Packet.serverVersion = ServerContext.getContext().getVersion().getServerVersion();
         handshakeV10Packet.protocolVersion = ServerContext.getContext().getVersion().getProtocolVersion();
         handshakeV10Packet.write();
-
-
     }
 
     @Test

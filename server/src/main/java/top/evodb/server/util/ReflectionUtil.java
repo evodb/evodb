@@ -16,10 +16,9 @@
 
 package top.evodb.server.util;
 
-import top.evodb.server.exception.ReflectionException;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import top.evodb.server.exception.ReflectionException;
 
 /**
  * @author evodb

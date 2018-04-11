@@ -21,14 +21,13 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import top.evodb.server.buffer.AdjustableProtocolBufferAllocator;
-import top.evodb.server.buffer.ProtocolBuffer;
 import top.evodb.server.buffer.ProtocolBufferAllocator;
 import top.evodb.server.exception.MysqlPacketFactoryException;
 import top.evodb.server.mysql.ErrorCode;
 import top.evodb.server.mysql.protocol.CapabilityFlags;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class ErrorPacketTest {
     private static final int CHUNK_SIZE = 15;
