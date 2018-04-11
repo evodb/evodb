@@ -23,7 +23,7 @@ import top.evodb.server.util.BitUtil;
 /**
  * @author evodb
  */
-public class HandshakeResponse41 extends AbstractMysqlPacket {
+public class HandshakeResponse41Packet extends AbstractMysqlPacket {
     public int capability;
     public int maxPacketSize;
     public byte characterSet;
@@ -32,7 +32,7 @@ public class HandshakeResponse41 extends AbstractMysqlPacket {
     public String database;
     public String authPluginName;
 
-    public HandshakeResponse41(ProtocolBuffer protocolBuffer, Integer startIndex, Integer endIndex) {
+    public HandshakeResponse41Packet(ProtocolBuffer protocolBuffer, Integer startIndex, Integer endIndex) {
         super(protocolBuffer, startIndex, endIndex);
     }
 

@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import top.evodb.server.buffer.AbstractProtocolBuffer;
 import top.evodb.server.buffer.PacketDescriptor;
 import top.evodb.server.buffer.ProtocolBuffer;
 import top.evodb.server.exception.MysqlPacketFactoryException;
@@ -30,7 +29,7 @@ import top.evodb.server.mysql.Charset;
 import top.evodb.server.mysql.Constants;
 import top.evodb.server.mysql.ErrorCode;
 import top.evodb.server.mysql.protocol.ServerStatus;
-import top.evodb.server.mysql.protocol.packet.HandshakeResponse41;
+import top.evodb.server.mysql.protocol.packet.HandshakeResponse41Packet;
 import top.evodb.server.mysql.protocol.packet.MysqlPacket;
 import top.evodb.server.mysql.protocol.packet.OKPacket;
 import top.evodb.server.util.PacketUtil;
@@ -54,20 +53,20 @@ public class ClientAuthResponseHandler implements Handler {
             if (PacketUtil.getPacketType(protocolBuffer, protocolBuffer.readIndex()) == PacketDescriptor.PacketType.FULL) {
                 //TODO load charset
                 Charset charset = new Charset();
-                HandshakeResponse41 handshakeResponse41 = mysqlConnection.getMysqlPacketFactory().getMysqlPacket(HandshakeResponse41.class, protocolBuffer);
-                handshakeResponse41.read();
-                lastPacketId = (byte) (handshakeResponse41.getSequenceId() + 1);
-                mysqlConnection.setMaxPacketSize(handshakeResponse41.maxPacketSize);
-                mysqlConnection.setCapability(handshakeResponse41.capability);
-                charset.charsetIndex = handshakeResponse41.characterSet;
+                HandshakeResponse41Packet handshakeResponse41Packet = mysqlConnection.getMysqlPacketFactory().getMysqlPacket(HandshakeResponse41Packet.class, protocolBuffer);
+                handshakeResponse41Packet.read();
+                lastPacketId = (byte) (handshakeResponse41Packet.getSequenceId() + 1);
+                mysqlConnection.setMaxPacketSize(handshakeResponse41Packet.maxPacketSize);
+                mysqlConnection.setCapability(handshakeResponse41Packet.capability);
+                charset.charsetIndex = handshakeResponse41Packet.characterSet;
                 mysqlConnection.setCharset(charset);
                 mysqlConnection.setAttribute(AbstractMysqlConnection.ATTR_PRE_PACKET_ID, lastPacketId);
-                if (!Constants.AUTH_PLUGIN_NAME.equals(handshakeResponse41.authPluginName)) {
+                if (!Constants.AUTH_PLUGIN_NAME.equals(handshakeResponse41Packet.authPluginName)) {
                     closeConnection(mysqlConnection, ErrorCode.ER_ACCESS_DENIED_ERROR, "Auth plugin not found.");
                 }
 
-                if (!auth(handshakeResponse41, (byte[]) mysqlConnection.getAttribute(AbstractMysqlConnection.ATTR_AUTH_PLUGIN_DATA))) {
-                    closeConnection(mysqlConnection, ErrorCode.ER_ACCESS_DENIED_ERROR, "Access denied for user '" + handshakeResponse41.username + '\'');
+                if (!auth(handshakeResponse41Packet, (byte[]) mysqlConnection.getAttribute(AbstractMysqlConnection.ATTR_AUTH_PLUGIN_DATA))) {
+                    closeConnection(mysqlConnection, ErrorCode.ER_ACCESS_DENIED_ERROR, "Access denied for user '" + handshakeResponse41Packet.username + '\'');
                 } else {
                     OKPacket okPacket = mysqlConnection.getMysqlPacketFactory().getMysqlPacket(MysqlPacket.OK_PACKET);
                     okPacket.capabilityFlags = mysqlConnection.getCapability();
@@ -99,10 +98,10 @@ public class ClientAuthResponseHandler implements Handler {
         mysqlConnection.close(errorCode, message);
     }
 
-    private boolean auth(HandshakeResponse41 handshakeResponse41, byte[] authPluginData) {
+    private boolean auth(HandshakeResponse41Packet handshakeResponse41Packet, byte[] authPluginData) {
         //TODO real user config
-        String username = handshakeResponse41.username;
-        byte[] authResponse = handshakeResponse41.authResponse;
+        String username = handshakeResponse41Packet.username;
+        byte[] authResponse = handshakeResponse41Packet.authResponse;
         boolean authSuccess = true;
         try {
             byte[] authData = SecurityUtil.scramble411("123456".getBytes(), authPluginData);
