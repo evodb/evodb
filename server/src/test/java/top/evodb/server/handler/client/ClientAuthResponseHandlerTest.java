@@ -94,7 +94,10 @@ public class ClientAuthResponseHandlerTest {
         byte[] reponseBytes = protocolBuffer.readBytes(protocolBuffer.readableBytes());
         socket.getOutputStream().write(reponseBytes);
 
-
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
         in.close();
         socket.close();
     }

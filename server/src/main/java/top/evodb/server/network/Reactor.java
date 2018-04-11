@@ -130,12 +130,14 @@ public final class Reactor {
                     Iterator<SelectionKey> it = selectedKeys.iterator();
                     while (it.hasNext()) {
                         SelectionKey selectionKey = it.next();
-                        AbstractMysqlConnection mysqlConnection = (AbstractMysqlConnection) selectionKey.attachment();
-                        try {
-                            mysqlConnection.fireIOEvent();
-                        } catch (IllegalStateException e) {
-                            selectionKey.cancel();
-                            LOGGER.error("FireIOEvent error:", e);
+                        if (selectionKey.isValid()) {
+                            AbstractMysqlConnection mysqlConnection = (AbstractMysqlConnection) selectionKey.attachment();
+                            try {
+                                mysqlConnection.fireIOEvent();
+                            } catch (IllegalStateException e) {
+                                selectionKey.cancel();
+                                LOGGER.error("FireIOEvent error:", e);
+                            }
                         }
                         it.remove();
                     }

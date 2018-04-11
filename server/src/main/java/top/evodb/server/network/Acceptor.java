@@ -77,7 +77,7 @@ public final class Acceptor extends Thread {
                 Iterator<SelectionKey> it = selectKeys.iterator();
                 while (it.hasNext()) {
                     SelectionKey selectionKey = it.next();
-                    if (selectionKey.isAcceptable()) {
+                    if (selectionKey.isAcceptable() && selectionKey.isValid()) {
                         try {
                             SocketChannel socketChannel = serverSocketChannel.accept();
                             socketChannel.configureBlocking(false);
