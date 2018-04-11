@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2017-2018 The Evodb Project
  *
@@ -15,25 +14,17 @@
  *  under the License.
  */
 
-package top.evodb.server.util;
+package top.evodb.server;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.Random;
 
-public class SecurityUtil {
+/**
+ * @author ynfeng
+ */
+public class PortRandomUtil {
+    private static Random random = new Random(1000);
 
-    public static final byte[] scramble411(byte[] pass, byte[] seed)
-        throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance("SHA-1");
-        byte[] pass1 = md.digest(pass);
-        md.reset();
-        byte[] pass2 = md.digest(pass1);
-        md.reset();
-        md.update(seed);
-        byte[] pass3 = md.digest(pass2);
-        for (int i = 0; i < pass3.length; i++) {
-            pass3[i] = (byte) (pass3[i] ^ pass1[i]);
-        }
-        return pass3;
+    public static int getPort() {
+        return Math.abs(random.nextInt() % 65535);
     }
 }

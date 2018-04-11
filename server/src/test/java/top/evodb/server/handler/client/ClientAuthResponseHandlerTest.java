@@ -24,7 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.omg.Messaging.SYNC_WITH_TRANSPORT;
+import top.evodb.server.PortRandomUtil;
 import top.evodb.server.buffer.AdjustableProtocolBufferAllocator;
 import top.evodb.server.buffer.ProtocolBuffer;
 import top.evodb.server.buffer.ProtocolBufferAllocator;
@@ -47,11 +47,14 @@ public class ClientAuthResponseHandlerTest {
     private Acceptor acceptor;
     private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
     private MysqlPacketFactory factory = new MysqlPacketFactory(allocator);
+    private int port;
 
+    @SuppressWarnings("Duplicates")
     @Before
     public void setUp() throws IOException {
+        port = PortRandomUtil.getPort();
         reactor = Reactor.newInstance();
-        acceptor = Acceptor.newInstance("127.0.0.1", 8888, reactor);
+        acceptor = Acceptor.newInstance("127.0.0.1", port, reactor);
         acceptor.start();
         reactor.start();
     }
@@ -64,8 +67,22 @@ public class ClientAuthResponseHandlerTest {
 
     @Test
     public void testHandle() throws IOException, MysqlPacketFactoryException, NoSuchAlgorithmException {
+        auth("123456", Constants.AUTH_PLUGIN_NAME);
+    }
+
+    @Test
+    public void testHandleWithWrongPassword() throws IOException, MysqlPacketFactoryException, NoSuchAlgorithmException {
+        auth("1234567", Constants.AUTH_PLUGIN_NAME);
+    }
+
+    @Test
+    public void testHandleWithWrongAuthPluginName() throws IOException, MysqlPacketFactoryException, NoSuchAlgorithmException {
+        auth("1234567", "some thing");
+    }
+
+    private void auth(String password, String authPluginName) throws IOException, MysqlPacketFactoryException, NoSuchAlgorithmException {
         Socket socket = new Socket();
-        socket.connect(new InetSocketAddress("127.0.0.1", 8888));
+        socket.connect(new InetSocketAddress("127.0.0.1", port));
         InputStream in = socket.getInputStream();
         byte[] buffer = new byte[1024];
         int readed = in.read(buffer);
@@ -83,12 +100,12 @@ public class ClientAuthResponseHandlerTest {
         handshakeResponse41Packet.maxPacketSize = MysqlPacket.LARGE_PACKET_SIZE;
         handshakeResponse41Packet.characterSet = 8;
         handshakeResponse41Packet.username = "root";
-        handshakeResponse41Packet.authPluginName = Constants.AUTH_PLUGIN_NAME;
+        handshakeResponse41Packet.authPluginName = authPluginName;
 
         byte[] challenge = new byte[20];
         System.arraycopy(handshakeV10Packet.authPluginDataPart1, 0, challenge, 0, 8);
         System.arraycopy(handshakeV10Packet.authPluginDataPart2, 0, challenge, 8, 12);
-        handshakeResponse41Packet.authResponse = SecurityUtil.scramble411("123456".getBytes(), challenge);
+        handshakeResponse41Packet.authResponse = SecurityUtil.scramble411(password.getBytes(), challenge);
         protocolBuffer = handshakeResponse41Packet.write();
 
         byte[] reponseBytes = protocolBuffer.readBytes(protocolBuffer.readableBytes());

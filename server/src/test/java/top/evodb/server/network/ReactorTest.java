@@ -23,6 +23,7 @@ import java.net.Socket;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import top.evodb.server.PortRandomUtil;
 
 /**
  * @author evodb
@@ -30,11 +31,14 @@ import org.junit.Test;
 public class ReactorTest {
     private Reactor reactor;
     private Acceptor acceptor;
+    private int port;
 
+    @SuppressWarnings("Duplicates")
     @Before
     public void setUp() throws IOException {
+        port = PortRandomUtil.getPort();
         reactor = Reactor.newInstance();
-        acceptor = Acceptor.newInstance("127.0.0.1", 7777, reactor);
+        acceptor = Acceptor.newInstance("127.0.0.1", port, reactor);
         acceptor.start();
         reactor.start();
     }
@@ -48,7 +52,7 @@ public class ReactorTest {
     @Test
     public void readTest() throws IOException {
         Socket socket = new Socket();
-        socket.connect(new InetSocketAddress("127.0.0.1", 7777));
+        socket.connect(new InetSocketAddress("127.0.0.1", port));
         InputStream in = socket.getInputStream();
         in.read();
     }

@@ -24,6 +24,7 @@ import java.net.SocketTimeoutException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import top.evodb.server.PortRandomUtil;
 
 /**
  * @author evodb
@@ -31,11 +32,13 @@ import org.junit.Test;
 public class AcceptorTest {
     private Reactor reactor;
     private Acceptor acceptor;
+    private int port;
 
     @Before
     public void setUp() throws IOException {
+        port = PortRandomUtil.getPort();
         reactor = Reactor.newInstance();
-        acceptor = Acceptor.newInstance("127.0.0.1", 6666, reactor);
+        acceptor = Acceptor.newInstance("127.0.0.1", port, reactor);
         acceptor.start();
     }
 
@@ -48,7 +51,7 @@ public class AcceptorTest {
     public void connectTest() throws IOException {
         Socket socket = new Socket();
         socket.setSoTimeout(1000);
-        socket.connect(new InetSocketAddress("127.0.0.1", 6666));
+        socket.connect(new InetSocketAddress("127.0.0.1", port));
         InputStream in = socket.getInputStream();
         in.read();
     }
