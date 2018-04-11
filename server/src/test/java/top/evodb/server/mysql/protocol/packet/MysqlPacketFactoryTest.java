@@ -50,6 +50,11 @@ public class MysqlPacketFactoryTest {
     }
 
     @Test
+    public void testGetMysqlPacketWithClassAndProtocolBuffer() throws MysqlPacketFactoryException {
+        factory.getMysqlPacket(HandshakeResponse41Packet.class, allocator.allocate());
+    }
+
+    @Test
     public void testGetMysqlPacketWithProtocolBuffer() throws MysqlPacketFactoryException {
         int capablityFlags = 0;
         capablityFlags |= CapabilityFlags.SESSION_TRACK;
