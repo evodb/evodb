@@ -42,19 +42,11 @@ public final class Reactor {
     private int currentReactorThread;
     private final ReactorThread[] reactorThreads;
     private static final Logger LOGGER = LoggerFactory.getLogger(Reactor.class);
-    private static volatile Reactor instance;
     private final ProtocolBufferAllocator<AdjustableProtocolBuffer> allocator;
     private final MysqlPacketFactory mysqlPacketFactory;
 
-    public static Reactor getInstance() throws IOException {
-        if (instance == null) {
-            synchronized (Reactor.class) {
-                if (instance == null) {
-                    instance = new Reactor();
-                }
-            }
-        }
-        return instance;
+    public static Reactor newInstance() throws IOException {
+        return new Reactor();
     }
 
     private Reactor() throws IOException {

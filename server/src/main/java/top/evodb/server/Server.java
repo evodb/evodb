@@ -34,8 +34,8 @@ public class Server {
         Reactor reactor;
         Acceptor acceptor;
         try {
-            reactor = Reactor.getInstance();
-            acceptor = Acceptor.getInstance("127.0.0.1", 6666, reactor);
+            reactor = Reactor.newInstance();
+            acceptor = Acceptor.newInstance("127.0.0.1", 6666, reactor);
             acceptor.start();
             reactor.start();
         } catch (IOException e) {

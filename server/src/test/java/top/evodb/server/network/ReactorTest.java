@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,29 +27,29 @@ import org.junit.Test;
 /**
  * @author evodb
  */
-public class AcceptorTest {
+public class ReactorTest {
     private Reactor reactor;
     private Acceptor acceptor;
 
     @Before
     public void setUp() throws IOException {
         reactor = Reactor.newInstance();
-        acceptor = Acceptor.newInstance("127.0.0.1", 6666, reactor);
+        acceptor = Acceptor.newInstance("127.0.0.1", 7777, reactor);
         acceptor.start();
+        reactor.start();
     }
 
     @After
     public void shutdown() {
         acceptor.shutdown();
+        reactor.shutdown();
     }
 
-    @Test(expected = SocketTimeoutException.class)
-    public void connectTest() throws IOException {
+    @Test
+    public void readTest() throws IOException {
         Socket socket = new Socket();
-        socket.setSoTimeout(1000);
-        socket.connect(new InetSocketAddress("127.0.0.1", 6666));
+        socket.connect(new InetSocketAddress("127.0.0.1", 7777));
         InputStream in = socket.getInputStream();
         in.read();
     }
-
 }

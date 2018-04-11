@@ -35,21 +35,13 @@ import top.evodb.server.mysql.ClientConnectionFactory;
 public final class Acceptor extends Thread {
     private Selector selector;
     private final ServerSocketChannel serverSocketChannel;
-    private static volatile Acceptor instance;
     private static final int SELECT_TIMEOUT = 1000;
     private final Reactor reactor;
     private static final Logger LOGGER = LoggerFactory.getLogger(Acceptor.class);
     private ClientConnectionFactory clientConnectionFactory = ClientConnectionFactory.getInstance();
 
-    public static Acceptor getInstance(String bindIp, int bindPort, Reactor reactor) throws IOException {
-        if (instance == null) {
-            synchronized (Acceptor.class) {
-                if (instance == null) {
-                    instance = new Acceptor(bindIp, bindPort, reactor);
-                }
-            }
-        }
-        return instance;
+    public static Acceptor newInstance(String bindIp, int bindPort, Reactor reactor) throws IOException {
+        return new Acceptor(bindIp, bindPort, reactor);
     }
 
     @Override
