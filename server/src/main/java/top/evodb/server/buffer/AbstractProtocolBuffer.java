@@ -38,9 +38,9 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
 
     protected long getInt(int index, int length) {
         long rv = 0;
-        byte[] bytes = getBytes(index, length);
-        for (int i = 0; i < bytes.length; i++) {
-            rv |= ((long) bytes[i] & 0xFF) << i * 8;
+        int index0 = index;
+        for (int i = 0; i < length; i++) {
+            rv |= ((long) getByte(index0++) & 0xFF) << i * 8;
         }
         return rv;
     }
@@ -93,7 +93,6 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
 
     @Override
     public long readFixInt(int length) {
-
         long val = getInt(readIndex, length);
         readIndex += length;
         return val;
@@ -321,11 +320,6 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
         putBytes(writeIndex, length, bytes);
         writeIndex += length;
         return this;
-    }
-
-    @Override
-    public byte getByte(int index) {
-        return getBytes(index, 1)[0];
     }
 
     @Override

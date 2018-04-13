@@ -38,6 +38,7 @@ public class Server {
             acceptor = Acceptor.newInstance("127.0.0.1", 6666, reactor);
             acceptor.start();
             reactor.start();
+            LOGGER.info("Evodb server listen on port:" + 6666);
         } catch (IOException e) {
             LOGGER.error("Start server error.", e);
         }
