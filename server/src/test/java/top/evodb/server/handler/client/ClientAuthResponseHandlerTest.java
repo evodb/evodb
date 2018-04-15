@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,16 +72,19 @@ public class ClientAuthResponseHandlerTest {
     }
 
     @Test
-    public void testHandleWithWrongPassword() throws IOException, MysqlPacketFactoryException, NoSuchAlgorithmException {
+    public void testHandleWithWrongPassword()
+            throws IOException, MysqlPacketFactoryException, NoSuchAlgorithmException {
         auth("1234567", Constants.AUTH_PLUGIN_NAME);
     }
 
     @Test
-    public void testHandleWithWrongAuthPluginName() throws IOException, MysqlPacketFactoryException, NoSuchAlgorithmException {
+    public void testHandleWithWrongAuthPluginName()
+            throws IOException, MysqlPacketFactoryException, NoSuchAlgorithmException {
         auth("1234567", "some thing");
     }
 
-    private void auth(String password, String authPluginName) throws IOException, MysqlPacketFactoryException, NoSuchAlgorithmException {
+    private void auth(String password, String authPluginName)
+            throws IOException, MysqlPacketFactoryException, NoSuchAlgorithmException {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress("127.0.0.1", port));
         InputStream in = socket.getInputStream();
@@ -108,7 +112,8 @@ public class ClientAuthResponseHandlerTest {
         handshakeResponse41Packet.authResponse = SecurityUtil.scramble411(password.getBytes(), challenge);
         protocolBuffer = handshakeResponse41Packet.write();
 
-        byte[] reponseBytes = protocolBuffer.readBytes(protocolBuffer.readableBytes());
+        byte[] reponseBytes = new byte[protocolBuffer.readableBytes()];
+        protocolBuffer.readBytes(reponseBytes);
         socket.getOutputStream().write(reponseBytes);
 
         try {

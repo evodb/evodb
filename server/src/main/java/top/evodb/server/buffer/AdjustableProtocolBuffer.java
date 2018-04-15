@@ -108,9 +108,10 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
     }
 
     @Override
-    public byte[] getBytes(int index, int length) {
+    public int getBytes(byte[] dest, int index) {
+        int length = dest.length;
+        int readed = 0;
         check(index, length);
-        byte[] bytes = new byte[length];
         ByteBuffer byteBuffer = fromSlot(index);
         int index0 = toInternalIndex(index);
         int offset = 0;
@@ -119,10 +120,12 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
         for (; ; ) {
             int readableLength = byteBuffer.limit() - byteBuffer.position();
             if (readableLength >= length) {
-                byteBuffer.get(bytes, offset, length);
+                byteBuffer.get(dest, offset, length);
+                readed = length;
                 break;
             } else {
-                byteBuffer.get(bytes, offset, readableLength);
+                byteBuffer.get(dest, offset, readableLength);
+                readed += readableLength;
                 length -= readableLength;
                 index0 = toInternalIndex(index + readableLength);
                 offset += readableLength;
@@ -132,7 +135,7 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
                 byteBuffer.position(index0);
             }
         }
-        return bytes;
+        return readed;
     }
 
     @Override

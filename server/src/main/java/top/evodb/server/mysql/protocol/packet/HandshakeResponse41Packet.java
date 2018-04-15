@@ -79,10 +79,12 @@ public class HandshakeResponse41Packet extends AbstractMysqlPacket {
         username = protocolBuffer.readNULString();
         if (BitUtil.checkBit(capability, CapabilityFlags.PLUGIN_AUTH_LENENC_CLIENT_DATA)) {
             int lengthOfAuthResponse = (int) protocolBuffer.readLenencInt();
-            authResponse = protocolBuffer.readBytes(lengthOfAuthResponse);
+            authResponse = new byte[lengthOfAuthResponse];
+            protocolBuffer.readBytes(authResponse);
         } else if (BitUtil.checkBit(capability, CapabilityFlags.SECURE_CONNECTION)) {
             byte lengthOfAuthResonse = protocolBuffer.readByte();
-            authResponse = protocolBuffer.readBytes(lengthOfAuthResonse);
+            authResponse = new byte[lengthOfAuthResonse];
+            protocolBuffer.readBytes(authResponse);
         } else {
             authResponse = protocolBuffer.readNULString().getBytes();
         }

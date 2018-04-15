@@ -82,7 +82,8 @@ public class HandshakeV10Packet extends AbstractMysqlPacket {
         protocolVersion = protocolBuffer.readByte();
         serverVersion = protocolBuffer.readNULString();
         connectionId = (int) protocolBuffer.readFixInt(4);
-        authPluginDataPart1 = protocolBuffer.readBytes(8);
+        authPluginDataPart1 = new byte[8];
+        protocolBuffer.readBytes(authPluginDataPart1);
         protocolBuffer.readByte();
 
 
@@ -96,7 +97,8 @@ public class HandshakeV10Packet extends AbstractMysqlPacket {
         protocolBuffer.readFixInt(5);
         protocolBuffer.readFixInt(5);
         if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.SECURE_CONNECTION)) {
-            authPluginDataPart2 = protocolBuffer.readBytes(12);
+            authPluginDataPart2 = new byte[12];
+            protocolBuffer.readBytes(authPluginDataPart2);
             protocolBuffer.readByte();
         }
         if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.PLUGIN_AUTH)) {

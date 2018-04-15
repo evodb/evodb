@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -276,7 +277,7 @@ public class AdjustableProtocolBufferTest {
 
     @Test
     public void testWriteBytes() {
-        byte[] bytes = {1, 2, 3, 4};
+        byte[] bytes = { 1, 2, 3, 4 };
         ProtocolBuffer protocolBuffer = allocator.allocate();
         protocolBuffer.writeBytes(bytes);
         protocolBuffer.writeBytes(2, bytes);
@@ -299,10 +300,11 @@ public class AdjustableProtocolBufferTest {
 
     @Test
     public void testReadBytes() {
-        byte[] bytes = {1, 2, 3, 4};
+        byte[] bytes = { 1, 2, 3, 4 };
         ProtocolBuffer protocolBuffer = allocator.allocate();
         protocolBuffer.writeBytes(bytes);
-        byte[] rv = protocolBuffer.readBytes(4);
+        byte[] rv = new byte[4];
+        protocolBuffer.readBytes(rv);
         assertEquals(bytes.length, rv.length);
         for (int i = 0; i < bytes.length; i++) {
             assertEquals(bytes[i], rv[i]);
@@ -312,12 +314,12 @@ public class AdjustableProtocolBufferTest {
     @Test
     public void testPutLenencBytes() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.putLenencBytes(0, new byte[] {1, 2, 3, 4});
+        protocolBuffer.putLenencBytes(0, new byte[] { 1, 2, 3, 4 });
     }
 
     @Test
     public void testGetLenencBytes() {
-        byte[] bytes = {1, 2, 3, 4};
+        byte[] bytes = { 1, 2, 3, 4 };
         ProtocolBuffer protocolBuffer = allocator.allocate();
         protocolBuffer.putLenencBytes(0, bytes);
         byte[] rv = protocolBuffer.getLenencBytes(0);
@@ -330,12 +332,12 @@ public class AdjustableProtocolBufferTest {
     @Test
     public void testWriteLenencBytes() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeLenencBytes(new byte[] {1, 2, 3, 4});
+        protocolBuffer.writeLenencBytes(new byte[] { 1, 2, 3, 4 });
     }
 
     @Test
     public void testReadLenencBytes() {
-        byte[] bytes = {1, 2, 3, 4};
+        byte[] bytes = { 1, 2, 3, 4 };
         ProtocolBuffer protocolBuffer = allocator.allocate();
         protocolBuffer.writeLenencBytes(bytes);
         byte[] rv = protocolBuffer.readLenencBytes();
@@ -348,7 +350,7 @@ public class AdjustableProtocolBufferTest {
     @Test
     public void testClear() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeLenencBytes(new byte[] {1, 2, 3, 4});
+        protocolBuffer.writeLenencBytes(new byte[] { 1, 2, 3, 4 });
         assertEquals(5, protocolBuffer.writeIndex());
         protocolBuffer.clear();
         assertEquals(0, protocolBuffer.readIndex());
@@ -359,7 +361,7 @@ public class AdjustableProtocolBufferTest {
     public void testTransferToChannel() throws IOException {
         SocketChannel socketChannel = mock(SocketChannel.class);
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeLenencBytes(new byte[] {1, 2, 3, 4});
+        protocolBuffer.writeLenencBytes(new byte[] { 1, 2, 3, 4 });
         int writed = protocolBuffer.transferToChannel(socketChannel);
         assertTrue(writed != -1);
     }
@@ -369,7 +371,7 @@ public class AdjustableProtocolBufferTest {
         SocketChannel socketChannel = mock(SocketChannel.class);
         ProtocolBuffer protocolBuffer = allocator.allocate();
         for (int i = 0; i < 20; i++) {
-            protocolBuffer.writeBytes(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+            protocolBuffer.writeBytes(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
         }
         int writed = protocolBuffer.transferToChannel(socketChannel);
         assertTrue(writed != -1);
@@ -390,7 +392,7 @@ public class AdjustableProtocolBufferTest {
         SocketChannel socketChannel = mock(SocketChannel.class);
         when(socketChannel.write((ByteBuffer) any())).thenReturn(10);
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeBytes(10, new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+        protocolBuffer.writeBytes(10, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
         int writed = protocolBuffer.transferToChannel(socketChannel);
         assertEquals(10, writed);
     }
@@ -414,14 +416,14 @@ public class AdjustableProtocolBufferTest {
 
     @Test
     public void testTransferFromChannelFullByteBuffer() throws IOException {
-        final int[] readTime = {1};
+        final int[] readTime = { 1 };
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(15);
 
         SocketChannel socketChannel = mock(SocketChannel.class);
         when(socketChannel.read((ByteBuffer) any())).thenReturn(1);
 
         AdjustableProtocolBufferAllocator spyAllocator = Mockito.spy(
-            (AdjustableProtocolBufferAllocator) allocator);
+                (AdjustableProtocolBufferAllocator) allocator);
         when(spyAllocator.allocateByteBuffer()).thenReturn(byteBuffer);
 
         doAnswer(readBuffer -> {
@@ -452,20 +454,20 @@ public class AdjustableProtocolBufferTest {
     @Test(expected = IndexOutOfBoundsException.class)
     public void testPutBytesWithWrongIndex() throws IOException {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.putBytes(-1, 10, new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+        protocolBuffer.putBytes(-1, 10, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void testPutBytesWithWrongLength() throws IOException {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.putBytes(0, 12, new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+        protocolBuffer.putBytes(0, 12, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
     }
 
     @Test(expected = IllegalStateException.class)
     public void testPutBytesWithRecyled() throws IOException {
         ProtocolBuffer protocolBuffer = allocator.allocate();
         allocator.recyle(protocolBuffer);
-        protocolBuffer.putBytes(-1, 10, new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+        protocolBuffer.putBytes(-1, 10, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
     }
 
     @Test
@@ -473,7 +475,7 @@ public class AdjustableProtocolBufferTest {
         String data = "1234567890";
         ProtocolBuffer protocolBuffer = allocator.allocate();
         protocolBuffer.writeFixString(data);
-        protocolBuffer.readBytes(5);
+        protocolBuffer.readFixInt(5);
         protocolBuffer.compact();
         String rv = protocolBuffer.readFixString(5);
         assertEquals("67890", rv);

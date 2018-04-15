@@ -146,13 +146,15 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
 
     @Override
     public String getFixString(int index, int length) {
-        byte[] bytes = getBytes(index, length);
+        byte[] bytes = new byte[length];
+        getBytes(bytes, index);
         return new String(bytes);
     }
 
     @Override
     public String readFixString(int length) {
-        byte[] bytes = getBytes(readIndex, length);
+        byte[] bytes = new byte[length];
+        getBytes(bytes, readIndex);
         readIndex += length;
         return new String(bytes);
     }
@@ -161,7 +163,8 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
     public String getLenencString(int index) {
         int strLen = (int) getLenencInt(index);
         int lenencLen = getLenencLength(strLen);
-        byte[] bytes = getBytes(index + lenencLen, strLen);
+        byte[] bytes = new byte[strLen];
+        getBytes(bytes, index + lenencLen);
         return new String(bytes);
     }
 
@@ -169,7 +172,8 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
     public String readLenencString() {
         int strLen = (int) getLenencInt(readIndex);
         int lenencLen = getLenencLength(strLen);
-        byte[] bytes = getBytes(readIndex + lenencLen, strLen);
+        byte[] bytes = new byte[strLen];
+        getBytes(bytes, readIndex + lenencLen);
         readIndex += strLen + lenencLen;
         return new String(bytes);
     }
@@ -184,7 +188,8 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
             }
             strLength++;
         }
-        byte[] bytes = getBytes(index, strLength);
+        byte[] bytes = new byte[strLength];
+        getBytes(bytes, index);
         return new String(bytes);
     }
 
@@ -293,10 +298,10 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
     }
 
     @Override
-    public byte[] readBytes(int length) {
-        byte[] bytes = getBytes(readIndex, length);
+    public int readBytes(byte[] bytes) {
+        int length = getBytes(bytes, readIndex);
         readIndex += length;
-        return bytes;
+        return length;
     }
 
     @Override
@@ -306,7 +311,7 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
 
     @Override
     public ProtocolBuffer putByte(int index, byte val) {
-        return putBytes(index, new byte[] {val});
+        return putBytes(index, new byte[] { val });
     }
 
     @Override
@@ -332,13 +337,16 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
     @Override
     public byte[] getLenencBytes(int index) {
         int len = (int) getLenencInt(index);
-        return getBytes(index + getLenencLength(len), len);
+        byte[] bytes = new byte[len];
+        getBytes(bytes, index + getLenencLength(len));
+        return bytes;
     }
 
     @Override
     public byte[] readLenencBytes() {
         int len = (int) getLenencInt(readIndex);
-        byte[] bytes = getBytes(readIndex + getLenencLength(len), len);
+        byte[] bytes = new byte[len];
+        getBytes(bytes, readIndex + getLenencLength(len));
         readIndex += getLenencLength(len) + len;
         return bytes;
     }
