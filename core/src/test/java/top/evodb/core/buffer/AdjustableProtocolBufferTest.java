@@ -14,7 +14,7 @@
  *  under the License.
  */
 
-package top.evodb.server.buffer;
+package top.evodb.core.buffer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -28,8 +28,8 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 /**
@@ -380,7 +380,7 @@ public class AdjustableProtocolBufferTest {
     @Test
     public void testTransferToChannelWithError() throws IOException {
         SocketChannel socketChannel = mock(SocketChannel.class);
-        when(socketChannel.write((ByteBuffer) any())).thenReturn(-1);
+        when(socketChannel.write((ByteBuffer) ArgumentMatchers.any())).thenReturn(-1);
         ProtocolBuffer protocolBuffer = allocator.allocate();
         protocolBuffer.writeFixString("test");
         int writed = protocolBuffer.transferToChannel(socketChannel);
@@ -390,7 +390,7 @@ public class AdjustableProtocolBufferTest {
     @Test
     public void testTransferToChannelWith10Bytes() throws IOException {
         SocketChannel socketChannel = mock(SocketChannel.class);
-        when(socketChannel.write((ByteBuffer) any())).thenReturn(10);
+        when(socketChannel.write((ByteBuffer) ArgumentMatchers.any())).thenReturn(10);
         ProtocolBuffer protocolBuffer = allocator.allocate();
         protocolBuffer.writeBytes(10, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
         int writed = protocolBuffer.transferToChannel(socketChannel);
@@ -408,7 +408,7 @@ public class AdjustableProtocolBufferTest {
     @Test
     public void testTransferFromChannelWithError() throws IOException {
         SocketChannel socketChannel = mock(SocketChannel.class);
-        when(socketChannel.read((ByteBuffer) any())).thenReturn(-1);
+        when(socketChannel.read((ByteBuffer) ArgumentMatchers.any())).thenReturn(-1);
         ProtocolBuffer protocolBuffer = allocator.allocate();
         int readed = protocolBuffer.transferFromChannel(socketChannel);
         assertEquals(-1, readed);
@@ -420,7 +420,7 @@ public class AdjustableProtocolBufferTest {
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(15);
 
         SocketChannel socketChannel = mock(SocketChannel.class);
-        when(socketChannel.read((ByteBuffer) any())).thenReturn(1);
+        when(socketChannel.read((ByteBuffer) ArgumentMatchers.any())).thenReturn(1);
 
         AdjustableProtocolBufferAllocator spyAllocator = Mockito.spy(
                 (AdjustableProtocolBufferAllocator) allocator);
@@ -445,7 +445,7 @@ public class AdjustableProtocolBufferTest {
     @Test
     public void testTransferFromChannelWith10Bytes() throws IOException {
         SocketChannel socketChannel = mock(SocketChannel.class);
-        when(socketChannel.read((ByteBuffer) any())).thenReturn(10);
+        when(socketChannel.read((ByteBuffer) ArgumentMatchers.any())).thenReturn(10);
         ProtocolBuffer protocolBuffer = allocator.allocate();
         int readed = protocolBuffer.transferFromChannel(socketChannel);
         assertEquals(10, readed);

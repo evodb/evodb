@@ -14,7 +14,7 @@
  *  under the License.
  */
 
-package top.evodb.server.buffer;
+package top.evodb.core.buffer;
 
 /**
  * The tool for manipulating the descriptor.

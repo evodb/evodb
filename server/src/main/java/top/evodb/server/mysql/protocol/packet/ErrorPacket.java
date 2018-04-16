@@ -16,7 +16,8 @@
 
 package top.evodb.server.mysql.protocol.packet;
 
-import top.evodb.server.buffer.ProtocolBuffer;
+import top.evodb.core.buffer.ProtocolBuffer;
+import top.evodb.core.mysql.protocol.packet.MysqlPacket;
 import top.evodb.server.mysql.ErrorCode;
 import top.evodb.server.mysql.protocol.CapabilityFlags;
 import top.evodb.server.util.BitUtil;

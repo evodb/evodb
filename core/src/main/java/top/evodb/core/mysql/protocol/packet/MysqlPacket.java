@@ -14,37 +14,49 @@
  *  under the License.
  */
 
-package top.evodb.server.mysql.protocol.packet;
+package top.evodb.core.mysql.protocol.packet;
 
-import top.evodb.server.buffer.ProtocolBuffer;
+
+import top.evodb.core.buffer.ProtocolBuffer;
 
 /**
- * Data packet.
+ * Mysql protocol packet.
  *
  * @author evodb
  */
-public interface Packet {
+public interface MysqlPacket extends Packet {
 
-    int LARGE_PACKET_SIZE = (1 << 24) - 1;
+    int PACKET_START = 0;
+    int PACKET_OFFSET = 3;
+    int PACKET_PAYLOAD_OFFSET = 4;
+    int PACKET_CMD_OFFSET = 5;
 
-    /**
-     * Get the length of data packet length.
-     *
-     * @return the length of mysql protocol packet
-     */
-    int getPayloadLength();
-
-    /**
-     * Get sequence id
-     *
-     * @return sequence id
-     */
-    byte getSequenceId();
+    byte OK_PACKET = 0x00;
+    byte ERR_PACKET = (byte) 0xff;
 
     /**
-     * Get pay load.
+     * Get the command in mysql packet.
      *
-     * @return protocol buffer
+     * @return command of packet
      */
-    ProtocolBuffer getPayload();
+    byte getCmd();
+
+    /**
+     * Set the sequence id of packet.
+     *
+     * @param sequenceId sequenceId
+     */
+    void setSequenceId(byte sequenceId);
+
+    /**
+     * Write packet data to buffer.
+     *
+     * @return ProtocolBuffer
+     */
+    ProtocolBuffer write();
+
+    /**
+     * Parse data from protocol buffer.
+     */
+    void read();
 }

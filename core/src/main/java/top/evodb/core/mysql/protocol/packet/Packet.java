@@ -14,27 +14,38 @@
  *  under the License.
  */
 
-package top.evodb.server.buffer;
+package top.evodb.core.mysql.protocol.packet;
+
+
+import top.evodb.core.buffer.ProtocolBuffer;
 
 /**
- * The class that implements this interface can create multiple iterators, Each of which keeps its
- * internal state until the {@link PacketIterator#reset()} method calls. Note:For performance
- * reasons, try to create only one iterator.
+ * Data packet.
  *
  * @author evodb
  */
-@SuppressWarnings("unused")
-public interface IterableBuffer {
+public interface Packet {
+
+    int LARGE_PACKET_SIZE = (1 << 24) - 1;
 
     /**
-     * Gets an iterator named 'default'.
-     */
-    PacketIterator packetIterator();
-
-    /**
-     * Gets an iterator named {@code name}.
+     * Get the length of data packet length.
      *
-     * @param name The name of iterator
+     * @return the length of mysql protocol packet
      */
-    PacketIterator packetIterator(String name);
+    int getPayloadLength();
+
+    /**
+     * Get sequence id
+     *
+     * @return sequence id
+     */
+    byte getSequenceId();
+
+    /**
+     * Get pay load.
+     *
+     * @return protocol buffer
+     */
+    ProtocolBuffer getPayload();
 }

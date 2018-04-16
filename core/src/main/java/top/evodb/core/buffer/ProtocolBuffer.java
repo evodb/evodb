@@ -14,7 +14,7 @@
  *  under the License.
  */
 
-package top.evodb.server.buffer;
+package top.evodb.core.buffer;
 
 import java.io.IOException;
 import java.nio.channels.SocketChannel;

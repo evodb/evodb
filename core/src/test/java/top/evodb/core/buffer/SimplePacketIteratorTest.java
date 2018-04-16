@@ -14,7 +14,7 @@
  *  under the License.
  */
 
-package top.evodb.server.buffer;
+package top.evodb.core.buffer;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -22,11 +22,6 @@ import static org.junit.Assert.assertTrue;
 
 
 import org.junit.Test;
-import top.evodb.server.exception.MysqlPacketFactoryException;
-import top.evodb.server.mysql.protocol.ServerStatus;
-import top.evodb.server.mysql.protocol.packet.MysqlPacket;
-import top.evodb.server.mysql.protocol.packet.MysqlPacketFactory;
-import top.evodb.server.mysql.protocol.packet.OKPacket;
 
 /**
  * @author evodb
@@ -35,7 +30,6 @@ public class SimplePacketIteratorTest {
 
     private static final int CHUNK_SIZE = 15;
     private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
-    private MysqlPacketFactory factory = new MysqlPacketFactory(allocator);
 
     @Test
     public void testGetDefaultPacketIterator() {
@@ -60,23 +54,18 @@ public class SimplePacketIteratorTest {
     }
 
     @Test
-    public void testHasPacketWithFullPacket() throws MysqlPacketFactoryException {
-        OKPacket okPacket = factory.getMysqlPacket(MysqlPacket.OK_PACKET);
-        okPacket.setSequenceId((byte) 120);
-        okPacket.affectedRows = 101;
-        okPacket.lastInsertId = 10083;
-        okPacket.statusFlag = ServerStatus.SERVER_SESSION_STATE_CHANGED;
-        okPacket.warnings = 200;
-        okPacket.info = "test";
-        okPacket.sessionStateChanges = "session state change";
-        ProtocolBuffer protocolBuffer = okPacket.write();
+    public void testHasPacketWithFullPacket() {
+        ProtocolBuffer protocolBuffer = allocator.allocate();
+        protocolBuffer.writeFixInt(3, 10);
+        protocolBuffer.writeByte((byte) 0);
+        protocolBuffer.writeFixString("123456789");
 
         PacketIterator packetIterator = protocolBuffer.packetIterator();
         assertTrue(packetIterator.hasPacket());
     }
 
     @Test
-    public void testHasPacketWithHalfPacket() throws MysqlPacketFactoryException {
+    public void testHasPacketWithHalfPacket() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
         protocolBuffer.writeFixInt(3, 14);
         protocolBuffer.writeByte((byte) 0);
@@ -97,7 +86,7 @@ public class SimplePacketIteratorTest {
     }
 
     @Test
-    public void testNextPacketWithFullPacket() throws MysqlPacketFactoryException {
+    public void testNextPacketWithFullPacket() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
         /* packet 1 */
         protocolBuffer.writeFixInt(3, 7);
@@ -129,7 +118,7 @@ public class SimplePacketIteratorTest {
     }
 
     @Test
-    public void testNextPacketWithFullPacketAndHalfPacket() throws MysqlPacketFactoryException {
+    public void testNextPacketWithFullPacketAndHalfPacket() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
         /* packet 1 */
         protocolBuffer.writeFixInt(3, 7);

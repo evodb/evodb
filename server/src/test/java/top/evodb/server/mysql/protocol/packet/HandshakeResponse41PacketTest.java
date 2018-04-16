@@ -20,8 +20,9 @@ import static org.junit.Assert.assertEquals;
 
 
 import org.junit.Test;
-import top.evodb.server.buffer.AdjustableProtocolBufferAllocator;
-import top.evodb.server.buffer.ProtocolBufferAllocator;
+import top.evodb.core.buffer.AdjustableProtocolBufferAllocator;
+import top.evodb.core.buffer.ProtocolBufferAllocator;
+import top.evodb.core.mysql.protocol.packet.MysqlPacket;
 import top.evodb.server.exception.MysqlPacketFactoryException;
 import top.evodb.server.mysql.Constants;
 import top.evodb.server.mysql.protocol.CapabilityFlags;

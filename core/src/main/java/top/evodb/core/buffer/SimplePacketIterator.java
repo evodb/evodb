@@ -14,9 +14,10 @@
  *  under the License.
  */
 
-package top.evodb.server.buffer;
+package top.evodb.core.buffer;
 
-import top.evodb.server.mysql.protocol.packet.MysqlPacket;
+
+import top.evodb.core.mysql.protocol.packet.MysqlPacket;
 
 /**
  * @author evodb

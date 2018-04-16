@@ -14,7 +14,7 @@
  *  under the License.
  */
 
-package top.evodb.server.buffer;
+package top.evodb.core.buffer;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;

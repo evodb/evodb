@@ -14,15 +14,12 @@
  *  under the License.
  */
 
-package top.evodb.server.buffer;
+package top.evodb.core.buffer;
 
 import static org.junit.Assert.assertEquals;
 
 
 import org.junit.Test;
-import top.evodb.server.buffer.PacketDescriptor.PacketType;
-import top.evodb.server.exception.MysqlPacketFactoryException;
-import top.evodb.server.mysql.protocol.packet.MysqlPacketFactory;
 
 /**
  * @author evodb
@@ -31,11 +28,10 @@ public class PacketDescriptorTest {
 
     private static final int CHUNK_SIZE = 15;
     private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
-    private MysqlPacketFactory factory = new MysqlPacketFactory(allocator);
 
 
     @Test
-    public void testPacketDescriptorWithFullAndShortPacket() throws MysqlPacketFactoryException {
+    public void testPacketDescriptorWithFullAndShortPacket() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
         /* packet 1 */
         protocolBuffer.writeFixInt(3, 7);
@@ -54,13 +50,13 @@ public class PacketDescriptorTest {
 
         assertEquals(7, PacketDescriptor.getPacketLen(packetDescriptor));
         assertEquals(0, PacketDescriptor.getCommandType(packetDescriptor));
-        assertEquals(PacketType.FULL, PacketDescriptor.getPacketType(packetDescriptor));
+        assertEquals(PacketDescriptor.PacketType.FULL, PacketDescriptor.getPacketType(packetDescriptor));
         assertEquals(0, PacketDescriptor.getPacketStartPos(packetDescriptor));
 
         packetDescriptor = packetIterator.nextPacket();
         assertEquals(10, PacketDescriptor.getPacketLen(packetDescriptor));
         assertEquals(2, PacketDescriptor.getCommandType(packetDescriptor));
-        assertEquals(PacketType.HALF, PacketDescriptor.getPacketType(packetDescriptor));
+        assertEquals(PacketDescriptor.PacketType.HALF, PacketDescriptor.getPacketType(packetDescriptor));
         assertEquals(10, PacketDescriptor.getPacketStartPos(packetDescriptor));
     }
 
@@ -68,6 +64,4 @@ public class PacketDescriptorTest {
     public void testGetPacketTypeWithWrongDescriptor() {
         PacketDescriptor.getPacketType(Long.MAX_VALUE);
     }
-
-
 }
