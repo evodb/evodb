@@ -24,18 +24,18 @@ import java.security.NoSuchAlgorithmException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import top.evodb.core.buffer.AdjustableProtocolBufferAllocator;
-import top.evodb.core.buffer.ProtocolBuffer;
-import top.evodb.core.buffer.ProtocolBufferAllocator;
-import top.evodb.core.mysql.protocol.packet.MysqlPacket;
+import top.evodb.core.memory.direct.AdjustableProtocolBufferAllocator;
+import top.evodb.core.memory.direct.ProtocolBuffer;
+import top.evodb.core.memory.direct.ProtocolBufferAllocator;
+import top.evodb.core.protocol.MysqlPacket;
 import top.evodb.server.PortRandomUtil;
 import top.evodb.server.exception.MysqlPacketFactoryException;
 import top.evodb.server.mysql.Constants;
-import top.evodb.server.mysql.protocol.packet.HandshakeResponse41Packet;
-import top.evodb.server.mysql.protocol.packet.HandshakeV10Packet;
-import top.evodb.server.mysql.protocol.packet.MysqlPacketFactory;
 import top.evodb.server.network.Acceptor;
 import top.evodb.server.network.Reactor;
+import top.evodb.server.protocol.HandshakeResponse41Packet;
+import top.evodb.server.protocol.HandshakeV10Packet;
+import top.evodb.server.protocol.MysqlPacketFactory;
 import top.evodb.server.util.SecurityUtil;
 
 /**

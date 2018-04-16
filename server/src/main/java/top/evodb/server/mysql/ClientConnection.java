@@ -23,11 +23,11 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import top.evodb.core.mysql.protocol.packet.MysqlPacket;
+import top.evodb.core.protocol.MysqlPacket;
 import top.evodb.server.exception.MysqlPacketFactoryException;
 import top.evodb.server.handler.client.ClientCloseHandler;
 import top.evodb.server.handler.client.ClientConnectHandler;
-import top.evodb.server.mysql.protocol.packet.ErrorPacket;
+import top.evodb.server.protocol.ErrorPacket;
 
 /**
  * @author evodb

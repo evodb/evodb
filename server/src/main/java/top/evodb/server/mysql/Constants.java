@@ -16,8 +16,6 @@
 
 package top.evodb.server.mysql;
 
-import top.evodb.server.mysql.protocol.CapabilityFlags;
-
 /**
  * @author evodb
  */

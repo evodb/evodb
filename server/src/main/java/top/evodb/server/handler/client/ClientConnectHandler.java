@@ -19,15 +19,15 @@ package top.evodb.server.handler.client;
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import top.evodb.core.buffer.ProtocolBuffer;
+import top.evodb.core.memory.direct.ProtocolBuffer;
 import top.evodb.server.ServerContext;
 import top.evodb.server.exception.MysqlPacketFactoryException;
 import top.evodb.server.handler.Handler;
 import top.evodb.server.mysql.AbstractMysqlConnection;
 import top.evodb.server.mysql.Constants;
 import top.evodb.server.mysql.ErrorCode;
-import top.evodb.server.mysql.protocol.ServerStatus;
-import top.evodb.server.mysql.protocol.packet.HandshakeV10Packet;
+import top.evodb.server.mysql.ServerStatus;
+import top.evodb.server.protocol.HandshakeV10Packet;
 
 /**
  * @author evodb

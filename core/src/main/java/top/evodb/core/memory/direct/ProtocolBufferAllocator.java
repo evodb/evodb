@@ -14,22 +14,26 @@
  *  under the License.
  */
 
-package top.evodb.server.util;
-
-import top.evodb.core.memory.direct.PacketDescriptor;
-import top.evodb.core.memory.direct.ProtocolBuffer;
-import top.evodb.core.protocol.MysqlPacket;
+package top.evodb.core.memory.direct;
 
 /**
+ * @param <T> The type of ProtocolBuffer
  * @author evodb
  */
-public class PacketUtil {
-    public static PacketDescriptor.PacketType getPacketType(ProtocolBuffer protocolBuffer, int readIndex) {
-        int packetLength = (int) protocolBuffer.getFixInt(readIndex, MysqlPacket.PACKET_OFFSET);
-        if (readIndex + packetLength + 4 >= protocolBuffer.writeIndex()) {
-            return PacketDescriptor.PacketType.FULL;
-        } else {
-            return PacketDescriptor.PacketType.HALF;
-        }
-    }
+public interface ProtocolBufferAllocator<T extends ProtocolBuffer> {
+
+    /**
+     * Allocate ProtocolBuffer.
+     *
+     * @return The buffer
+     */
+    T allocate();
+
+    /**
+     * Recyle ProtocolBuffer.
+     *
+     * @param buffer The buffer
+     * @return {@code true} indicates success.{@code false} indicates failure.
+     */
+    boolean recyle(T buffer);
 }

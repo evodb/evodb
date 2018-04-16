@@ -14,22 +14,27 @@
  *  under the License.
  */
 
-package top.evodb.server.util;
-
-import top.evodb.core.memory.direct.PacketDescriptor;
-import top.evodb.core.memory.direct.ProtocolBuffer;
-import top.evodb.core.protocol.MysqlPacket;
+package top.evodb.core.memory.direct;
 
 /**
+ * The class that implements this interface can create multiple iterators, Each of which keeps its
+ * internal state until the {@link PacketIterator#reset()} method calls. Note:For performance
+ * reasons, try to create only one iterator.
+ *
  * @author evodb
  */
-public class PacketUtil {
-    public static PacketDescriptor.PacketType getPacketType(ProtocolBuffer protocolBuffer, int readIndex) {
-        int packetLength = (int) protocolBuffer.getFixInt(readIndex, MysqlPacket.PACKET_OFFSET);
-        if (readIndex + packetLength + 4 >= protocolBuffer.writeIndex()) {
-            return PacketDescriptor.PacketType.FULL;
-        } else {
-            return PacketDescriptor.PacketType.HALF;
-        }
-    }
+@SuppressWarnings("unused")
+public interface IterableBuffer {
+
+    /**
+     * Gets an iterator named 'default'.
+     */
+    PacketIterator packetIterator();
+
+    /**
+     * Gets an iterator named {@code name}.
+     *
+     * @param name The name of iterator
+     */
+    PacketIterator packetIterator(String name);
 }

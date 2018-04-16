@@ -14,22 +14,38 @@
  *  under the License.
  */
 
-package top.evodb.server.util;
+package top.evodb.core.protocol;
 
-import top.evodb.core.memory.direct.PacketDescriptor;
+
 import top.evodb.core.memory.direct.ProtocolBuffer;
-import top.evodb.core.protocol.MysqlPacket;
 
 /**
+ * Data packet.
+ *
  * @author evodb
  */
-public class PacketUtil {
-    public static PacketDescriptor.PacketType getPacketType(ProtocolBuffer protocolBuffer, int readIndex) {
-        int packetLength = (int) protocolBuffer.getFixInt(readIndex, MysqlPacket.PACKET_OFFSET);
-        if (readIndex + packetLength + 4 >= protocolBuffer.writeIndex()) {
-            return PacketDescriptor.PacketType.FULL;
-        } else {
-            return PacketDescriptor.PacketType.HALF;
-        }
-    }
+public interface Packet {
+
+    int LARGE_PACKET_SIZE = (1 << 24) - 1;
+
+    /**
+     * Get the length of data packet length.
+     *
+     * @return the length of mysql protocol packet
+     */
+    int getPayloadLength();
+
+    /**
+     * Get sequence id
+     *
+     * @return sequence id
+     */
+    byte getSequenceId();
+
+    /**
+     * Get pay load.
+     *
+     * @return protocol buffer
+     */
+    ProtocolBuffer getPayload();
 }

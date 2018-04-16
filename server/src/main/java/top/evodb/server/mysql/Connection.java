@@ -17,7 +17,7 @@
 package top.evodb.server.mysql;
 
 import java.io.IOException;
-import top.evodb.core.buffer.ProtocolBuffer;
+import top.evodb.core.memory.direct.ProtocolBuffer;
 
 /**
  * @author evodb
