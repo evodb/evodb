@@ -14,15 +14,15 @@
  *  under the License.
  */
 
-package top.evodb.core.buf;
+package top.evodb.core.heap;
 
 /**
  * @author evodb
  */
-public class CharBuf extends AbstractBuf implements CharSequence {
+public class CharChunk extends AbstractChunk implements CharSequence {
     private char[] buf;
 
-    public CharBuf(int size) {
+    public CharChunk(int size) {
         allocate(size, -1);
     }
 
@@ -73,7 +73,7 @@ public class CharBuf extends AbstractBuf implements CharSequence {
             throw new IndexOutOfBoundsException();
         }
         try {
-            CharBuf newOne = (CharBuf) clone();
+            CharChunk newOne = (CharChunk) clone();
             newOne.setOffset(getStart() + start);
             newOne.setEnd(getStart() + end);
             return newOne;

@@ -14,12 +14,12 @@
  *  under the License.
  */
 
-package top.evodb.core.buf;
+package top.evodb.core.heap;
 
 /**
  * @author evodb
  */
-public abstract class AbstractBuf implements Cloneable {
+public abstract class AbstractChunk implements Cloneable {
     public static final int MAX_SIZE = Integer.MAX_VALUE - 8;
     private int limit = -1;
     private int start;
