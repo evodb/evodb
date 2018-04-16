@@ -63,10 +63,12 @@ public class ClientAuthResponseHandler implements Handler {
                 mysqlConnection.setAttribute(AbstractMysqlConnection.ATTR_PRE_PACKET_ID, lastPacketId);
                 if (!Constants.AUTH_PLUGIN_NAME.equals(handshakeResponse41Packet.authPluginName)) {
                     closeConnection(mysqlConnection, ErrorCode.ER_ACCESS_DENIED_ERROR, "Auth plugin not found.");
+                    return true;
                 }
 
                 if (!auth(handshakeResponse41Packet, (byte[]) mysqlConnection.getAttribute(AbstractMysqlConnection.ATTR_AUTH_PLUGIN_DATA))) {
                     closeConnection(mysqlConnection, ErrorCode.ER_ACCESS_DENIED_ERROR, "Access denied for user '" + handshakeResponse41Packet.username + '\'');
+                    return true;
                 } else {
                     OKPacket okPacket = mysqlConnection.getMysqlPacketFactory().getMysqlPacket(MysqlPacket.OK_PACKET);
                     okPacket.capabilityFlags = mysqlConnection.getCapability();

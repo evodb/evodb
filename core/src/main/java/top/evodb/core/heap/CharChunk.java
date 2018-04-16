@@ -16,6 +16,8 @@
 
 package top.evodb.core.heap;
 
+import java.util.Arrays;
+
 /**
  * @author evodb
  */
@@ -37,7 +39,28 @@ public class CharChunk extends AbstractChunk implements CharSequence {
     }
 
     public void ensureSpace(int size) {
+        int limit = getLimit0();
+        int reqSize = getEnd() + size;
+        if (reqSize >= limit) {
+            reqSize = limit;
+        }
+        if (reqSize < getEnd()) {
+            return;
+        }
+        int newSize = buf.length * 2;
+        if (newSize > limit) {
+            newSize = limit;
+        }
+        char[] newBuf = new char[newSize];
+        System.arraycopy(buf, 0, newBuf, 0, buf.length);
+        buf = newBuf;
+        buf = null;
+    }
 
+    public void recyle() {
+        setStart(0);
+        setEnd(0);
+        setOffset(0);
     }
 
     public void append(char[] chars, int offset, int size) {
@@ -49,9 +72,21 @@ public class CharChunk extends AbstractChunk implements CharSequence {
         append(chars, 0, chars.length);
     }
 
-    public void append(String str) {
-        char[] chars = str.toCharArray();
-        append(chars, 0, chars.length);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof CharChunk)) {
+            return false;
+        }
+        CharChunk charChunk = (CharChunk) o;
+        return Arrays.equals(buf, charChunk.buf);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(buf);
     }
 
     @Override
