@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
