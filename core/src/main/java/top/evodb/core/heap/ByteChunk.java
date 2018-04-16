@@ -21,16 +21,16 @@ import java.util.Arrays;
 /**
  * @author evodb
  */
-public class CharChunk extends AbstractChunk implements CharSequence {
-    private char[] buf;
+public class ByteChunk extends AbstractChunk {
+    private byte[] buf;
 
-    public CharChunk(int size) {
+    public ByteChunk(int size) {
         allocate(size, -1);
     }
 
     public void allocate(int size, int limit) {
         if (buf == null) {
-            buf = new char[size];
+            buf = new byte[size];
         }
         setStart(0);
         setEnd(0);
@@ -51,7 +51,7 @@ public class CharChunk extends AbstractChunk implements CharSequence {
         if (newSize > limit) {
             newSize = limit;
         }
-        char[] newBuf = new char[newSize];
+        byte[] newBuf = new byte[newSize];
         System.arraycopy(buf, 0, newBuf, 0, buf.length);
         buf = newBuf;
         buf = null;
@@ -63,13 +63,13 @@ public class CharChunk extends AbstractChunk implements CharSequence {
         setOffset(0);
     }
 
-    public void append(char[] chars, int offset, int size) {
+    public void append(byte[] bytes, int offset, int size) {
         ensureSpace(size);
-        System.arraycopy(chars, offset, buf, getOffset(), size);
+        System.arraycopy(bytes, offset, buf, getOffset(), size);
     }
 
-    public void append(char[] chars) {
-        append(chars, 0, chars.length);
+    public void append(byte[] bytes) {
+        append(bytes, 0, bytes.length);
     }
 
     @Override
@@ -77,43 +77,10 @@ public class CharChunk extends AbstractChunk implements CharSequence {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof CharChunk)) {
+        if (!(o instanceof ByteChunk)) {
             return false;
         }
-        CharChunk charChunk = (CharChunk) o;
+        ByteChunk charChunk = (ByteChunk) o;
         return Arrays.equals(buf, charChunk.buf);
-    }
-
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(buf);
-    }
-
-    @Override
-    public int length() {
-        return getOffset() - getStart();
-    }
-
-    @Override
-    public char charAt(int index) {
-        if (index > getEnd() || index < getStart()) {
-            throw new IndexOutOfBoundsException();
-        }
-        return buf[index];
-    }
-
-    @Override
-    public CharSequence subSequence(int start, int end) {
-        if (start < 0 || end < 0) {
-            throw new IndexOutOfBoundsException();
-        }
-        try {
-            CharChunk newOne = (CharChunk) clone();
-            newOne.setOffset(getStart() + start);
-            newOne.setEnd(getStart() + end);
-            return newOne;
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
     }
 }

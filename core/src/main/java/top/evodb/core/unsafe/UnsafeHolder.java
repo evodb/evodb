@@ -29,8 +29,7 @@ public class UnsafeHolder {
             field.setAccessible(true);
             Unsafe unsafe = (Unsafe) field.get(null);
             return unsafe;
-        } catch (NoSuchFieldException e) {
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchFieldException | IllegalAccessException e) {
         }
         return null;
     }
