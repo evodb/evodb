@@ -19,76 +19,48 @@ package top.evodb.core.heap;
 /**
  * @author evodb
  */
-public abstract class AbstractChunk implements Cloneable {
-    public static final int MAX_SIZE = Integer.MAX_VALUE - 8;
-    private int limit = -1;
-    private int start;
-    private int end;
+public abstract class AbstractChunk {
+    protected int start;
+    protected int end;
     private int offset;
-
-
-    public int getLimit() {
-        return limit;
-    }
-
-    public void recycle() {
-        start = 0;
-        end = 0;
-    }
 
     public int getOffset() {
         return offset;
     }
 
+    public void reuse(int start, int end) {
+        this.start = start;
+        this.end = end;
+        offset = 0;
+    }
+
+    public int getLength() {
+        return end - start;
+    }
+
     public void setOffset(int offset) {
-        if (offset > end) {
-            this.offset = end;
-        }
         if (offset < start) {
             this.offset = start;
+            return;
+        }
+        if (offset > end) {
+            this.offset = end;
+            return;
         }
         this.offset = offset;
     }
 
-    /**
-     * Maximum amount of data in this buffer. If -1 or not set, the buffer will
-     * grow to {{@link #MAX_SIZE}.
-     *
-     * @param limit limit
-     */
-    public void setLimit(int limit) {
-        this.limit = limit;
-    }
-
-    protected int getLimit0() {
-        if (limit == -1) {
-            return MAX_SIZE;
-        }
-        return limit;
+    public void recycle() {
+        start = 0;
+        end = 0;
+        offset = 0;
     }
 
     public int getStart() {
         return start;
     }
 
-    public void setStart(int start) {
-        if (start > end) {
-            this.start = end;
-        }
-        if (start < 0) {
-            this.start = 0;
-        }
-        this.start = start;
-    }
-
     public int getEnd() {
         return end;
-    }
-
-    public void setEnd(int end) {
-        if (end < start) {
-            this.end = start;
-        }
-        this.end = end;
     }
 }

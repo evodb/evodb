@@ -18,6 +18,7 @@ package top.evodb.server.handler.client;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.evodb.core.buffer.PacketDescriptor;
@@ -107,12 +108,7 @@ public class ClientAuthResponseHandler implements Handler {
         boolean authSuccess = true;
         try {
             byte[] authData = SecurityUtil.scramble411("123456".getBytes(), authPluginData);
-            for (int i = 0; i < authData.length; i++) {
-                if (authData[i] != authResponse[i]) {
-                    authSuccess = false;
-                    break;
-                }
-            }
+            return Arrays.equals(authData, authResponse);
         } catch (NoSuchAlgorithmException e) {
             LOGGER.warn("auth error.", e);
         }

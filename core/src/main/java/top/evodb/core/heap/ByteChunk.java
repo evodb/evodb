@@ -16,51 +16,16 @@
 
 package top.evodb.core.heap;
 
-import java.util.Arrays;
-
 /**
  * @author evodb
  */
 public class ByteChunk extends AbstractChunk {
     private byte[] buf;
 
-    public ByteChunk(int size) {
-        allocate(size, -1);
-    }
-
-    public void allocate(int size, int limit) {
-        if (buf == null) {
-            buf = new byte[size];
-        }
-        setStart(0);
-        setEnd(0);
-        setOffset(0);
-        setLimit(limit);
-    }
-
-    public void ensureSpace(int size) {
-        int limit = getLimit0();
-        int reqSize = getEnd() + size;
-        if (reqSize >= limit) {
-            reqSize = limit;
-        }
-        if (reqSize < getEnd()) {
-            return;
-        }
-        int newSize = buf.length * 2;
-        if (newSize > limit) {
-            newSize = limit;
-        }
-        byte[] newBuf = new byte[newSize];
-        System.arraycopy(buf, 0, newBuf, 0, buf.length);
-        buf = newBuf;
-        buf = null;
-    }
-
-    public void recyle() {
-        setStart(0);
-        setEnd(0);
-        setOffset(0);
+    public ByteChunk(byte[] buf, int start, int end) {
+        this.start = start;
+        this.end = end;
+        this.buf = buf;
     }
 
     public void append(byte[] bytes, int offset, int size) {
@@ -68,8 +33,13 @@ public class ByteChunk extends AbstractChunk {
         System.arraycopy(bytes, offset, buf, getOffset(), size);
     }
 
-    public void append(byte[] bytes) {
-        append(bytes, 0, bytes.length);
+    private void ensureSpace(int reqSize) {
+
+    }
+
+    @Override
+    public void recycle() {
+        super.recycle();
     }
 
     @Override
@@ -80,7 +50,18 @@ public class ByteChunk extends AbstractChunk {
         if (!(o instanceof ByteChunk)) {
             return false;
         }
-        ByteChunk charChunk = (ByteChunk) o;
-        return Arrays.equals(buf, charChunk.buf);
+        ByteChunk byteChunk = (ByteChunk) o;
+        if (byteChunk.getLength() != getLength()) {
+            return false;
+        }
+        int byteChunkStart = byteChunk.getStart();
+        boolean isEquals = true;
+        for (int i = getStart(); i < getEnd(); i++) {
+            if (buf[i] != byteChunk.buf[byteChunkStart++]) {
+                isEquals = false;
+                break;
+            }
+        }
+        return isEquals;
     }
 }
