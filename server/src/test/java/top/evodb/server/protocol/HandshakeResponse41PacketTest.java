@@ -24,8 +24,8 @@ import top.evodb.core.memory.direct.AdjustableProtocolBufferAllocator;
 import top.evodb.core.memory.direct.ProtocolBufferAllocator;
 import top.evodb.core.protocol.MysqlPacket;
 import top.evodb.server.exception.MysqlPacketFactoryException;
-import top.evodb.server.mysql.Constants;
 import top.evodb.server.mysql.CapabilityFlags;
+import top.evodb.server.mysql.Constants;
 
 /**
  * @author evodb
