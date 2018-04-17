@@ -48,4 +48,13 @@ public class BuddyAllocator {
     private int parent(int idx) {
         return idx - 1 >> 1;
     }
+
+    private int fixSize(int size) {
+        size |= size >> 1;
+        size |= size >> 2;
+        size |= size >> 4;
+        size |= size >> 8;
+        size |= size >> 16;
+        return size + 1;
+    }
 }
