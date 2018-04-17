@@ -16,12 +16,36 @@
 
 package top.evodb.core.memory;
 
+import top.evodb.core.util.MathUtil;
+
 /**
  * @author evodb
  */
 public class BuddyAllocator {
+    private final int[] treeMap;
 
-    public BuddyAllocator(int memSize) {
+    public BuddyAllocator(int size) {
+        int depth = MathUtil.log2(size);
+        int treeArrayLen = 1 << depth + 1;
+        treeMap = new int[treeArrayLen - 1];
+        int nodeSize = size << 1;
+        for (int i = 0; i < treeMap.length; i++) {
+            if (MathUtil.isPowerOf2(i + 1)) {
+                nodeSize >>= 1;
+            }
+            treeMap[i] = nodeSize;
+        }
+    }
 
+    private int left(int idx) {
+        return (idx << 1) + 1;
+    }
+
+    private int right(int idx) {
+        return (idx << 1) + 2;
+    }
+
+    private int parent(int idx) {
+        return idx - 1 >> 1;
     }
 }

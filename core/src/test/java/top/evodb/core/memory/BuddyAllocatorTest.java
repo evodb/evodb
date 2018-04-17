@@ -14,29 +14,19 @@
  *  under the License.
  */
 
-package top.evodb.core.util;
+package top.evodb.core.memory;
+
+import org.junit.Test;
 
 /**
  * @author evodb
  */
-public class MathUtil {
+public class BuddyAllocatorTest {
 
-    public static int log2(int val) {
-        return Integer.SIZE - 1 - Integer.numberOfLeadingZeros(val);
-    }
+    @Test
+    public void testAllocate() {
+        BuddyAllocator buddyAllocator = new BuddyAllocator(1 << 4);
 
-    public static int to2N(int val) {
-        int i = MathUtil.log2(val);
-        int mask = 1 << i;
-        if ((val & ~mask) != 0) {
-            return 1 << ++i;
-        } else {
-            return val;
-        }
-    }
-
-    public static boolean isPowerOf2(int x) {
-        return (x & x - 1) == 0;
     }
 
 }
