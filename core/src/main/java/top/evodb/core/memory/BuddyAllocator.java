@@ -64,6 +64,12 @@ public abstract class BuddyAllocator<T extends AbstractChunk> {
         return doAlloc(nodeSize);
     }
 
+    public void free(int size) {
+
+    }
+
+    protected abstract void doFree(int size);
+
     protected abstract T doAlloc(int size);
 
     private int left(int idx) {

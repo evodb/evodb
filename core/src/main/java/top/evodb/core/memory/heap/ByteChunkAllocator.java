@@ -30,6 +30,11 @@ public class ByteChunkAllocator extends BuddyAllocator {
     }
 
     @Override
+    protected void doFree(int size) {
+
+    }
+
+    @Override
     protected AbstractChunk doAlloc(int size) {
         if (size == 0) {
             return null;
