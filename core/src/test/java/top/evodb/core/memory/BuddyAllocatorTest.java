@@ -16,6 +16,9 @@
 
 package top.evodb.core.memory;
 
+import static org.junit.Assert.assertEquals;
+
+
 import org.junit.Test;
 
 /**
@@ -24,9 +27,18 @@ import org.junit.Test;
 public class BuddyAllocatorTest {
 
     @Test
-    public void testAllocate() {
-        BuddyAllocator buddyAllocator = new BuddyAllocator(1 << 4);
+    public void testAllocateWidth8() {
+        BuddyAllocator buddyAllocator = new BuddyAllocator(16);
+        buddyAllocator.alloc(8);
+        buddyAllocator.alloc(8);
+    }
 
+    @Test
+    public void testAllocateWidth4() {
+        BuddyAllocator buddyAllocator = new BuddyAllocator(16);
+        buddyAllocator.alloc(4);
+        buddyAllocator.alloc(4);
+        buddyAllocator.alloc(4);
     }
 
 }

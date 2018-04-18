@@ -16,25 +16,49 @@
 
 package top.evodb.core.memory;
 
+import java.util.Arrays;
 import top.evodb.core.util.MathUtil;
 
 /**
  * @author evodb
  */
 public class BuddyAllocator {
-    private final int[] treeMap;
+    private final int[] tree;
+    private final int size;
 
     public BuddyAllocator(int size) {
+        this.size = size;
         int depth = MathUtil.log2(size);
-        int treeArrayLen = 1 << depth + 1;
-        treeMap = new int[treeArrayLen - 1];
+        int treeArrayLen = (1 << depth + 1) - 1;
+        tree = new int[treeArrayLen];
         int nodeSize = size << 1;
-        for (int i = 0; i < treeMap.length; i++) {
+        for (int i = 0; i < tree.length; i++) {
             if (MathUtil.isPowerOf2(i + 1)) {
                 nodeSize >>= 1;
             }
-            treeMap[i] = nodeSize;
+            tree[i] = nodeSize;
         }
+        System.out.println(Arrays.toString(tree));
+    }
+
+    protected int alloc(int size) {
+        int index = 0;
+        size = fixSize(size);
+        for (int nodeSize = tree[index]; nodeSize != size; nodeSize = tree[index]) {
+            if (nodeSize > size) {
+                index = left(index);
+            } else if (nodeSize < size) {
+                index = right(index);
+            }
+        }
+        int foundNodeSize = tree[index];
+        tree[index] = 0;
+        while (index != 0) {
+            index = parent(index);
+            tree[index] = Math.max(tree[left(index)], tree[right(index)]);
+        }
+        System.out.println(Arrays.toString(tree));
+        return foundNodeSize;
     }
 
     private int left(int idx) {
@@ -50,11 +74,7 @@ public class BuddyAllocator {
     }
 
     private int fixSize(int size) {
-        size |= size >> 1;
-        size |= size >> 2;
-        size |= size >> 4;
-        size |= size >> 8;
-        size |= size >> 16;
-        return size + 1;
+        int shift = Integer.SIZE - 1 - Integer.numberOfLeadingZeros(size);
+        return 1 << shift;
     }
 }
