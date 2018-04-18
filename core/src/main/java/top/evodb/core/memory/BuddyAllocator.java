@@ -16,16 +16,20 @@
 
 package top.evodb.core.memory;
 
+import top.evodb.core.memory.heap.AbstractChunk;
 import top.evodb.core.util.MathUtil;
 
 /**
  * @author evodb
  */
-public class BuddyAllocator {
+public abstract class BuddyAllocator<T extends AbstractChunk> {
     private final int[] tree;
     private final int size;
 
     public BuddyAllocator(int size) {
+        if (!MathUtil.isPowerOf2(size)) {
+            size = fixSize(size);
+        }
         this.size = size;
         int depth = MathUtil.log2(size);
         int treeArrayLen = (1 << depth + 1) - 1;
@@ -39,7 +43,7 @@ public class BuddyAllocator {
         }
     }
 
-    protected int alloc(int size) {
+    public T alloc(int size) {
         int index = 0;
         if (!MathUtil.isPowerOf2(size)) {
             size = fixSize(size);
@@ -57,8 +61,10 @@ public class BuddyAllocator {
             index = parent(index);
             tree[index] = Math.max(tree[left(index)], tree[right(index)]);
         }
-        return nodeSize;
+        return doAlloc(nodeSize);
     }
+
+    protected abstract T doAlloc(int size);
 
     private int left(int idx) {
         return (idx << 1) + 1;
@@ -73,7 +79,7 @@ public class BuddyAllocator {
     }
 
     private int fixSize(int size) {
-        int shift = Integer.SIZE  - Integer.numberOfLeadingZeros(size);
+        int shift = Integer.SIZE - Integer.numberOfLeadingZeros(size);
         return 1 << shift;
     }
 }
