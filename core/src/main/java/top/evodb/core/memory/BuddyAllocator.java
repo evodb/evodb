@@ -43,9 +43,11 @@ public class BuddyAllocator {
 
     protected int alloc(int size) {
         int index = 0;
-        size = fixSize(size);
+        if (!MathUtil.isPowerOf2(size)) {
+            size = fixSize(size);
+        }
         for (int nodeSize = tree[index]; nodeSize != size; nodeSize = tree[index]) {
-            if (nodeSize > size) {
+            if (nodeSize >= size) {
                 index = left(index);
             } else if (nodeSize < size) {
                 index = right(index);
