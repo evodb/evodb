@@ -16,10 +16,9 @@
 
 package top.evodb.core.memory;
 
-import static org.junit.Assert.assertEquals;
-
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author evodb
@@ -27,18 +26,96 @@ import org.junit.Test;
 public class BuddyAllocatorTest {
 
     @Test
-    public void testAllocateWidth8() {
+    public void testAllocateWidth16Bytes() {
         BuddyAllocator buddyAllocator = new BuddyAllocator(16);
-        buddyAllocator.alloc(8);
-        buddyAllocator.alloc(8);
+        assertEquals(16, buddyAllocator.alloc(16));
+        assertEquals(0, buddyAllocator.alloc(1));
     }
 
     @Test
-    public void testAllocateWidth4() {
+    public void testAllocateWidth9Bytes() {
         BuddyAllocator buddyAllocator = new BuddyAllocator(16);
-        buddyAllocator.alloc(4);
-        buddyAllocator.alloc(4);
-        buddyAllocator.alloc(4);
+        assertEquals(16, buddyAllocator.alloc(9));
+        assertEquals(0, buddyAllocator.alloc(1));
+    }
+
+    @Test
+    public void testAllocateWidth3Bytes() {
+        BuddyAllocator buddyAllocator = new BuddyAllocator(16);
+        assertEquals(4, buddyAllocator.alloc(3));
+        assertEquals(1, buddyAllocator.alloc(1));
+    }
+
+    @Test
+    public void testAllocateWidth5Bytes() {
+        BuddyAllocator buddyAllocator = new BuddyAllocator(16);
+        assertEquals(8, buddyAllocator.alloc(5));
+        assertEquals(1, buddyAllocator.alloc(1));
+    }
+
+    @Test
+    public void testAllocateWidth6Bytes() {
+        BuddyAllocator buddyAllocator = new BuddyAllocator(16);
+        assertEquals(8, buddyAllocator.alloc(6));
+        assertEquals(1, buddyAllocator.alloc(1));
+    }
+
+    @Test
+    public void testAllocateWidth7Bytes() {
+        BuddyAllocator buddyAllocator = new BuddyAllocator(16);
+        assertEquals(8, buddyAllocator.alloc(7));
+        assertEquals(1, buddyAllocator.alloc(1));
+    }
+
+    @Test
+    public void testAllocateWidth10Bytes() {
+        BuddyAllocator buddyAllocator = new BuddyAllocator(16);
+        assertEquals(16, buddyAllocator.alloc(10));
+        assertEquals(0, buddyAllocator.alloc(1));
+    }
+
+    @Test
+    public void testAllocateWidth8Bytes() {
+        BuddyAllocator buddyAllocator = new BuddyAllocator(16);
+        assertEquals(8, buddyAllocator.alloc(8));
+        assertEquals(8, buddyAllocator.alloc(8));
+        assertEquals(0, buddyAllocator.alloc(8));
+    }
+
+    @Test
+    public void testAllocateWidth4Bytes() {
+        BuddyAllocator buddyAllocator = new BuddyAllocator(16);
+        assertEquals(4, buddyAllocator.alloc(4));
+        assertEquals(4, buddyAllocator.alloc(4));
+        assertEquals(4, buddyAllocator.alloc(4));
+        assertEquals(4, buddyAllocator.alloc(4));
+        assertEquals(0, buddyAllocator.alloc(4));
+    }
+
+    @Test
+    public void testAllocateWidth1Byte() {
+        BuddyAllocator buddyAllocator = new BuddyAllocator(16);
+        assertEquals(1, buddyAllocator.alloc(1));
+        assertEquals(1, buddyAllocator.alloc(1));
+        assertEquals(1, buddyAllocator.alloc(1));
+        assertEquals(1, buddyAllocator.alloc(1));
+
+        assertEquals(1, buddyAllocator.alloc(1));
+        assertEquals(1, buddyAllocator.alloc(1));
+        assertEquals(1, buddyAllocator.alloc(1));
+        assertEquals(1, buddyAllocator.alloc(1));
+
+        assertEquals(1, buddyAllocator.alloc(1));
+        assertEquals(1, buddyAllocator.alloc(1));
+        assertEquals(1, buddyAllocator.alloc(1));
+        assertEquals(1, buddyAllocator.alloc(1));
+
+        assertEquals(1, buddyAllocator.alloc(1));
+        assertEquals(1, buddyAllocator.alloc(1));
+        assertEquals(1, buddyAllocator.alloc(1));
+        assertEquals(1, buddyAllocator.alloc(1));
+
+        assertEquals(0, buddyAllocator.alloc(1));
     }
 
 }
