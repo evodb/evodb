@@ -21,6 +21,8 @@ import java.util.TreeMap;
 import top.evodb.core.memory.BuddyAllocator;
 
 /**
+ * Thread safe
+ *
  * @author evodb
  */
 public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
@@ -37,8 +39,10 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
     @Override
     protected void doFree(ByteChunk byteChunk) {
         if (byteChunk.getAllocator() == this) {
-            LinkedList linkedList = objCache.computeIfAbsent(byteChunk.getLength(), k -> new LinkedList());
-            linkedList.offer(byteChunk);
+            synchronized (objCache) {
+                LinkedList linkedList = objCache.computeIfAbsent(byteChunk.getLength(), k -> new LinkedList());
+                linkedList.offer(byteChunk);
+            }
         }
     }
 
@@ -47,14 +51,16 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
         if (size == 0) {
             return null;
         }
-        LinkedList linkedList = objCache.computeIfAbsent(size, k -> new LinkedList());
-        ByteChunk byteChunk = (ByteChunk) linkedList.poll();
-        if (byteChunk == null) {
-            byteChunk = new ByteChunk(this, buf, offset, offset + size - 1);
-            offset += size;
-        } else {
-            byteChunk.reuse();
+        synchronized (objCache) {
+            LinkedList linkedList = objCache.computeIfAbsent(size, k -> new LinkedList());
+            ByteChunk byteChunk = (ByteChunk) linkedList.poll();
+            if (byteChunk == null) {
+                byteChunk = new ByteChunk(this, buf, offset, offset + size - 1);
+                offset += size;
+            } else {
+                byteChunk.reuse();
+            }
+            return byteChunk;
         }
-        return byteChunk;
     }
 }
