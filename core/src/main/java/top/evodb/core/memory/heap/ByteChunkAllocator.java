@@ -16,6 +16,8 @@
 
 package top.evodb.core.memory.heap;
 
+import java.lang.ref.PhantomReference;
+import java.lang.ref.ReferenceQueue;
 import java.util.LinkedList;
 import java.util.TreeMap;
 import top.evodb.core.memory.BuddyAllocator;
@@ -61,6 +63,34 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
                 byteChunk.reuse(nodeIndex);
             }
             return byteChunk;
+        }
+    }
+
+    /**
+     * For memory leak detect.
+     */
+    class ByteChunkReference extends PhantomReference<ByteChunk> {
+        private StackTraceElement[] traceElements;
+
+        /**
+         * Creates a new phantom reference that refers to the given object and
+         * is registered with the given queue.
+         *
+         * <p> It is possible to create a phantom reference with a <tt>null</tt>
+         * queue, but such a reference is completely useless: Its <tt>get</tt>
+         * method will always return null and, since it does not have a queue, it
+         * will never be enqueued.
+         *
+         * @param referent the object the new phantom reference will refer to
+         * @param q        the queue with which the reference is to be registered,
+         */
+        public ByteChunkReference(ByteChunk referent, ReferenceQueue<? super ByteChunk> q) {
+            super(referent, q);
+            traceElements = new Throwable().getStackTrace();
+        }
+
+        public StackTraceElement[] getTraceElements() {
+            return traceElements;
         }
     }
 }
