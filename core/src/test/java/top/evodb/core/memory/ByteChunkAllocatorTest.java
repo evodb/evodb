@@ -20,6 +20,7 @@ import org.junit.Test;
 import top.evodb.core.memory.heap.ByteChunk;
 import top.evodb.core.memory.heap.ByteChunkAllocator;
 
+
 import static org.junit.Assert.*;
 
 /**
@@ -36,49 +37,49 @@ public class ByteChunkAllocatorTest {
 
     @Test
     public void testAllocateWidth9Bytes() {
-        BuddyAllocator<ByteChunk> buddyAllocator =  new ByteChunkAllocator(16);
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
         assertEquals(16, buddyAllocator.alloc(9).getLength());
         assertNull(buddyAllocator.alloc(1));
     }
 
     @Test
     public void testAllocateWidth3Bytes() {
-        BuddyAllocator<ByteChunk> buddyAllocator =  new ByteChunkAllocator(16);
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
         assertEquals(4, buddyAllocator.alloc(3).getLength());
         assertEquals(1, buddyAllocator.alloc(1).getLength());
     }
 
     @Test
     public void testAllocateWidth5Bytes() {
-        BuddyAllocator<ByteChunk> buddyAllocator =  new ByteChunkAllocator(16);
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
         assertEquals(8, buddyAllocator.alloc(5).getLength());
         assertEquals(1, buddyAllocator.alloc(1).getLength());
     }
 
     @Test
     public void testAllocateWidth6Bytes() {
-        BuddyAllocator<ByteChunk> buddyAllocator =  new ByteChunkAllocator(16);
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
         assertEquals(8, buddyAllocator.alloc(6).getLength());
         assertEquals(1, buddyAllocator.alloc(1).getLength());
     }
 
     @Test
     public void testAllocateWidth7Bytes() {
-        BuddyAllocator<ByteChunk> buddyAllocator =  new ByteChunkAllocator(16);
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
         assertEquals(8, buddyAllocator.alloc(7).getLength());
         assertEquals(1, buddyAllocator.alloc(1).getLength());
     }
 
     @Test
     public void testAllocateWidth10Bytes() {
-        BuddyAllocator<ByteChunk> buddyAllocator =  new ByteChunkAllocator(16);
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
         assertEquals(16, buddyAllocator.alloc(10).getLength());
         assertNull(buddyAllocator.alloc(1));
     }
 
     @Test
     public void testAllocateWidth8Bytes() {
-        BuddyAllocator<ByteChunk> buddyAllocator =  new ByteChunkAllocator(16);
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
         assertEquals(8, buddyAllocator.alloc(8).getLength());
         assertEquals(8, buddyAllocator.alloc(8).getLength());
         assertNull(buddyAllocator.alloc(8));
@@ -86,7 +87,7 @@ public class ByteChunkAllocatorTest {
 
     @Test
     public void testAllocateWidth4Bytes() {
-        BuddyAllocator<ByteChunk> buddyAllocator =  new ByteChunkAllocator(16);
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
         assertEquals(4, buddyAllocator.alloc(4).getLength());
         assertEquals(4, buddyAllocator.alloc(4).getLength());
         assertEquals(4, buddyAllocator.alloc(4).getLength());
@@ -96,7 +97,7 @@ public class ByteChunkAllocatorTest {
 
     @Test
     public void testAllocateWidth1Byte() {
-        BuddyAllocator<ByteChunk> buddyAllocator =  new ByteChunkAllocator(16);
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
         assertEquals(1, buddyAllocator.alloc(1).getLength());
         assertEquals(1, buddyAllocator.alloc(1).getLength());
         assertEquals(1, buddyAllocator.alloc(1).getLength());
@@ -118,6 +119,18 @@ public class ByteChunkAllocatorTest {
         assertEquals(1, buddyAllocator.alloc(1).getLength());
 
         assertNull(buddyAllocator.alloc(1));
+    }
+
+    @Test
+    public void testAllocate() {
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
+        ByteChunk byteChunk = buddyAllocator.alloc(8);
+        assertEquals(0, byteChunk.getStart());
+        assertEquals(7, byteChunk.getEnd());
+
+        byteChunk = buddyAllocator.alloc(8);
+        assertEquals(8, byteChunk.getStart());
+        assertEquals(15, byteChunk.getEnd());
     }
 
 }

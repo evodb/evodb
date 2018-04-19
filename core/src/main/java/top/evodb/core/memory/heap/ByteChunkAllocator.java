@@ -21,8 +21,9 @@ import top.evodb.core.memory.BuddyAllocator;
 /**
  * @author evodb
  */
-public class ByteChunkAllocator extends BuddyAllocator {
+public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
     private final byte[] buf;
+    private int offset;
 
     public ByteChunkAllocator(int size) {
         super(size);
@@ -30,15 +31,17 @@ public class ByteChunkAllocator extends BuddyAllocator {
     }
 
     @Override
-    protected void doFree(int size) {
+    protected void doFree(ByteChunk byteChunk) {
 
     }
 
     @Override
-    protected AbstractChunk doAlloc(int size) {
+    protected ByteChunk doAlloc(int size) {
         if (size == 0) {
             return null;
         }
-        return new ByteChunk(buf, 0, size);
+        ByteChunk byteChunk = new ByteChunk(buf, offset, offset + size - 1);
+        offset += size;
+        return byteChunk;
     }
 }
