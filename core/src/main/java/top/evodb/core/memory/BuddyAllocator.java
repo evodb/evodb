@@ -65,6 +65,7 @@ public abstract class BuddyAllocator<T extends AbstractChunk> {
     }
 
     public void free(T t) {
+        int size = t.getLength();
 
     }
 

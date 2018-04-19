@@ -35,7 +35,7 @@ public class ByteChunkTest {
         byteChunk.append("1234567890".getBytes(), 0, 10);
         assertEquals(10, byteChunk.getEnd());
         assertEquals(0, byteChunk.getStart());
-        assertEquals(10, byteChunk.getLength());
+        assertEquals(11, byteChunk.getLength());
     }
 
     @Test

@@ -35,7 +35,7 @@ public abstract class AbstractChunk {
     }
 
     public int getLength() {
-        return end - start;
+        return end - start + 1;
     }
 
     public void setOffset(int offset) {
