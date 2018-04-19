@@ -19,7 +19,6 @@ package top.evodb.server.protocol;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-
 import org.junit.Assert;
 import org.junit.Test;
 import top.evodb.core.memory.direct.AdjustableProtocolBufferAllocator;
