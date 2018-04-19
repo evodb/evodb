@@ -122,7 +122,7 @@ public class ByteChunkTest {
         byte[] bytes = new byte[10];
         ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0);
         byteChunk.append("1234567890".getBytes(), 0, 10);
-        byteChunk.reuse();
+        byteChunk.reuse(0);
         assertEquals(0, byteChunk.getStart());
         assertEquals(10, byteChunk.getEnd());
         assertEquals(0, byteChunk.getOffset());

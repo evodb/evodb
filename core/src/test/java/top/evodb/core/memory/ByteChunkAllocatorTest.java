@@ -138,13 +138,37 @@ public class ByteChunkAllocatorTest {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
         ByteChunk byteChunk1 = buddyAllocator.alloc(4);
         ByteChunk byteChunk2 = buddyAllocator.alloc(4);
-//        ByteChunk byteChunk3 = buddyAllocator.alloc(4);
-//        ByteChunk byteChunk4 = buddyAllocator.alloc(4);
+        ByteChunk byteChunk3 = buddyAllocator.alloc(4);
+        ByteChunk byteChunk4 = buddyAllocator.alloc(4);
 
-//        byteChunk1.recycle();
-//        byteChunk2.recycle();
-//        byteChunk3.recycle();
-//        byteChunk4.recycle();
+        byteChunk1.recycle();
+        byteChunk2.recycle();
+        byteChunk3.recycle();
+        byteChunk4.recycle();
+
+        assertEquals(true, byteChunk1.isRecyled());
+        assertEquals(true, byteChunk2.isRecyled());
+        assertEquals(true, byteChunk3.isRecyled());
+        assertEquals(true, byteChunk4.isRecyled());
+    }
+
+    @Test
+    public void testAllocFromCache() {
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
+        ByteChunk byteChunk = buddyAllocator.alloc(16);
+        byteChunk.recycle();
+        ByteChunk byteChunk1 = buddyAllocator.alloc(16);
+        assertTrue(byteChunk == byteChunk1);
+    }
+
+
+    @Test(expected = IllegalStateException.class)
+    public void testUserRecyleByteChunk() {
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
+        ByteChunk byteChunk = buddyAllocator.alloc(16);
+        byteChunk.recycle();
+
+        byteChunk.setOffset(11);
     }
 
 }

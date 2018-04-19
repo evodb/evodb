@@ -38,9 +38,9 @@ public class ByteChunk extends AbstractChunk {
         System.arraycopy(bytes, offset, buf, getOffset(), size);
     }
 
-    protected void reuse() {
-        checkState();
+    protected void reuse(int nodeIndex) {
         recyled = false;
+        this.nodeIndex = nodeIndex;
     }
 
     @Override

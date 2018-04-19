@@ -42,7 +42,6 @@ public abstract class BuddyAllocator<T extends AbstractChunk> {
             }
             tree[i] = nodeSize;
         }
-        System.out.println(Arrays.toString(tree));
     }
 
     public T alloc(int size) {
@@ -50,8 +49,11 @@ public abstract class BuddyAllocator<T extends AbstractChunk> {
         if (!MathUtil.isPowerOf2(size)) {
             size = fixSize(size);
         }
+        if (tree[index] < size) {
+            return doAlloc(0, 0);
+        }
         int nodeSize;
-        for (nodeSize = tree[index]; nodeSize != size && nodeSize != 0; nodeSize = tree[index]) {
+        for (nodeSize = this.size; nodeSize != size; nodeSize >>= 1) {
             if (tree[left(index)] >= size) {
                 index = left(index);
             } else {
@@ -64,11 +66,6 @@ public abstract class BuddyAllocator<T extends AbstractChunk> {
             index = parent(index);
             tree[index] = Math.max(tree[left(index)], tree[right(index)]);
         }
-        //TODO 调整子节点成0
-        index = foundIndex;
-        
-
-        System.out.println("after alloc:" + Arrays.toString(tree));
         return doAlloc(foundIndex, nodeSize);
     }
 
@@ -79,7 +76,9 @@ public abstract class BuddyAllocator<T extends AbstractChunk> {
             for (; index != 0; index = parent(index)) {
                 nodeSize <<= 1;
             }
-
+            if (index == 0) {
+                nodeSize = size;
+            }
             index = t.getNodeIndex();
             tree[index] = nodeSize;
             while (index != 0) {
@@ -93,7 +92,6 @@ public abstract class BuddyAllocator<T extends AbstractChunk> {
                     tree[index] = Math.max(leftSize, rightSize);
                 }
             }
-            System.out.println("after free:" + Arrays.toString(tree));
             doFree(t);
         }
     }

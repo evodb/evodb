@@ -58,7 +58,7 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
                 byteChunk = new ByteChunk(this, buf, offset, offset + size - 1, nodeIndex);
                 offset += size;
             } else {
-                byteChunk.reuse();
+                byteChunk.reuse(nodeIndex);
             }
             return byteChunk;
         }

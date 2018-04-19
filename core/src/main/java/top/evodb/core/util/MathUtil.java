@@ -25,16 +25,6 @@ public class MathUtil {
         return Integer.SIZE - 1 - Integer.numberOfLeadingZeros(val);
     }
 
-    public static int to2N(int val) {
-        int i = MathUtil.log2(val);
-        int mask = 1 << i;
-        if ((val & ~mask) != 0) {
-            return 1 << ++i;
-        } else {
-            return val;
-        }
-    }
-
     public static boolean isPowerOf2(int x) {
         return (x & x - 1) == 0;
     }
