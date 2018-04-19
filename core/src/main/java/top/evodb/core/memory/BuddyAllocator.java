@@ -16,6 +16,7 @@
 
 package top.evodb.core.memory;
 
+import java.util.Arrays;
 import top.evodb.core.memory.heap.AbstractChunk;
 import top.evodb.core.util.MathUtil;
 
@@ -41,6 +42,7 @@ public abstract class BuddyAllocator<T extends AbstractChunk> {
             }
             tree[i] = nodeSize;
         }
+        System.out.println(Arrays.toString(tree));
     }
 
     public T alloc(int size) {
@@ -56,23 +58,49 @@ public abstract class BuddyAllocator<T extends AbstractChunk> {
                 index = right(index);
             }
         }
+        int foundIndex = index;
         tree[index] = 0;
         while (index != 0) {
             index = parent(index);
             tree[index] = Math.max(tree[left(index)], tree[right(index)]);
         }
-        return doAlloc(nodeSize);
+        //TODO 调整子节点成0
+        index = foundIndex;
+        
+
+        System.out.println("after alloc:" + Arrays.toString(tree));
+        return doAlloc(foundIndex, nodeSize);
     }
 
     public void free(T t) {
-        int chunkSize = t.getLength();
+        if (t.getAllocator() == this && !t.isRecyled()) {
+            int index = t.getNodeIndex();
+            int nodeSize = 1;
+            for (; index != 0; index = parent(index)) {
+                nodeSize <<= 1;
+            }
 
-        doFree(t);
+            index = t.getNodeIndex();
+            tree[index] = nodeSize;
+            while (index != 0) {
+                index = parent(index);
+                nodeSize <<= 1;
+                int leftSize = tree[left(index)];
+                int rightSize = tree[right(index)];
+                if (leftSize + rightSize == nodeSize) {
+                    tree[index] = nodeSize;
+                } else {
+                    tree[index] = Math.max(leftSize, rightSize);
+                }
+            }
+            System.out.println("after free:" + Arrays.toString(tree));
+            doFree(t);
+        }
     }
 
     protected abstract void doFree(T t);
 
-    protected abstract T doAlloc(int size);
+    protected abstract T doAlloc(int index, int size);
 
     private int left(int idx) {
         return (idx << 1) + 1;

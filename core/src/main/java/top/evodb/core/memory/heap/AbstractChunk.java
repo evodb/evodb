@@ -16,6 +16,8 @@
 
 package top.evodb.core.memory.heap;
 
+import top.evodb.core.memory.BuddyAllocator;
+
 /**
  * @author evodb
  */
@@ -23,6 +25,9 @@ public abstract class AbstractChunk {
     protected int start;
     protected int end;
     private int offset;
+    protected int nodeIndex;
+    protected boolean recyled;
+    protected BuddyAllocator<ByteChunk> buddyAllocator;
 
     public int getOffset() {
         return offset;
@@ -30,6 +35,10 @@ public abstract class AbstractChunk {
 
     public int getLength() {
         return end - start + 1;
+    }
+
+    public int getNodeIndex() {
+        return nodeIndex;
     }
 
     public void setOffset(int offset) {
@@ -54,5 +63,13 @@ public abstract class AbstractChunk {
 
     public int getEnd() {
         return end;
+    }
+
+    public BuddyAllocator getAllocator() {
+        return buddyAllocator;
+    }
+
+    public boolean isRecyled() {
+        return recyled;
     }
 }

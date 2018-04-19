@@ -47,7 +47,7 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
     }
 
     @Override
-    protected ByteChunk doAlloc(int size) {
+    protected ByteChunk doAlloc(int nodeIndex, int size) {
         if (size == 0) {
             return null;
         }
@@ -55,7 +55,7 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
             LinkedList linkedList = objCache.computeIfAbsent(size, k -> new LinkedList());
             ByteChunk byteChunk = (ByteChunk) linkedList.poll();
             if (byteChunk == null) {
-                byteChunk = new ByteChunk(this, buf, offset, offset + size - 1);
+                byteChunk = new ByteChunk(this, buf, offset, offset + size - 1, nodeIndex);
                 offset += size;
             } else {
                 byteChunk.reuse();

@@ -23,13 +23,12 @@ import top.evodb.core.memory.BuddyAllocator;
  */
 public class ByteChunk extends AbstractChunk {
     private byte[] buf;
-    private boolean recyled;
-    private BuddyAllocator<ByteChunk> buddyAllocator;
 
-    public ByteChunk(BuddyAllocator buddyAllocator, byte[] buf, int start, int end) {
+    public ByteChunk(BuddyAllocator buddyAllocator, byte[] buf, int start, int end, int nodeIndex) {
         this.start = start;
         this.end = end;
         this.buf = buf;
+        this.nodeIndex = nodeIndex;
         recyled = false;
         this.buddyAllocator = buddyAllocator;
     }
@@ -60,8 +59,8 @@ public class ByteChunk extends AbstractChunk {
     public void recycle() {
         checkState();
         super.recycle();
-        recyled = true;
         buddyAllocator.free(this);
+        recyled = true;
     }
 
     @Override
@@ -85,13 +84,5 @@ public class ByteChunk extends AbstractChunk {
             }
         }
         return isEquals;
-    }
-
-    public boolean isRecyled() {
-        return recyled;
-    }
-
-    public BuddyAllocator getAllocator() {
-        return buddyAllocator;
     }
 }
