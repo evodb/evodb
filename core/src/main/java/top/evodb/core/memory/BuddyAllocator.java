@@ -65,8 +65,9 @@ public abstract class BuddyAllocator<T extends AbstractChunk> {
     }
 
     public void free(T t) {
-        int size = t.getLength();
+        int chunkSize = t.getLength();
 
+        doFree(t);
     }
 
     protected abstract void doFree(T t);

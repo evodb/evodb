@@ -28,12 +28,6 @@ public abstract class AbstractChunk {
         return offset;
     }
 
-    public void reuse(int start, int end) {
-        this.start = start;
-        this.end = end;
-        offset = 0;
-    }
-
     public int getLength() {
         return end - start + 1;
     }
@@ -51,8 +45,6 @@ public abstract class AbstractChunk {
     }
 
     public void recycle() {
-        start = 0;
-        end = 0;
         offset = 0;
     }
 
