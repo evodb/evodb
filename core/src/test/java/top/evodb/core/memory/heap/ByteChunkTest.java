@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+
 import org.junit.Test;
 
 /**
@@ -30,7 +31,7 @@ public class ByteChunkTest {
     @Test
     public void testAppend() {
         byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0);
+        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
         byteChunk.append("1234567890".getBytes(), 0, 10);
         assertEquals(10, byteChunk.getEnd());
         assertEquals(0, byteChunk.getStart());
@@ -40,11 +41,11 @@ public class ByteChunkTest {
     @Test
     public void testEquals() {
         byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0);
+        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
         byteChunk.append("1234567890".getBytes(), 0, 10);
 
         byte[] otherBytes = new byte[10];
-        ByteChunk otherByteChunk = new ByteChunk(null, otherBytes, 0, otherBytes.length, 0);
+        ByteChunk otherByteChunk = new ByteChunk(null, otherBytes, 0, otherBytes.length, 0, 0);
         otherByteChunk.append("1234567890".getBytes(), 0, 10);
         assertTrue(otherByteChunk.equals(byteChunk));
     }
@@ -52,11 +53,11 @@ public class ByteChunkTest {
     @Test
     public void testEqualsWithDifferentLength() {
         byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0);
+        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
         byteChunk.append("1234567890".getBytes(), 0, 10);
 
         byte[] otherBytes = new byte[11];
-        ByteChunk otherByteChunk = new ByteChunk(null, otherBytes, 0, otherBytes.length, 0);
+        ByteChunk otherByteChunk = new ByteChunk(null, otherBytes, 0, otherBytes.length, 0, 0);
         otherByteChunk.append("12345678901".getBytes(), 0, 11);
         assertFalse(otherByteChunk.equals(byteChunk));
     }
@@ -64,11 +65,11 @@ public class ByteChunkTest {
     @Test
     public void testEqualsWithDifferentContent() {
         byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0);
+        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
         byteChunk.append("1234567890".getBytes(), 0, 10);
 
         byte[] otherBytes = new byte[10];
-        ByteChunk otherByteChunk = new ByteChunk(null, otherBytes, 0, otherBytes.length, 0);
+        ByteChunk otherByteChunk = new ByteChunk(null, otherBytes, 0, otherBytes.length, 0, 0);
         otherByteChunk.append("1234567891".getBytes(), 0, 10);
         assertFalse(otherByteChunk.equals(byteChunk));
     }
@@ -76,7 +77,7 @@ public class ByteChunkTest {
     @Test
     public void testEqualsWithDifferentSameInstance() {
         byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0);
+        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
         byteChunk.append("1234567890".getBytes(), 0, 10);
         assertTrue(byteChunk.equals(byteChunk));
     }
@@ -84,7 +85,7 @@ public class ByteChunkTest {
     @Test
     public void testEqualsWithOtherType() {
         byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0);
+        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
         byteChunk.append("1234567890".getBytes(), 0, 10);
         assertFalse(byteChunk.equals("1234567890"));
     }
@@ -92,7 +93,7 @@ public class ByteChunkTest {
     @Test
     public void testSetOffset() {
         byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0);
+        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
         byteChunk.append("1234567890".getBytes(), 0, 10);
         byteChunk.setOffset(5);
         assertEquals(5, byteChunk.getOffset());
@@ -101,7 +102,7 @@ public class ByteChunkTest {
     @Test
     public void testSetOffsetWithStartBounds() {
         byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0);
+        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
         byteChunk.append("1234567890".getBytes(), 0, 10);
         byteChunk.setOffset(-1);
         assertEquals(0, byteChunk.getOffset());
@@ -110,7 +111,7 @@ public class ByteChunkTest {
     @Test
     public void testSetOffsetWithEndBounds() {
         byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0);
+        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
         byteChunk.append("1234567890".getBytes(), 0, 10);
         byteChunk.setOffset(byteChunk.getEnd() + 1);
         assertEquals(10, byteChunk.getOffset());
@@ -119,7 +120,7 @@ public class ByteChunkTest {
     @Test
     public void testReuse() {
         byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0);
+        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
         byteChunk.append("1234567890".getBytes(), 0, 10);
         byteChunk.reuse(0);
         assertEquals(0, byteChunk.getStart());

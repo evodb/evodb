@@ -45,15 +45,16 @@ public abstract class BuddyAllocator<T extends AbstractChunk> {
 
     public T alloc(int size) {
         int index = 0;
+        int size0 = size;
         if (!MathUtil.isPowerOf2(size)) {
-            size = fixSize(size);
+            size0 = fixSize(size);
         }
-        if (tree[index] < size) {
-            return doAlloc(0, 0);
+        if (tree[index] < size0) {
+            return doAlloc(0, 0, 0);
         }
         int nodeSize;
-        for (nodeSize = this.size; nodeSize != size; nodeSize >>= 1) {
-            if (tree[left(index)] >= size) {
+        for (nodeSize = this.size; nodeSize != size0; nodeSize >>= 1) {
+            if (tree[left(index)] >= size0) {
                 index = left(index);
             } else {
                 index = right(index);
@@ -65,7 +66,7 @@ public abstract class BuddyAllocator<T extends AbstractChunk> {
             index = parent(index);
             tree[index] = Math.max(tree[left(index)], tree[right(index)]);
         }
-        return doAlloc(foundIndex, nodeSize);
+        return doAlloc(foundIndex, nodeSize, size);
     }
 
     public void free(T t) {
@@ -97,7 +98,7 @@ public abstract class BuddyAllocator<T extends AbstractChunk> {
 
     protected abstract void doFree(T t);
 
-    protected abstract T doAlloc(int index, int size);
+    protected abstract T doAlloc(int index, int nodeSize, int reqSize);
 
     private int left(int idx) {
         return (idx << 1) + 1;

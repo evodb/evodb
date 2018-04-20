@@ -14,13 +14,14 @@
  *  under the License.
  */
 
-package top.evodb.core.memory;
+package top.evodb.core.memory.heap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import top.evodb.core.memory.BuddyAllocator;
 import top.evodb.core.memory.heap.ByteChunk;
 import top.evodb.core.memory.heap.ByteChunkAllocator;
 
@@ -32,21 +33,21 @@ public class ByteChunkAllocatorTest {
     @Test
     public void testAllocateWidth16Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(12);
-        assertEquals(16, buddyAllocator.alloc(16).getLength());
+        assertEquals(12, buddyAllocator.alloc(16).getLength());
         assertNull(buddyAllocator.alloc(1));
     }
 
     @Test
     public void testAllocateWidth9Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
-        assertEquals(16, buddyAllocator.alloc(9).getLength());
+        assertEquals(9, buddyAllocator.alloc(9).getLength());
         assertNull(buddyAllocator.alloc(1));
     }
 
     @Test
     public void testAllocateWidth3Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
-        assertEquals(4, buddyAllocator.alloc(3).getLength());
+        assertEquals(3, buddyAllocator.alloc(3).getLength());
         assertEquals(1, buddyAllocator.alloc(1).getLength());
     }
 

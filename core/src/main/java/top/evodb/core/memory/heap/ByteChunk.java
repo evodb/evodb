@@ -24,7 +24,7 @@ import top.evodb.core.memory.BuddyAllocator;
 public class ByteChunk extends AbstractChunk {
     private byte[] buf;
 
-    public ByteChunk(BuddyAllocator buddyAllocator, byte[] buf, int start, int end, int nodeIndex) {
+    public ByteChunk(BuddyAllocator buddyAllocator, byte[] buf, int start, int end, int limit, int nodeIndex) {
         this.start = start;
         this.end = end;
         this.buf = buf;
@@ -33,15 +33,14 @@ public class ByteChunk extends AbstractChunk {
         this.buddyAllocator = buddyAllocator;
     }
 
+    protected ByteChunk() {
+    }
+
     public void append(byte[] bytes, int offset, int size) {
         checkState();
         System.arraycopy(bytes, offset, buf, getOffset(), size);
     }
 
-    protected void reuse(int nodeIndex) {
-        recyled = false;
-        this.nodeIndex = nodeIndex;
-    }
 
     @Override
     public void setOffset(int offset) {
@@ -49,7 +48,7 @@ public class ByteChunk extends AbstractChunk {
         super.setOffset(offset);
     }
 
-    private void checkState() {
+    protected void checkState() {
         if (isRecyled()) {
             throw new IllegalStateException();
         }

@@ -27,14 +27,20 @@ public abstract class AbstractChunk {
     private int offset;
     protected int nodeIndex;
     protected boolean recyled;
+    protected int limit;
     protected BuddyAllocator<ByteChunk> buddyAllocator;
+
+    protected void reuse(int nodeIndex) {
+        recyled = false;
+        this.nodeIndex = nodeIndex;
+    }
 
     public int getOffset() {
         return offset;
     }
 
     public int getLength() {
-        return end - start + 1;
+        return limit - start + 1;
     }
 
     public int getNodeIndex() {
@@ -46,8 +52,8 @@ public abstract class AbstractChunk {
             this.offset = start;
             return;
         }
-        if (offset > end) {
-            this.offset = end;
+        if (offset > limit) {
+            this.offset = limit;
             return;
         }
         this.offset = offset;

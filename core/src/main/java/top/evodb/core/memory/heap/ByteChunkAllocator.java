@@ -16,11 +16,11 @@
 
 package top.evodb.core.memory.heap;
 
-import java.lang.ref.PhantomReference;
-import java.lang.ref.ReferenceQueue;
 import java.util.LinkedList;
 import java.util.TreeMap;
 import top.evodb.core.memory.BuddyAllocator;
+import top.evodb.core.util.MemoryLeak;
+import top.evodb.core.util.MemoryLeakDetector;
 
 /**
  * Thread safe
@@ -31,11 +31,14 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
     private final byte[] buf;
     private int offset;
     private final TreeMap<Integer, LinkedList> objCache;
+    private final MemoryLeakDetector memoryLeakDetector;
+    private int detectCount;
 
     public ByteChunkAllocator(int size) {
         super(size);
         buf = new byte[size];
         objCache = new TreeMap<>();
+        memoryLeakDetector = new MemoryLeakDetector();
     }
 
     @Override
@@ -49,48 +52,50 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
     }
 
     @Override
-    protected ByteChunk doAlloc(int nodeIndex, int size) {
-        if (size == 0) {
+    protected ByteChunk doAlloc(int nodeIndex, int nodeSize, int reqSize) {
+        if (nodeSize == 0) {
             return null;
         }
         synchronized (objCache) {
-            LinkedList linkedList = objCache.computeIfAbsent(size, k -> new LinkedList());
-            ByteChunk byteChunk = (ByteChunk) linkedList.poll();
-            if (byteChunk == null) {
-                byteChunk = new ByteChunk(this, buf, offset, offset + size - 1, nodeIndex);
-                offset += size;
+            LinkedList linkedList = objCache.computeIfAbsent(nodeSize, k -> new LinkedList());
+            AbstractChunk chunk = (AbstractChunk) linkedList.poll();
+            if (chunk == null) {
+                if (memoryLeakDetector.getDetectLevel() != MemoryLeakDetector.DetectLevel.DISABLE) {
+                    if (memoryLeakDetector.getDetectLevel() == MemoryLeakDetector.DetectLevel.HIGH) {
+                        chunk = warp(nodeSize, nodeIndex, reqSize);
+                    } else if (memoryLeakDetector.getDetectLevel() == MemoryLeakDetector.DetectLevel.MIDDLE) {
+                        detectCount++;
+                        if (detectCount == Integer.MAX_VALUE) {
+                            detectCount = 0;
+                        }
+                        if (detectCount % memoryLeakDetector.getDetectRate() == 0) {
+                            chunk = warp(nodeSize, nodeIndex, reqSize);
+                        } else {
+                            chunk = new ByteChunk(this, buf, offset, offset + nodeSize - 1, offset + reqSize - 1, nodeIndex);
+                        }
+                    }
+                } else {
+                    chunk = new ByteChunk(this, buf, offset, offset + nodeSize - 1, offset + reqSize - 1, nodeIndex);
+                }
+                offset += nodeSize;
             } else {
-                byteChunk.reuse(nodeIndex);
+                if (chunk instanceof LeakedAwareByteChunk) {
+                    ((LeakedAwareByteChunk) chunk).getMemoryLeak().generateTraceInfo(4);
+                }
+                chunk.reuse(nodeIndex);
             }
-            return byteChunk;
+            return (ByteChunk) chunk;
         }
     }
 
-    /**
-     * For memory leak detect.
-     */
-    class ByteChunkReference extends PhantomReference<ByteChunk> {
-        private StackTraceElement[] traceElements;
+    private LeakedAwareByteChunk warp(int size, int nodeIndex, int reqSize) {
+        ByteChunk byteChunk = new ByteChunk(this, buf, offset, offset + size - 1, offset + reqSize - 1, nodeIndex);
+        MemoryLeak memoryLeak = memoryLeakDetector.open(byteChunk);
+        memoryLeak.generateTraceInfo(4);
+        return new LeakedAwareByteChunk(byteChunk, memoryLeak);
+    }
 
-        /**
-         * Creates a new phantom reference that refers to the given object and
-         * is registered with the given queue.
-         *
-         * <p> It is possible to create a phantom reference with a <tt>null</tt>
-         * queue, but such a reference is completely useless: Its <tt>get</tt>
-         * method will always return null and, since it does not have a queue, it
-         * will never be enqueued.
-         *
-         * @param referent the object the new phantom reference will refer to
-         * @param q        the queue with which the reference is to be registered,
-         */
-        public ByteChunkReference(ByteChunk referent, ReferenceQueue<? super ByteChunk> q) {
-            super(referent, q);
-            traceElements = new Throwable().getStackTrace();
-        }
-
-        public StackTraceElement[] getTraceElements() {
-            return traceElements;
-        }
+    public MemoryLeakDetector getMemoryLeakDetector() {
+        return memoryLeakDetector;
     }
 }
