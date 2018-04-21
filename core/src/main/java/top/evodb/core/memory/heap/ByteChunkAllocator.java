@@ -45,7 +45,7 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
     protected void doFree(ByteChunk byteChunk) {
         if (byteChunk.getAllocator() == this) {
             synchronized (objCache) {
-                LinkedList linkedList = objCache.computeIfAbsent(byteChunk.getLength(), k -> new LinkedList());
+                LinkedList linkedList = objCache.computeIfAbsent(byteChunk.getRawLength(), k -> new LinkedList());
                 linkedList.offer(byteChunk);
             }
         }
@@ -88,8 +88,8 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
         }
     }
 
-    private LeakedAwareByteChunk warp(int size, int nodeIndex, int reqSize) {
-        ByteChunk byteChunk = new ByteChunk(this, buf, offset, offset + size - 1, offset + reqSize - 1, nodeIndex);
+    private LeakedAwareByteChunk warp(int nodeSize, int nodeIndex, int reqSize) {
+        ByteChunk byteChunk = new ByteChunk(this, buf, offset, offset + nodeSize - 1, offset + reqSize - 1, nodeIndex);
         MemoryLeak memoryLeak = memoryLeakDetector.open(byteChunk);
         memoryLeak.generateTraceInfo(4);
         return new LeakedAwareByteChunk(byteChunk, memoryLeak);

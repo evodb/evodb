@@ -18,10 +18,9 @@ package top.evodb.core.memory.heap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 
 import org.junit.Test;
+import top.evodb.core.memory.BuddyAllocator;
 
 /**
  * @author evodb
@@ -29,102 +28,78 @@ import org.junit.Test;
 public class ByteChunkTest {
 
     @Test
+    public void testOffset() {
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
+        ByteChunk byteChunk = buddyAllocator.alloc(10);
+        byteChunk.setOffset(-1);
+        assertEquals(0, byteChunk.getOffset());
+        byteChunk.setOffset(11);
+        assertEquals(9, byteChunk.getOffset());
+        byteChunk.setOffset(7);
+        assertEquals(7, byteChunk.getOffset());
+    }
+
+    @Test
     public void testAppend() {
-        byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
-        byteChunk.append("1234567890".getBytes(), 0, 10);
-        assertEquals(10, byteChunk.getEnd());
-        assertEquals(0, byteChunk.getStart());
-        assertEquals(11, byteChunk.getLength());
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(32);
+        ByteChunk byteChunk = buddyAllocator.alloc(10);
+        byte[] bytes = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+        byteChunk.append(bytes, 0, bytes.length);
+
     }
 
     @Test
     public void testEquals() {
-        byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
-        byteChunk.append("1234567890".getBytes(), 0, 10);
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(32);
+        ByteChunk byteChunk = buddyAllocator.alloc(10);
+        byte[] bytes = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+        byteChunk.append(bytes, 0, bytes.length);
 
-        byte[] otherBytes = new byte[10];
-        ByteChunk otherByteChunk = new ByteChunk(null, otherBytes, 0, otherBytes.length, 0, 0);
-        otherByteChunk.append("1234567890".getBytes(), 0, 10);
-        assertTrue(otherByteChunk.equals(byteChunk));
+        ByteChunk byteChunk1 = buddyAllocator.alloc(10);
+        byteChunk1.append(bytes, 0, bytes.length);
+
+        assertEquals(byteChunk, byteChunk1);
+    }
+
+    @Test
+    public void testEqualsWith11Bytes() {
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(32);
+        ByteChunk byteChunk = buddyAllocator.alloc(10);
+        byte[] bytes = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1};
+        byteChunk.append(bytes, 0, bytes.length);
+
+        ByteChunk byteChunk1 = buddyAllocator.alloc(10);
+        byteChunk1.append(bytes, 0, bytes.length);
+
+        assertEquals(byteChunk, byteChunk1);
+    }
+
+    @Test
+    public void testEqualsWithDifferentData() {
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(32);
+        ByteChunk byteChunk = buddyAllocator.alloc(11);
+        byte[] bytes = {1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2};
+        byteChunk.append(bytes, 0, bytes.length);
+
+        byte[] bytes1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 3};
+        ByteChunk byteChunk1 = buddyAllocator.alloc(11);
+        byteChunk1.append(bytes1, 0, bytes1.length);
+
+        assertFalse(byteChunk.equals(byteChunk1));
+        assertFalse(byteChunk.equals(bytes1));
     }
 
     @Test
     public void testEqualsWithDifferentLength() {
-        byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
-        byteChunk.append("1234567890".getBytes(), 0, 10);
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(32);
+        ByteChunk byteChunk = buddyAllocator.alloc(11);
+        byte[] bytes = {1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2};
+        byteChunk.append(bytes, 0, bytes.length);
 
-        byte[] otherBytes = new byte[11];
-        ByteChunk otherByteChunk = new ByteChunk(null, otherBytes, 0, otherBytes.length, 0, 0);
-        otherByteChunk.append("12345678901".getBytes(), 0, 11);
-        assertFalse(otherByteChunk.equals(byteChunk));
-    }
+        byte[] bytes1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 1};
+        ByteChunk byteChunk1 = buddyAllocator.alloc(10);
+        byteChunk1.append(bytes1, 0, bytes1.length);
 
-    @Test
-    public void testEqualsWithDifferentContent() {
-        byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
-        byteChunk.append("1234567890".getBytes(), 0, 10);
-
-        byte[] otherBytes = new byte[10];
-        ByteChunk otherByteChunk = new ByteChunk(null, otherBytes, 0, otherBytes.length, 0, 0);
-        otherByteChunk.append("1234567891".getBytes(), 0, 10);
-        assertFalse(otherByteChunk.equals(byteChunk));
-    }
-
-    @Test
-    public void testEqualsWithDifferentSameInstance() {
-        byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
-        byteChunk.append("1234567890".getBytes(), 0, 10);
-        assertTrue(byteChunk.equals(byteChunk));
-    }
-
-    @Test
-    public void testEqualsWithOtherType() {
-        byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
-        byteChunk.append("1234567890".getBytes(), 0, 10);
-        assertFalse(byteChunk.equals("1234567890"));
-    }
-
-    @Test
-    public void testSetOffset() {
-        byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
-        byteChunk.append("1234567890".getBytes(), 0, 10);
-        byteChunk.setOffset(5);
-        assertEquals(5, byteChunk.getOffset());
-    }
-
-    @Test
-    public void testSetOffsetWithStartBounds() {
-        byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
-        byteChunk.append("1234567890".getBytes(), 0, 10);
-        byteChunk.setOffset(-1);
-        assertEquals(0, byteChunk.getOffset());
-    }
-
-    @Test
-    public void testSetOffsetWithEndBounds() {
-        byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
-        byteChunk.append("1234567890".getBytes(), 0, 10);
-        byteChunk.setOffset(byteChunk.getEnd() + 1);
-        assertEquals(10, byteChunk.getOffset());
-    }
-
-    @Test
-    public void testReuse() {
-        byte[] bytes = new byte[10];
-        ByteChunk byteChunk = new ByteChunk(null, bytes, 0, bytes.length, 0, 0);
-        byteChunk.append("1234567890".getBytes(), 0, 10);
-        byteChunk.reuse(0);
-        assertEquals(0, byteChunk.getStart());
-        assertEquals(10, byteChunk.getEnd());
-        assertEquals(0, byteChunk.getOffset());
+        assertFalse(byteChunk.equals(byteChunk1));
     }
 }

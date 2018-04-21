@@ -103,7 +103,6 @@ public class MemoryLeakDetectorTest {
         buddyAllocator.getMemoryLeakDetector().setDetectLevel(MemoryLeakDetector.DetectLevel.HIGH);
         ByteChunk byteChunk = buddyAllocator.alloc(4);
         byteChunk.recycle();
-
         ByteChunk other = buddyAllocator.alloc(4);
         assertFalse(buddyAllocator.getMemoryLeakDetector().isMemoryLeakOccurred());
         assertTrue(other == byteChunk);

@@ -43,6 +43,10 @@ public abstract class AbstractChunk {
         return limit - start + 1;
     }
 
+    public int getRawLength() {
+        return end - start + 1;
+    }
+
     public int getNodeIndex() {
         return nodeIndex;
     }
@@ -60,7 +64,7 @@ public abstract class AbstractChunk {
     }
 
     public void recycle() {
-        offset = 0;
+        offset = start;
     }
 
     public int getStart() {

@@ -29,6 +29,7 @@ public class LeakedAwareByteChunk extends ByteChunk {
     public LeakedAwareByteChunk(ByteChunk byteChunk, MemoryLeak memoryLeak) {
         this.byteChunk = byteChunk;
         this.memoryLeak = memoryLeak;
+        buf = byteChunk.buf;
     }
 
     public MemoryLeak getMemoryLeak() {
@@ -58,7 +59,7 @@ public class LeakedAwareByteChunk extends ByteChunk {
     public void recycle() {
         byteChunk.checkState();
         byteChunk.buddyAllocator.free(this);
-        byteChunk.setOffset(0);
+        byteChunk.setOffset(byteChunk.getStart());
         byteChunk.recyled = true;
     }
 
@@ -90,6 +91,11 @@ public class LeakedAwareByteChunk extends ByteChunk {
     @Override
     public int getEnd() {
         return byteChunk.getEnd();
+    }
+
+    @Override
+    public int getRawLength() {
+        return byteChunk.getRawLength();
     }
 
     @Override

@@ -33,7 +33,7 @@ public class ByteChunkAllocatorTest {
     @Test
     public void testAllocateWidth16Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(12);
-        assertEquals(12, buddyAllocator.alloc(16).getLength());
+        assertEquals(12, buddyAllocator.alloc(12).getLength());
         assertNull(buddyAllocator.alloc(1));
     }
 
@@ -54,28 +54,28 @@ public class ByteChunkAllocatorTest {
     @Test
     public void testAllocateWidth5Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
-        assertEquals(8, buddyAllocator.alloc(5).getLength());
+        assertEquals(5, buddyAllocator.alloc(5).getLength());
         assertEquals(1, buddyAllocator.alloc(1).getLength());
     }
 
     @Test
     public void testAllocateWidth6Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
-        assertEquals(8, buddyAllocator.alloc(6).getLength());
+        assertEquals(6, buddyAllocator.alloc(6).getLength());
         assertEquals(1, buddyAllocator.alloc(1).getLength());
     }
 
     @Test
     public void testAllocateWidth7Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
-        assertEquals(8, buddyAllocator.alloc(7).getLength());
+        assertEquals(7, buddyAllocator.alloc(7).getLength());
         assertEquals(1, buddyAllocator.alloc(1).getLength());
     }
 
     @Test
     public void testAllocateWidth10Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
-        assertEquals(16, buddyAllocator.alloc(10).getLength());
+        assertEquals(10, buddyAllocator.alloc(10).getLength());
         assertNull(buddyAllocator.alloc(1));
     }
 
