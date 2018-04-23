@@ -17,7 +17,7 @@
 package top.evodb.server.protocol;
 
 
-import top.evodb.core.memory.direct.ProtocolBuffer;
+import top.evodb.core.memory.protocol.ProtocolBuffer;
 import top.evodb.core.protocol.MysqlPacket;
 
 /**

@@ -16,8 +16,8 @@
 
 package top.evodb.server.util;
 
-import top.evodb.core.memory.direct.PacketDescriptor;
-import top.evodb.core.memory.direct.ProtocolBuffer;
+import top.evodb.core.memory.protocol.PacketDescriptor;
+import top.evodb.core.memory.protocol.ProtocolBuffer;
 import top.evodb.core.protocol.MysqlPacket;
 
 /**

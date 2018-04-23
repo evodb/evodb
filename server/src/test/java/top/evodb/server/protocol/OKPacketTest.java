@@ -18,8 +18,8 @@ package top.evodb.server.protocol;
 
 import org.junit.Assert;
 import org.junit.Test;
-import top.evodb.core.memory.direct.AdjustableProtocolBufferAllocator;
-import top.evodb.core.memory.direct.ProtocolBufferAllocator;
+import top.evodb.core.memory.protocol.AdjustableProtocolBufferAllocator;
+import top.evodb.core.memory.protocol.ProtocolBufferAllocator;
 import top.evodb.core.protocol.MysqlPacket;
 import top.evodb.server.exception.MysqlPacketFactoryException;
 import top.evodb.server.mysql.CapabilityFlags;

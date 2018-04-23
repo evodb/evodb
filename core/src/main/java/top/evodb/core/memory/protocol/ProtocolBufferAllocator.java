@@ -14,27 +14,26 @@
  *  under the License.
  */
 
-package top.evodb.core.memory.direct;
+package top.evodb.core.memory.protocol;
 
 /**
- * The class that implements this interface can create multiple iterators, Each of which keeps its
- * internal state until the {@link PacketIterator#reset()} method calls. Note:For performance
- * reasons, try to create only one iterator.
- *
+ * @param <T> The type of ProtocolBuffer
  * @author evodb
  */
-@SuppressWarnings("unused")
-public interface IterableBuffer {
+public interface ProtocolBufferAllocator<T extends ProtocolBuffer> {
 
     /**
-     * Gets an iterator named 'default'.
-     */
-    PacketIterator packetIterator();
-
-    /**
-     * Gets an iterator named {@code name}.
+     * Allocate ProtocolBuffer.
      *
-     * @param name The name of iterator
+     * @return The buffer
      */
-    PacketIterator packetIterator(String name);
+    T allocate();
+
+    /**
+     * Recyle ProtocolBuffer.
+     *
+     * @param buffer The buffer
+     * @return {@code true} indicates success.{@code false} indicates failure.
+     */
+    boolean recyle(T buffer);
 }

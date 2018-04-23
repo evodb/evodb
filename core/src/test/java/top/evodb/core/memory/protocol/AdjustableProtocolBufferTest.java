@@ -14,7 +14,7 @@
  *  under the License.
  */
 
-package top.evodb.core.memory.direct;
+package top.evodb.core.memory.protocol;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

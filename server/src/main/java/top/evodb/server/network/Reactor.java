@@ -24,9 +24,9 @@ import java.util.LinkedList;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import top.evodb.core.memory.direct.AdjustableProtocolBuffer;
-import top.evodb.core.memory.direct.AdjustableProtocolBufferAllocator;
-import top.evodb.core.memory.direct.ProtocolBufferAllocator;
+import top.evodb.core.memory.protocol.AdjustableProtocolBuffer;
+import top.evodb.core.memory.protocol.AdjustableProtocolBufferAllocator;
+import top.evodb.core.memory.protocol.ProtocolBufferAllocator;
 import top.evodb.server.mysql.AbstractMysqlConnection;
 import top.evodb.server.protocol.MysqlPacketFactory;
 

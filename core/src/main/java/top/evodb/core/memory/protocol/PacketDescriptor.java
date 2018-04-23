@@ -14,7 +14,7 @@
  *  under the License.
  */
 
-package top.evodb.core.memory.direct;
+package top.evodb.core.memory.protocol;
 
 /**
  * The tool for manipulating the descriptor.

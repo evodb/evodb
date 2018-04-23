@@ -19,7 +19,7 @@ package top.evodb.server.protocol;
 
 
 
-import top.evodb.core.memory.direct.ProtocolBuffer;
+import top.evodb.core.memory.protocol.ProtocolBuffer;
 import top.evodb.server.mysql.CapabilityFlags;
 import top.evodb.server.mysql.ServerStatus;
 import top.evodb.server.util.BitUtil;

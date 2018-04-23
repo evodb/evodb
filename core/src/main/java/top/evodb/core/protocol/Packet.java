@@ -17,7 +17,7 @@
 package top.evodb.core.protocol;
 
 
-import top.evodb.core.memory.direct.ProtocolBuffer;
+import top.evodb.core.memory.protocol.ProtocolBuffer;
 
 /**
  * Data packet.
