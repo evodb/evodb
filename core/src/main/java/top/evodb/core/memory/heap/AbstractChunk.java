@@ -21,7 +21,7 @@ import top.evodb.core.memory.BuddyAllocator;
 /**
  * @author evodb
  */
-public abstract class AbstractChunk {
+public abstract class AbstractChunk implements Cloneable {
     protected int start;
     protected int end;
     private int offset;
@@ -29,18 +29,45 @@ public abstract class AbstractChunk {
     protected boolean recyled;
     protected int limit;
     protected BuddyAllocator<ByteChunk> buddyAllocator;
+    protected boolean hasHashCode;
+    private int hashCode;
 
     protected void reuse(int nodeIndex) {
         recyled = false;
         this.nodeIndex = nodeIndex;
     }
 
+    @Override
+    public int hashCode() {
+        if (hasHashCode) {
+            return hashCode;
+        }
+        int code = 0;
+
+        code = hash();
+        hashCode = code;
+        hasHashCode = true;
+        return code;
+    }
+
+
+    public int hash() {
+        int code = 0;
+        for (int i = start; i < end; i++) {
+            code = code * 37 + getElement(i);
+
+        }
+        return code;
+    }
+
+    abstract byte getElement(int i);
+
     public int getOffset() {
         return offset;
     }
 
     public int getLength() {
-        return limit - start + 1;
+        return limit - start;
     }
 
     public int getRawLength() {
@@ -56,15 +83,21 @@ public abstract class AbstractChunk {
             this.offset = start;
             return;
         }
-        if (offset > limit) {
-            this.offset = limit;
+        if (offset >= limit) {
+            this.offset = limit - 1;
             return;
         }
         this.offset = offset;
     }
 
     public void recycle() {
+        hasHashCode = false;
         offset = start;
+    }
+
+    @Override
+    public AbstractChunk clone() throws CloneNotSupportedException {
+        return (AbstractChunk) super.clone();
     }
 
     public int getStart() {

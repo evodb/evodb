@@ -41,12 +41,21 @@ public class ByteChunk extends AbstractChunk {
     public void append(byte[] bytes, int offset, int size) {
         checkState();
         int size0 = size;
-        if (getOffset() + size0 > limit) {
+        if (getOffset() + size0 >= limit) {
             size0 -= getOffset() + size0 - limit;
         }
-        System.arraycopy(bytes, offset, buf, getOffset(), size0 + 1);
+        System.arraycopy(bytes, offset, buf, getOffset(), size0);
     }
 
+    @Override
+    public String toString() {
+        return new String(buf, start, getLength());
+    }
+
+    @Override
+    byte getElement(int i) {
+        return buf[i];
+    }
 
     @Override
     public void setOffset(int offset) {
@@ -79,7 +88,7 @@ public class ByteChunk extends AbstractChunk {
         }
         int byteChunkStart = byteChunk.getStart();
         boolean isEquals = true;
-        for (int i = getStart(); i <= limit; i++) {
+        for (int i = getStart(); i < limit; i++) {
             if (buf[i] != byteChunk.buf[byteChunkStart++]) {
                 isEquals = false;
                 break;

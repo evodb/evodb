@@ -18,6 +18,7 @@ package top.evodb.core.memory.heap;
 
 import java.util.LinkedList;
 import java.util.TreeMap;
+import top.evodb.core.memory.AllocatorOutOfMemoryException;
 import top.evodb.core.memory.BuddyAllocator;
 import top.evodb.core.util.MemoryLeak;
 import top.evodb.core.util.MemoryLeakDetector;
@@ -37,7 +38,7 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
 
     public ByteChunkAllocator(int size) {
         super(size);
-        buf = new byte[size];
+        buf = new byte[super.size];
         objCache = new TreeMap<>();
         memoryLeakDetector = new MemoryLeakDetector();
     }
@@ -59,9 +60,9 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
             AbstractChunk chunk = (AbstractChunk) linkedList.poll();
             if (nodeSize == 0) {
                 if (isAllowOverAlloc()) {
-                    chunk = new ByteChunk(this, buf, offset, offset + nodeSize - 1, offset + reqSize - 1, nodeIndex);
+                    chunk = new ByteChunk(this, buf, offset, offset + nodeSize - 1, offset + reqSize, nodeIndex);
                 } else {
-                    return null;
+                    throw new AllocatorOutOfMemoryException();
                 }
             }
             if (chunk == null) {
@@ -76,11 +77,11 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
                         if (detectCount % memoryLeakDetector.getDetectRate() == 0) {
                             chunk = warp(nodeSize, nodeIndex, reqSize);
                         } else {
-                            chunk = new ByteChunk(this, buf, offset, offset + nodeSize - 1, offset + reqSize - 1, nodeIndex);
+                            chunk = new ByteChunk(this, buf, offset, offset + nodeSize - 1, offset + reqSize, nodeIndex);
                         }
                     }
                 } else {
-                    chunk = new ByteChunk(this, buf, offset, offset + nodeSize - 1, offset + reqSize - 1, nodeIndex);
+                    chunk = new ByteChunk(this, buf, offset, offset + nodeSize - 1, offset + reqSize, nodeIndex);
                 }
                 offset += nodeSize;
             } else {
@@ -103,7 +104,7 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
     }
 
     private LeakedAwareByteChunk warp(int nodeSize, int nodeIndex, int reqSize) {
-        ByteChunk byteChunk = new ByteChunk(this, buf, offset, offset + nodeSize - 1, offset + reqSize - 1, nodeIndex);
+        ByteChunk byteChunk = new ByteChunk(this, buf, offset, offset + nodeSize - 1, offset + reqSize, nodeIndex);
         MemoryLeak memoryLeak = memoryLeakDetector.open(byteChunk);
         memoryLeak.generateTraceInfo(4);
         return new LeakedAwareByteChunk(byteChunk, memoryLeak);

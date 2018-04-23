@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 
 import org.junit.Test;
+import top.evodb.core.memory.AllocatorOutOfMemoryException;
 import top.evodb.core.memory.BuddyAllocator;
 
 /**
@@ -30,14 +31,14 @@ import top.evodb.core.memory.BuddyAllocator;
  */
 public class ByteChunkAllocatorTest {
 
-    @Test
+    @Test(expected = AllocatorOutOfMemoryException.class)
     public void testAllocateWidth16Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(12);
         assertEquals(12, buddyAllocator.alloc(12).getLength());
         assertNull(buddyAllocator.alloc(1));
     }
 
-    @Test
+    @Test(expected = AllocatorOutOfMemoryException.class)
     public void testAllocateWidth9Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
         assertEquals(9, buddyAllocator.alloc(9).getLength());
@@ -72,14 +73,14 @@ public class ByteChunkAllocatorTest {
         assertEquals(1, buddyAllocator.alloc(1).getLength());
     }
 
-    @Test
+    @Test(expected = AllocatorOutOfMemoryException.class)
     public void testAllocateWidth10Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
         assertEquals(10, buddyAllocator.alloc(10).getLength());
         assertNull(buddyAllocator.alloc(1));
     }
 
-    @Test
+    @Test(expected = AllocatorOutOfMemoryException.class)
     public void testAllocateWidth8Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
         assertEquals(8, buddyAllocator.alloc(8).getLength());
@@ -87,7 +88,7 @@ public class ByteChunkAllocatorTest {
         assertNull(buddyAllocator.alloc(8));
     }
 
-    @Test
+    @Test(expected = AllocatorOutOfMemoryException.class)
     public void testAllocateWidth4Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
         assertEquals(4, buddyAllocator.alloc(4).getLength());
@@ -97,7 +98,7 @@ public class ByteChunkAllocatorTest {
         assertNull(buddyAllocator.alloc(4));
     }
 
-    @Test
+    @Test(expected = AllocatorOutOfMemoryException.class)
     public void testAllocateWidth1Byte() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
         assertEquals(1, buddyAllocator.alloc(1).getLength());
@@ -183,7 +184,7 @@ public class ByteChunkAllocatorTest {
         assertNotNull(byteChunk);
     }
 
-    @Test
+    @Test(expected = AllocatorOutOfMemoryException.class)
     public void testAllocWithNotAllowOverAlloc() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
         ByteChunk byteChunk = buddyAllocator.alloc(16);

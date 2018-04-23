@@ -26,6 +26,11 @@ public class LeakedAwareByteChunk extends ByteChunk {
     private ByteChunk byteChunk;
     private MemoryLeak memoryLeak;
 
+    @Override
+    byte getElement(int i) {
+        return byteChunk.getElement(i);
+    }
+
     public LeakedAwareByteChunk(ByteChunk byteChunk, MemoryLeak memoryLeak) {
         this.byteChunk = byteChunk;
         this.memoryLeak = memoryLeak;
@@ -66,6 +71,11 @@ public class LeakedAwareByteChunk extends ByteChunk {
     @Override
     public boolean equals(Object o) {
         return byteChunk.equals(o);
+    }
+
+    @Override
+    public AbstractChunk clone() throws CloneNotSupportedException {
+        return byteChunk.clone();
     }
 
     @Override

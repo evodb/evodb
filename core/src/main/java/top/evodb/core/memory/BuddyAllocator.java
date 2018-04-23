@@ -24,7 +24,7 @@ import top.evodb.core.util.MathUtil;
  */
 public abstract class BuddyAllocator<T extends AbstractChunk> {
     private final int[] tree;
-    private final int size;
+    protected final int size;
 
     public BuddyAllocator(int size) {
         if (!MathUtil.isPowerOf2(size)) {
