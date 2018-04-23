@@ -33,6 +33,7 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
     private final TreeMap<Integer, LinkedList> objCache;
     private final MemoryLeakDetector memoryLeakDetector;
     private int detectCount;
+    private boolean allowOverAlloc;
 
     public ByteChunkAllocator(int size) {
         super(size);
@@ -53,12 +54,16 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
 
     @Override
     protected ByteChunk doAlloc(int nodeIndex, int nodeSize, int reqSize) {
-        if (nodeSize == 0) {
-            return null;
-        }
         synchronized (objCache) {
             LinkedList linkedList = objCache.computeIfAbsent(nodeSize, k -> new LinkedList());
             AbstractChunk chunk = (AbstractChunk) linkedList.poll();
+            if (nodeSize == 0) {
+                if (isAllowOverAlloc()) {
+                    chunk = new ByteChunk(this, buf, offset, offset + nodeSize - 1, offset + reqSize - 1, nodeIndex);
+                } else {
+                    return null;
+                }
+            }
             if (chunk == null) {
                 if (memoryLeakDetector.getDetectLevel() != MemoryLeakDetector.DetectLevel.DISABLE) {
                     if (memoryLeakDetector.getDetectLevel() == MemoryLeakDetector.DetectLevel.HIGH) {
@@ -86,6 +91,15 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
             }
             return (ByteChunk) chunk;
         }
+    }
+
+
+    public boolean isAllowOverAlloc() {
+        return allowOverAlloc;
+    }
+
+    public void setAllowOverAlloc(boolean allowOverAlloc) {
+        this.allowOverAlloc = allowOverAlloc;
     }
 
     private LeakedAwareByteChunk warp(int nodeSize, int nodeIndex, int reqSize) {

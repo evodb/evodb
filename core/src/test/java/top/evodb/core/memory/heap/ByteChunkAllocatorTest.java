@@ -17,13 +17,13 @@
 package top.evodb.core.memory.heap;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+
 import org.junit.Test;
 import top.evodb.core.memory.BuddyAllocator;
-import top.evodb.core.memory.heap.ByteChunk;
-import top.evodb.core.memory.heap.ByteChunkAllocator;
 
 /**
  * @author evodb
@@ -171,6 +171,24 @@ public class ByteChunkAllocatorTest {
         byteChunk.recycle();
 
         byteChunk.setOffset(11);
+    }
+
+    @Test
+    public void testAllocWithOverAlloc() {
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
+        ((ByteChunkAllocator) buddyAllocator).setAllowOverAlloc(true);
+        ByteChunk byteChunk = buddyAllocator.alloc(16);
+
+        byteChunk = buddyAllocator.alloc(32);
+        assertNotNull(byteChunk);
+    }
+
+    @Test
+    public void testAllocWithNotAllowOverAlloc() {
+        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
+        ByteChunk byteChunk = buddyAllocator.alloc(16);
+        byteChunk = buddyAllocator.alloc(32);
+        assertNull(byteChunk);
     }
 
 }
