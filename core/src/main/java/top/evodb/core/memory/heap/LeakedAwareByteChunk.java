@@ -54,8 +54,8 @@ public class LeakedAwareByteChunk extends ByteChunk {
     }
 
     @Override
-    protected void reuse(int nodeIndex) {
-        byteChunk.reuse(nodeIndex);
+    protected void reuse(int start, int end, int limit, int nodeIndex) {
+        byteChunk.reuse(start, end, limit, nodeIndex);
     }
 
     @Override

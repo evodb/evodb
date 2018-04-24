@@ -275,18 +275,16 @@ public class AdjustableProtocolBufferTest {
         hello.append("hello world".getBytes(), 0, 11);
 
         ByteChunk world = byteChunkAllocator.alloc(5);
-        hello.append("world".getBytes(), 0, 5);
+        world.append("world".getBytes(), 0, 5);
 
         ProtocolBuffer protocolBuffer = allocator.allocate();
         protocolBuffer.writeLenencString(hello);
         protocolBuffer.writeLenencString(world);
+
         ByteChunk rv = protocolBuffer.readLenencString();
         assertEquals(hello, rv);
         rv = protocolBuffer.readLenencString();
         assertEquals(world, rv);
-        hello.recycle();
-        world.recycle();
-        rv.recycle();
     }
 
     @Test
@@ -550,7 +548,7 @@ public class AdjustableProtocolBufferTest {
             }
         }).when(socketChannel).read(byteBuffer);
 
-        ProtocolBuffer protocolBuffer = new AdjustableProtocolBuffer(spyAllocator,byteChunkAllocator);
+        ProtocolBuffer protocolBuffer = new AdjustableProtocolBuffer(spyAllocator, byteChunkAllocator);
         int readed = protocolBuffer.transferFromChannel(socketChannel);
         assertEquals(15, readed);
     }
@@ -618,7 +616,7 @@ public class AdjustableProtocolBufferTest {
     public void testCompactWithMultiBuffer() {
         String data = "123456789012345";
         ByteChunk byteChunk = byteChunkAllocator.alloc(data.length());
-        byteChunk.append(data.getBytes(),0,data.length());
+        byteChunk.append(data.getBytes(), 0, data.length());
 
         ProtocolBuffer protocolBuffer = allocator.allocate();
         protocolBuffer.writeFixString(byteChunk);
@@ -646,7 +644,7 @@ public class AdjustableProtocolBufferTest {
     public void testCompactWithLargeData() {
         String data = "123456789012345";
         ByteChunk byteChunk = byteChunkAllocator.alloc(data.length());
-        byteChunk.append(data.getBytes(),0,data.length());
+        byteChunk.append(data.getBytes(), 0, data.length());
 
         ProtocolBuffer protocolBuffer = allocator.allocate();
         protocolBuffer.writeFixString(byteChunk);
