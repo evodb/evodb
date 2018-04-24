@@ -19,6 +19,8 @@ package top.evodb.core.memory.protocol;
 
 import java.util.HashMap;
 import java.util.Map;
+import top.evodb.core.memory.heap.ByteChunk;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
 
 /**
  * The base class of the ProtocolBuffer.
@@ -30,8 +32,10 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
     private int writeIndex;
     private int readIndex;
     private Map<String, PacketIterator> namedPacketIteratorMap;
+    private ByteChunkAllocator byteChunkAllocator;
 
-    protected AbstractProtocolBuffer() {
+    protected AbstractProtocolBuffer(ByteChunkAllocator byteChunkAllocator) {
+        this.byteChunkAllocator = byteChunkAllocator;
         writeIndex = 0;
         readIndex = 0;
     }
@@ -145,41 +149,41 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
     }
 
     @Override
-    public String getFixString(int index, int length) {
-        byte[] bytes = new byte[length];
-        getBytes(bytes, index);
-        return new String(bytes);
+    public ByteChunk getFixString(int index, int length) {
+        ByteChunk byteChunk = byteChunkAllocator.alloc(length);
+        getBytes(byteChunk, index);
+        return byteChunk;
     }
 
     @Override
-    public String readFixString(int length) {
-        byte[] bytes = new byte[length];
-        getBytes(bytes, readIndex);
+    public ByteChunk readFixString(int length) {
+        ByteChunk byteChunk = byteChunkAllocator.alloc(length);
+        getBytes(byteChunk, readIndex);
         readIndex += length;
-        return new String(bytes);
+        return byteChunk;
     }
 
     @Override
-    public String getLenencString(int index) {
+    public ByteChunk getLenencString(int index) {
         int strLen = (int) getLenencInt(index);
         int lenencLen = getLenencLength(strLen);
-        byte[] bytes = new byte[strLen];
-        getBytes(bytes, index + lenencLen);
-        return new String(bytes);
+        ByteChunk byteChunk = byteChunkAllocator.alloc(strLen);
+        getBytes(byteChunk, index + lenencLen);
+        return byteChunk;
     }
 
     @Override
-    public String readLenencString() {
+    public ByteChunk readLenencString() {
         int strLen = (int) getLenencInt(readIndex);
         int lenencLen = getLenencLength(strLen);
-        byte[] bytes = new byte[strLen];
-        getBytes(bytes, readIndex + lenencLen);
+        ByteChunk byteChunk = byteChunkAllocator.alloc(strLen);
+        getBytes(byteChunk, readIndex + lenencLen);
         readIndex += strLen + lenencLen;
-        return new String(bytes);
+        return byteChunk;
     }
 
     @Override
-    public String getNULString(int index) {
+    public ByteChunk getNULString(int index) {
         int strLength = 0;
         int scanIndex = index;
         while (scanIndex < capacity()) {
@@ -188,16 +192,16 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
             }
             strLength++;
         }
-        byte[] bytes = new byte[strLength];
-        getBytes(bytes, index);
-        return new String(bytes);
+        ByteChunk byteChunk = byteChunkAllocator.alloc(strLength);
+        getBytes(byteChunk, index);
+        return byteChunk;
     }
 
     @Override
-    public String readNULString() {
-        String rv = getNULString(readIndex);
-        readIndex += rv.getBytes().length + 1;
-        return rv;
+    public ByteChunk readNULString() {
+        ByteChunk byteChunk = getNULString(readIndex);
+        readIndex += byteChunk.getLength() + 1;
+        return byteChunk;
     }
 
     @Override
@@ -255,74 +259,78 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
     }
 
     @Override
-    public ProtocolBuffer putFixString(int index, String val) {
-        putBytes(index, val.getBytes());
+    public ProtocolBuffer putFixString(int index, ByteChunk byteChunk) {
+        putBytes(index, byteChunk);
         return this;
     }
 
     @Override
-    public ProtocolBuffer writeFixString(String val) {
-        putBytes(writeIndex, val.getBytes());
-        writeIndex += val.getBytes().length;
+    public ProtocolBuffer writeFixString(ByteChunk byteChunk) {
+        putBytes(writeIndex, byteChunk);
+        writeIndex += byteChunk.getLength();
         return this;
     }
 
     @Override
-    public ProtocolBuffer putLenencString(int index, String val) {
-        putLenencInt(index, val.getBytes().length);
-        int lenencLen = getLenencLength(val.getBytes().length);
-        putFixString(index + lenencLen, val);
+    public ProtocolBuffer putLenencString(int index, ByteChunk byteChunk) {
+        putLenencInt(index, byteChunk.getLength());
+        int lenencLen = getLenencLength(byteChunk.getLength());
+        putFixString(index + lenencLen, byteChunk);
         return this;
     }
 
     @Override
-    public ProtocolBuffer writeLenencString(String val) {
+    public ProtocolBuffer writeLenencString(ByteChunk val) {
         putLenencString(writeIndex, val);
-        int lenencLen = getLenencLength(val.getBytes().length);
-        writeIndex += lenencLen + val.getBytes().length;
+        int lenencLen = getLenencLength(val.getLength());
+        writeIndex += lenencLen + val.getLength();
         return this;
     }
 
     @Override
-    public ProtocolBuffer putNULString(int index, String val) {
+    public ProtocolBuffer putNULString(int index, ByteChunk val) {
         putFixString(index, val);
-        putByte(val.getBytes().length + index, (byte) 0);
+        putByte(val.getLength() + index, (byte) 0);
         return this;
     }
 
     @Override
-    public ProtocolBuffer writeNULString(String val) {
+    public ProtocolBuffer writeNULString(ByteChunk val) {
         putNULString(writeIndex, val);
-        writeIndex += val.getBytes().length + 1;
+        writeIndex += val.getLength() + 1;
         return this;
     }
 
     @Override
-    public int readBytes(byte[] bytes) {
-        int length = getBytes(bytes, readIndex);
+    public int readBytes(ByteChunk byteChunk) {
+        int length = getBytes(byteChunk, readIndex);
         readIndex += length;
         return length;
     }
 
     @Override
-    public ProtocolBuffer putBytes(int index, byte[] bytes) {
-        return putBytes(index, bytes.length, bytes);
+    public ProtocolBuffer putBytes(int index, ByteChunk byteChunk) {
+        return putBytes(index, byteChunk.getLength(), byteChunk);
     }
 
     @Override
     public ProtocolBuffer putByte(int index, byte val) {
-        return putBytes(index, new byte[] { val });
+        ByteChunk byteChunk = byteChunkAllocator.alloc(1);
+        byteChunk.append(val);
+        ProtocolBuffer rv = putBytes(index, byteChunk);
+        byteChunk.recycle();
+        return rv;
     }
 
     @Override
-    public ProtocolBuffer writeBytes(byte[] bytes) {
-        writeBytes(bytes.length, bytes);
+    public ProtocolBuffer writeBytes(ByteChunk byteChunk) {
+        writeBytes(byteChunk.getLength(), byteChunk);
         return this;
     }
 
     @Override
-    public ProtocolBuffer writeBytes(int length, byte[] bytes) {
-        putBytes(writeIndex, length, bytes);
+    public ProtocolBuffer writeBytes(int length, ByteChunk byteChunk) {
+        putBytes(writeIndex, length, byteChunk);
         writeIndex += length;
         return this;
     }
@@ -335,27 +343,27 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
     }
 
     @Override
-    public byte[] getLenencBytes(int index) {
+    public ByteChunk getLenencBytes(int index) {
         int len = (int) getLenencInt(index);
-        byte[] bytes = new byte[len];
-        getBytes(bytes, index + getLenencLength(len));
-        return bytes;
+        ByteChunk byteChunk = byteChunkAllocator.alloc(len);
+        getBytes(byteChunk, index + getLenencLength(len));
+        return byteChunk;
     }
 
     @Override
-    public byte[] readLenencBytes() {
+    public ByteChunk readLenencBytes() {
         int len = (int) getLenencInt(readIndex);
-        byte[] bytes = new byte[len];
-        getBytes(bytes, readIndex + getLenencLength(len));
+        ByteChunk byteChunk = byteChunkAllocator.alloc(len);
+        getBytes(byteChunk, readIndex + getLenencLength(len));
         readIndex += getLenencLength(len) + len;
-        return bytes;
+        return byteChunk;
     }
 
     @Override
-    public ProtocolBuffer putLenencBytes(int index, byte[] bytes) {
-        putLenencInt(index, bytes.length);
-        int offset = getLenencLength(bytes.length);
-        putBytes(index + offset, bytes);
+    public ProtocolBuffer putLenencBytes(int index, ByteChunk byteChunk) {
+        putLenencInt(index, byteChunk.getLength());
+        int offset = getLenencLength(byteChunk.getLength());
+        putBytes(index + offset, byteChunk);
         return this;
     }
 
@@ -370,11 +378,11 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
     }
 
     @Override
-    public ProtocolBuffer writeLenencBytes(byte[] bytes) {
-        putLenencInt(writeIndex, bytes.length);
-        int offset = getLenencLength(bytes.length);
-        putBytes(writeIndex + offset, bytes);
-        writeIndex += offset + bytes.length;
+    public ProtocolBuffer writeLenencBytes(ByteChunk byteChunk) {
+        putLenencInt(writeIndex, byteChunk.getLength());
+        int offset = getLenencLength(byteChunk.getLength());
+        putBytes(writeIndex + offset, byteChunk);
+        writeIndex += offset + byteChunk.getLength();
         return this;
     }
 
@@ -396,5 +404,9 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
             namedPacketIteratorMap = new HashMap<>();
         }
         return namedPacketIteratorMap.computeIfAbsent(name, k -> new SimplePacketIterator(this));
+    }
+
+    public ByteChunkAllocator getByteChunkAllocator() {
+        return byteChunkAllocator;
     }
 }

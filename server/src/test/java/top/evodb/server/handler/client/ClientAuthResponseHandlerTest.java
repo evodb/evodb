@@ -24,6 +24,8 @@ import java.security.NoSuchAlgorithmException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import top.evodb.core.memory.heap.ByteChunk;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
 import top.evodb.core.memory.protocol.AdjustableProtocolBufferAllocator;
 import top.evodb.core.memory.protocol.ProtocolBuffer;
 import top.evodb.core.memory.protocol.ProtocolBufferAllocator;
@@ -45,7 +47,8 @@ public class ClientAuthResponseHandlerTest {
     private static final int CHUNK_SIZE = 15;
     private Reactor reactor;
     private Acceptor acceptor;
-    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
+    private ByteChunkAllocator byteChunkAllocator = new ByteChunkAllocator(1024 * 1024);
+    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE, byteChunkAllocator);
     private MysqlPacketFactory factory = new MysqlPacketFactory(allocator);
     private int port;
 
@@ -72,18 +75,18 @@ public class ClientAuthResponseHandlerTest {
 
     @Test
     public void testHandleWithWrongPassword()
-            throws IOException, MysqlPacketFactoryException, NoSuchAlgorithmException {
+        throws IOException, MysqlPacketFactoryException, NoSuchAlgorithmException {
         auth("1234567", Constants.AUTH_PLUGIN_NAME);
     }
 
     @Test
     public void testHandleWithWrongAuthPluginName()
-            throws IOException, MysqlPacketFactoryException, NoSuchAlgorithmException {
+        throws IOException, MysqlPacketFactoryException, NoSuchAlgorithmException {
         auth("1234567", "some thing");
     }
 
     private void auth(String password, String authPluginName)
-            throws IOException, MysqlPacketFactoryException, NoSuchAlgorithmException {
+        throws IOException, MysqlPacketFactoryException, NoSuchAlgorithmException {
         Socket socket = new Socket();
         socket.connect(new InetSocketAddress("127.0.0.1", port));
         InputStream in = socket.getInputStream();
@@ -91,29 +94,48 @@ public class ClientAuthResponseHandlerTest {
         int readed = in.read(buffer);
         byte[] readBytes = new byte[readed];
         System.arraycopy(buffer, 0, readBytes, 0, readed);
+
+        ByteChunk byteChunk = byteChunkAllocator.alloc(readed);
+        byteChunk.append(readBytes, 0, readed);
+
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeBytes(readBytes);
+        protocolBuffer.writeBytes(byteChunk);
+
         HandshakeV10Packet handshakeV10Packet = factory.getMysqlPacket(HandshakeV10Packet.class, protocolBuffer);
         handshakeV10Packet.read();
         allocator.recyle(protocolBuffer);
+
+        ByteChunk username = byteChunkAllocator.alloc(4);
+        username.append("root");
+        ByteChunk authPluginNameByteChunk = byteChunkAllocator.alloc(authPluginName.length());
+        authPluginNameByteChunk.append(authPluginName);
 
         HandshakeResponse41Packet handshakeResponse41Packet = factory.getMysqlPacket(HandshakeResponse41Packet.class);
         handshakeResponse41Packet.setSequenceId((byte) 1);
         handshakeResponse41Packet.capability = Constants.CLIENT_CAPABILITY;
         handshakeResponse41Packet.maxPacketSize = MysqlPacket.LARGE_PACKET_SIZE;
         handshakeResponse41Packet.characterSet = 8;
-        handshakeResponse41Packet.username = "root";
-        handshakeResponse41Packet.authPluginName = authPluginName;
+        handshakeResponse41Packet.username = username;
+        handshakeResponse41Packet.authPluginName = authPluginNameByteChunk;
 
-        byte[] challenge = new byte[20];
-        System.arraycopy(handshakeV10Packet.authPluginDataPart1, 0, challenge, 0, 8);
-        System.arraycopy(handshakeV10Packet.authPluginDataPart2, 0, challenge, 8, 12);
-        handshakeResponse41Packet.authResponse = SecurityUtil.scramble411(password.getBytes(), challenge);
+        ByteChunk challenge = byteChunkAllocator.alloc(20);
+        challenge.append(handshakeV10Packet.authPluginDataPart1);
+        challenge.setOffset(challenge.getOffset() + handshakeV10Packet.authPluginDataPart1.getLength());
+        challenge.append(handshakeV10Packet.authPluginDataPart2);
+
+        byte[] authData = SecurityUtil.scramble411(password.getBytes(), challenge.getByteArray());
+        ByteChunk authResonseByteChunk = byteChunkAllocator.alloc(authData.length);
+        authResonseByteChunk.append(authData, 0, authData.length);
+        handshakeResponse41Packet.authResponse = authResonseByteChunk;
+
         protocolBuffer = handshakeResponse41Packet.write();
 
         byte[] reponseBytes = new byte[protocolBuffer.readableBytes()];
-        protocolBuffer.readBytes(reponseBytes);
-        socket.getOutputStream().write(reponseBytes);
+
+        byteChunk = byteChunkAllocator.alloc(reponseBytes.length);
+        protocolBuffer.readBytes(byteChunk);
+        byte[] out = byteChunk.getByteArray();
+        socket.getOutputStream().write(out);
 
         try {
             Thread.sleep(1000);

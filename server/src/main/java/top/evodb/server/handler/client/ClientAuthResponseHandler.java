@@ -21,9 +21,12 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import top.evodb.core.memory.heap.ByteChunk;
 import top.evodb.core.memory.protocol.PacketDescriptor;
 import top.evodb.core.memory.protocol.ProtocolBuffer;
 import top.evodb.core.protocol.MysqlPacket;
+import top.evodb.core.util.StringCache;
+import top.evodb.server.ServerContext;
 import top.evodb.server.exception.MysqlPacketFactoryException;
 import top.evodb.server.handler.Handler;
 import top.evodb.server.mysql.AbstractMysqlConnection;
@@ -42,6 +45,7 @@ import top.evodb.server.util.SecurityUtil;
 public class ClientAuthResponseHandler implements Handler {
     public static final ClientAuthResponseHandler INSTANCE = new ClientAuthResponseHandler();
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientAuthResponseHandler.class);
+    private final StringCache stringCache = ServerContext.getContext().getStringCache();
 
     private ClientAuthResponseHandler() {
     }
@@ -49,12 +53,14 @@ public class ClientAuthResponseHandler implements Handler {
     @Override
     public boolean handle(AbstractMysqlConnection mysqlConnection) {
         byte lastPacketId = 2;
+        HandshakeResponse41Packet handshakeResponse41Packet = null;
+        OKPacket okPacket = null;
         try {
             ProtocolBuffer protocolBuffer = mysqlConnection.read();
             if (PacketUtil.getPacketType(protocolBuffer, protocolBuffer.readIndex()) == PacketDescriptor.PacketType.FULL) {
                 //TODO load charset
                 Charset charset = new Charset();
-                HandshakeResponse41Packet handshakeResponse41Packet = mysqlConnection.getMysqlPacketFactory().getMysqlPacket(HandshakeResponse41Packet.class, protocolBuffer);
+                handshakeResponse41Packet = mysqlConnection.getMysqlPacketFactory().getMysqlPacket(HandshakeResponse41Packet.class, protocolBuffer);
                 handshakeResponse41Packet.read();
                 lastPacketId = (byte) (handshakeResponse41Packet.getSequenceId() + 1);
                 mysqlConnection.setMaxPacketSize(handshakeResponse41Packet.maxPacketSize);
@@ -62,16 +68,17 @@ public class ClientAuthResponseHandler implements Handler {
                 charset.charsetIndex = handshakeResponse41Packet.characterSet;
                 mysqlConnection.setCharset(charset);
                 mysqlConnection.setAttribute(AbstractMysqlConnection.ATTR_PRE_PACKET_ID, lastPacketId);
-                if (!Constants.AUTH_PLUGIN_NAME.equals(handshakeResponse41Packet.authPluginName)) {
+
+                if (!Constants.AUTH_PLUGIN_NAME.equals(stringCache.getString(handshakeResponse41Packet.authPluginName))) {
                     closeConnection(mysqlConnection, ErrorCode.ER_ACCESS_DENIED_ERROR, "Auth plugin not found.");
                     return true;
                 }
 
-                if (!auth(handshakeResponse41Packet, (byte[]) mysqlConnection.getAttribute(AbstractMysqlConnection.ATTR_AUTH_PLUGIN_DATA))) {
+                if (!auth(handshakeResponse41Packet, (ByteChunk) mysqlConnection.getAttribute(AbstractMysqlConnection.ATTR_AUTH_PLUGIN_DATA))) {
                     closeConnection(mysqlConnection, ErrorCode.ER_ACCESS_DENIED_ERROR, "Access denied for user '" + handshakeResponse41Packet.username + '\'');
                     return true;
                 } else {
-                    OKPacket okPacket = mysqlConnection.getMysqlPacketFactory().getMysqlPacket(MysqlPacket.OK_PACKET);
+                    okPacket = mysqlConnection.getMysqlPacketFactory().getMysqlPacket(MysqlPacket.OK_PACKET);
                     okPacket.capabilityFlags = mysqlConnection.getCapability();
                     okPacket.statusFlag = ServerStatus.SERVER_STATUS_AUTOCOMMIT;
                     okPacket.setSequenceId(lastPacketId);
@@ -93,6 +100,13 @@ public class ClientAuthResponseHandler implements Handler {
         } catch (Exception e) {
             LOGGER.warn(mysqlConnection.getName() + "Unexcept error.", e);
             closeConnection(mysqlConnection, ErrorCode.ER_ACCESS_DENIED_ERROR, "Protocol error.");
+        } finally {
+            if (handshakeResponse41Packet != null) {
+                handshakeResponse41Packet.destory();
+            }
+            if (okPacket != null) {
+                okPacket.destory();
+            }
         }
         return true;
     }
@@ -101,17 +115,20 @@ public class ClientAuthResponseHandler implements Handler {
         mysqlConnection.close(errorCode, message);
     }
 
-    private boolean auth(HandshakeResponse41Packet handshakeResponse41Packet, byte[] authPluginData) {
+    private boolean auth(HandshakeResponse41Packet handshakeResponse41Packet, ByteChunk authPluginData) {
         //TODO real user config
-        String username = handshakeResponse41Packet.username;
-        byte[] authResponse = handshakeResponse41Packet.authResponse;
+        String username = handshakeResponse41Packet.username.toString();
+        byte[] authResponse = handshakeResponse41Packet.authResponse.getByteArray();
         boolean authSuccess = true;
         try {
-            byte[] authData = SecurityUtil.scramble411("123456".getBytes(), authPluginData);
-            return Arrays.equals(authData, authResponse);
+            byte[] authData = SecurityUtil.scramble411("123456".getBytes(), authPluginData.getByteArray());
+            authSuccess = Arrays.equals(authData, authResponse);
         } catch (NoSuchAlgorithmException e) {
             LOGGER.warn("auth error.", e);
+        } finally {
+            authPluginData.recycle();
         }
         return authSuccess;
+
     }
 }

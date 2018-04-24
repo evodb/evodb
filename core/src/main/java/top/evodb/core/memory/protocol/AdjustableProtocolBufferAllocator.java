@@ -18,28 +18,31 @@ package top.evodb.core.memory.protocol;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
+import top.evodb.core.memory.BuddyAllocator;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
 
 /**
  * @author evodb
  */
-public class AdjustableProtocolBufferAllocator implements
-    ProtocolBufferAllocator<AdjustableProtocolBuffer> {
+public class AdjustableProtocolBufferAllocator implements ProtocolBufferAllocator<AdjustableProtocolBuffer> {
 
     private final int chunkSize;
     private final LinkedList<AdjustableProtocolBuffer> freeProtocolBufferList;
     private final LinkedList<ByteBuffer> freeByteBufferList;
+    private final ByteChunkAllocator byteChunkAllocator;
 
-    public AdjustableProtocolBufferAllocator(int chunkSize) {
+    public AdjustableProtocolBufferAllocator(int chunkSize, ByteChunkAllocator byteChunkAllocator) {
         this.chunkSize = chunkSize;
         freeProtocolBufferList = new LinkedList<>();
         freeByteBufferList = new LinkedList<>();
+        this.byteChunkAllocator = byteChunkAllocator;
     }
 
     @Override
     public AdjustableProtocolBuffer allocate() {
         AdjustableProtocolBuffer adjustableProtocolBuffer = freeProtocolBufferList.poll();
         if (adjustableProtocolBuffer == null) {
-            adjustableProtocolBuffer = new AdjustableProtocolBuffer(this);
+            adjustableProtocolBuffer = new AdjustableProtocolBuffer(this, byteChunkAllocator);
         }
         adjustableProtocolBuffer.setRecyleFlag(false);
         return adjustableProtocolBuffer;

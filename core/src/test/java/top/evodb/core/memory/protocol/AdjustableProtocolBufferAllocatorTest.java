@@ -22,14 +22,16 @@ import static org.junit.Assert.assertNotNull;
 
 import java.nio.ByteBuffer;
 import org.junit.Test;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
 
 /**
  * @author evodb
  */
 public class AdjustableProtocolBufferAllocatorTest {
 
+    private ByteChunkAllocator byteChunkAllocator = new ByteChunkAllocator(1024 * 1024);
     private static final int CHUNK_SIZE = 15;
-    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
+    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE, byteChunkAllocator);
 
     @Test
     public void testAllocate() {
@@ -45,8 +47,8 @@ public class AdjustableProtocolBufferAllocatorTest {
 
     @Test
     public void testRecyleWithFalse() {
-        ProtocolBuffer protocolBuffer = new AdjustableProtocolBuffer(
-            new AdjustableProtocolBufferAllocator(CHUNK_SIZE));
+        ProtocolBuffer protocolBuffer = new AdjustableProtocolBuffer(new AdjustableProtocolBufferAllocator(CHUNK_SIZE,byteChunkAllocator),byteChunkAllocator)
+        ;
         boolean rv = allocator.recyle(protocolBuffer);
         assertFalse(rv);
     }

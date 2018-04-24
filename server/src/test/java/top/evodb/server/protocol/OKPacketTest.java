@@ -18,6 +18,8 @@ package top.evodb.server.protocol;
 
 import org.junit.Assert;
 import org.junit.Test;
+import top.evodb.core.memory.heap.ByteChunk;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
 import top.evodb.core.memory.protocol.AdjustableProtocolBufferAllocator;
 import top.evodb.core.memory.protocol.ProtocolBufferAllocator;
 import top.evodb.core.protocol.MysqlPacket;
@@ -31,45 +33,62 @@ import top.evodb.server.mysql.ServerStatus;
 public class OKPacketTest {
 
     private static final int CHUNK_SIZE = 15;
-    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
+    private ByteChunkAllocator byteChunkAllocator = new ByteChunkAllocator(1024 * 1024);
+    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE, byteChunkAllocator);
     private MysqlPacketFactory factory = new MysqlPacketFactory(allocator);
 
     @Test
     public void testWrite() throws MysqlPacketFactoryException {
+        ByteChunk test = byteChunkAllocator.alloc(4);
+        test.append("test");
         int capablityFlags = 0;
         capablityFlags |= CapabilityFlags.PROTOCOL_41;
         OKPacket okPacket = factory.getMysqlPacket(MysqlPacket.OK_PACKET);
-        okPacket.info = "test";
+        okPacket.setInfo(test);
         okPacket.capabilityFlags = capablityFlags;
 
         okPacket.write();
+        test.recycle();
     }
 
     @Test
     public void testWriteWithClientTranscations() throws MysqlPacketFactoryException {
+        ByteChunk test = byteChunkAllocator.alloc(4);
+        test.append("test");
         int capablityFlags = 0;
         capablityFlags |= CapabilityFlags.TRANSACTIONS;
         OKPacket okPacket = factory.getMysqlPacket(MysqlPacket.OK_PACKET);
-        okPacket.info = "test";
+        okPacket.setInfo(test);
         okPacket.capabilityFlags = capablityFlags;
-
         okPacket.write();
+        test.recycle();
     }
 
     @Test
     public void testWriteWithSessionTrackAndServerStateChange() throws MysqlPacketFactoryException {
+        ByteChunk test = byteChunkAllocator.alloc(4);
+        test.append("test");
+        ByteChunk sessionState = byteChunkAllocator.alloc("session state change".length());
+        sessionState.append("session state change");
         int capablityFlags = 0;
         capablityFlags |= CapabilityFlags.SESSION_TRACK;
         OKPacket okPacket = factory.getMysqlPacket(MysqlPacket.OK_PACKET);
-        okPacket.info = "test";
+        okPacket.setInfo(test);
         okPacket.capabilityFlags = capablityFlags;
         okPacket.statusFlag = ServerStatus.SERVER_SESSION_STATE_CHANGED;
-        okPacket.sessionStateChanges = "session state change";
+        okPacket.sessionStateChanges = sessionState;
         okPacket.write();
+        test.recycle();
+        sessionState.recycle();
     }
 
     @Test
     public void testRead() throws MysqlPacketFactoryException {
+        ByteChunk test = byteChunkAllocator.alloc(4);
+        test.append("test");
+        ByteChunk sessionState = byteChunkAllocator.alloc("session state change".length());
+        sessionState.append("session state change");
+
         int capablityFlags = 0;
         capablityFlags |= CapabilityFlags.PROTOCOL_41;
         capablityFlags |= CapabilityFlags.SESSION_TRACK;
@@ -81,8 +100,8 @@ public class OKPacketTest {
         okPacket.lastInsertId = 10083;
         okPacket.statusFlag = ServerStatus.SERVER_SESSION_STATE_CHANGED;
         okPacket.warnings = 200;
-        okPacket.info = "test";
-        okPacket.sessionStateChanges = "session state change";
+        okPacket.setInfo(test);
+        okPacket.sessionStateChanges = sessionState;
         okPacket.write();
 
         okPacket.read();
@@ -93,12 +112,17 @@ public class OKPacketTest {
         Assert.assertEquals(10083, okPacket.lastInsertId);
         Assert.assertEquals(ServerStatus.SERVER_SESSION_STATE_CHANGED, okPacket.statusFlag);
         Assert.assertEquals(200, okPacket.warnings);
-        Assert.assertEquals("test", okPacket.info);
-        Assert.assertEquals("session state change", okPacket.sessionStateChanges);
+        Assert.assertEquals("test", okPacket.getInfo().toString());
+        Assert.assertEquals("session state change", okPacket.sessionStateChanges.toString());
     }
 
     @Test
     public void testReadWithClientTransactions() throws MysqlPacketFactoryException {
+        ByteChunk test = byteChunkAllocator.alloc(4);
+        test.append("test");
+        ByteChunk sessionState = byteChunkAllocator.alloc("session state change".length());
+        sessionState.append("session state change");
+
         int capablityFlags = 0;
         capablityFlags |= CapabilityFlags.TRANSACTIONS;
 
@@ -109,8 +133,8 @@ public class OKPacketTest {
         okPacket.lastInsertId = 10083;
         okPacket.statusFlag = 0;
         okPacket.warnings = 200;
-        okPacket.info = "test";
-        okPacket.sessionStateChanges = "session state change";
+        okPacket.setInfo(test);
+        okPacket.sessionStateChanges = sessionState;
         okPacket.write();
 
         okPacket.read();
@@ -121,7 +145,7 @@ public class OKPacketTest {
         Assert.assertEquals(10083, okPacket.lastInsertId);
         Assert.assertEquals(0, okPacket.statusFlag);
         Assert.assertEquals(200, okPacket.warnings);
-        Assert.assertEquals("test", okPacket.info);
-        Assert.assertEquals("session state change", okPacket.sessionStateChanges);
+        Assert.assertEquals("test", okPacket.getInfo().toString());
+        Assert.assertEquals("session state change", okPacket.sessionStateChanges.toString());
     }
 }

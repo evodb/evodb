@@ -30,6 +30,8 @@ import java.nio.channels.SocketChannel;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+import top.evodb.core.memory.heap.ByteChunk;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
 
 /**
  * @author evodb
@@ -37,7 +39,8 @@ import org.mockito.Mockito;
 public class AdjustableProtocolBufferTest {
 
     private static final int CHUNK_SIZE = 15;
-    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
+    private ByteChunkAllocator byteChunkAllocator = new ByteChunkAllocator(1024 * 1024);
+    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE, byteChunkAllocator);
 
     @Test
     public void testPutFixInt() {
@@ -188,98 +191,162 @@ public class AdjustableProtocolBufferTest {
     @Test
     public void testPutFixString() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.putFixString(0, "test string");
+        ByteChunk byteChunk = byteChunkAllocator.alloc(11);
+        byteChunk.append("test string".getBytes(), 0, 11);
+        protocolBuffer.putFixString(0, byteChunk);
+        byteChunk.recycle();
     }
 
     @Test
     public void testGetFixString() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-
-        protocolBuffer.putFixString(0, "test string");
-        String rv = protocolBuffer.getFixString(0, 11);
-        assertEquals("test string", rv);
+        ByteChunk byteChunk = byteChunkAllocator.alloc(11);
+        byteChunk.append("test string".getBytes(), 0, 11);
+        protocolBuffer.putFixString(0, byteChunk);
+        ByteChunk rv = protocolBuffer.getFixString(0, 11);
+        assertEquals(byteChunk, rv);
+        rv.recycle();
+        byteChunk.recycle();
     }
 
     @Test
     public void testWriteFixString() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeFixString("test string");
+        ByteChunk byteChunk = byteChunkAllocator.alloc(11);
+        byteChunk.append("test string".getBytes(), 0, 11);
+        protocolBuffer.writeFixString(byteChunk);
+        byteChunk.recycle();
     }
 
     @Test
     public void testReadFixString() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeFixString("test string");
 
-        String rv = protocolBuffer.readFixString(11);
-        assertEquals("test string", rv);
+        ByteChunk byteChunk = byteChunkAllocator.alloc(11);
+        byteChunk.append("test string".getBytes(), 0, 11);
+
+        protocolBuffer.writeFixString(byteChunk);
+
+        ByteChunk rv = protocolBuffer.readFixString(11);
+        assertEquals(byteChunk, rv);
+
+        rv.recycle();
+        byteChunk.recycle();
     }
 
     @Test
     public void testPutLenencString() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.putLenencString(0, "test string");
+
+        ByteChunk byteChunk = byteChunkAllocator.alloc(11);
+        byteChunk.append("test string".getBytes(), 0, 11);
+
+        protocolBuffer.putLenencString(0, byteChunk);
+        byteChunk.recycle();
     }
 
     @Test
     public void testGetLenencString() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.putLenencString(0, "test string");
-        String rv = protocolBuffer.getLenencString(0);
-        assertEquals("test string", rv);
+        ByteChunk byteChunk = byteChunkAllocator.alloc(11);
+        byteChunk.append("test string".getBytes(), 0, 11);
+
+        protocolBuffer.putLenencString(0, byteChunk);
+        ByteChunk rv = protocolBuffer.getLenencString(0);
+        assertEquals(byteChunk, rv);
+        byteChunk.recycle();
+        rv.recycle();
     }
 
     @Test
     public void testWriteLenencString() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeLenencString("test string");
+
+        ByteChunk byteChunk = byteChunkAllocator.alloc(11);
+        byteChunk.append("test string".getBytes(), 0, 11);
+
+        protocolBuffer.writeLenencString(byteChunk);
+        byteChunk.recycle();
     }
 
     @Test
     public void testReadLenencString() {
+        ByteChunk hello = byteChunkAllocator.alloc(11);
+        hello.append("hello world".getBytes(), 0, 11);
+
+        ByteChunk world = byteChunkAllocator.alloc(5);
+        hello.append("world".getBytes(), 0, 5);
+
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeLenencString("hello world");
-        protocolBuffer.writeLenencString("world");
-        String rv = protocolBuffer.readLenencString();
-        assertEquals("hello world", rv);
+        protocolBuffer.writeLenencString(hello);
+        protocolBuffer.writeLenencString(world);
+        ByteChunk rv = protocolBuffer.readLenencString();
+        assertEquals(hello, rv);
         rv = protocolBuffer.readLenencString();
-        assertEquals("world", rv);
+        assertEquals(world, rv);
+        hello.recycle();
+        world.recycle();
+        rv.recycle();
     }
 
     @Test
     public void testPutNULString() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.putNULString(0, "test string");
+        ByteChunk byteChunk = byteChunkAllocator.alloc(11);
+        byteChunk.append("test string".getBytes(), 0, 11);
+
+        protocolBuffer.putNULString(0, byteChunk);
+        byteChunk.recycle();
     }
 
     @Test
     public void testGetNULString() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.putNULString(0, "test string");
-        String rv = protocolBuffer.getNULString(0);
-        assertEquals("test string", rv);
+
+        ByteChunk byteChunk = byteChunkAllocator.alloc(11);
+        byteChunk.append("test string".getBytes(), 0, 11);
+
+        protocolBuffer.putNULString(0, byteChunk);
+        ByteChunk rv = protocolBuffer.getNULString(0);
+
+        assertEquals(byteChunk, rv);
+        byteChunk.recycle();
+        rv.recycle();
     }
 
     @Test
     public void testWriteNULString() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeNULString("test string");
+
+        ByteChunk byteChunk = byteChunkAllocator.alloc(11);
+        byteChunk.append("test string".getBytes(), 0, 11);
+
+        protocolBuffer.writeNULString(byteChunk);
+        byteChunk.recycle();
     }
 
     @Test
     public void testReadNULString() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeNULString("test string");
-        String rv = protocolBuffer.readNULString();
-        assertEquals("test string", rv);
+        ByteChunk byteChunk = byteChunkAllocator.alloc(11);
+        byteChunk.append("test string".getBytes(), 0, 11);
+
+        protocolBuffer.writeNULString(byteChunk);
+        ByteChunk rv = protocolBuffer.readNULString();
+        assertEquals(byteChunk, rv);
+        rv.recycle();
+        byteChunk.recycle();
     }
 
     @Test
     public void testWriteBytes() {
-        byte[] bytes = { 1, 2, 3, 4 };
+        byte[] bytes = {1, 2, 3, 4};
+        ByteChunk byteChunk = byteChunkAllocator.alloc(4);
+        byteChunk.append(bytes, 0, 4);
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeBytes(bytes);
-        protocolBuffer.writeBytes(2, bytes);
+        protocolBuffer.writeBytes(byteChunk);
+        protocolBuffer.writeBytes(2, byteChunk);
+        byteChunk.recycle();
     }
 
     @Test
@@ -299,101 +366,148 @@ public class AdjustableProtocolBufferTest {
 
     @Test
     public void testReadBytes() {
-        byte[] bytes = { 1, 2, 3, 4 };
+        byte[] bytes = {1, 2, 3, 4};
+        ByteChunk byteChunk = byteChunkAllocator.alloc(4);
+        byteChunk.append(bytes, 0, 4);
+
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeBytes(bytes);
-        byte[] rv = new byte[4];
+        protocolBuffer.writeBytes(byteChunk);
+        ByteChunk rv = byteChunkAllocator.alloc(4);
         protocolBuffer.readBytes(rv);
-        assertEquals(bytes.length, rv.length);
-        for (int i = 0; i < bytes.length; i++) {
-            assertEquals(bytes[i], rv[i]);
-        }
+        assertEquals(byteChunk.getLength(), rv.getLength());
+        assertEquals(byteChunk, rv);
+        byteChunk.recycle();
+        rv.recycle();
     }
 
     @Test
     public void testPutLenencBytes() {
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.putLenencBytes(0, new byte[] { 1, 2, 3, 4 });
+        byte[] bytes = {1, 2, 3, 4};
+        ByteChunk byteChunk = byteChunkAllocator.alloc(4);
+        byteChunk.append(bytes, 0, 4);
+
+        protocolBuffer.putLenencBytes(0, byteChunk);
+        byteChunk.recycle();
     }
 
     @Test
     public void testGetLenencBytes() {
-        byte[] bytes = { 1, 2, 3, 4 };
+        byte[] bytes = {1, 2, 3, 4};
+        ByteChunk byteChunk = byteChunkAllocator.alloc(4);
+        byteChunk.append(bytes, 0, 4);
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.putLenencBytes(0, bytes);
-        byte[] rv = protocolBuffer.getLenencBytes(0);
-        assertEquals(rv.length, bytes.length);
-        for (int i = 0; i < bytes.length; i++) {
-            assertEquals(bytes[i], rv[i]);
-        }
+        protocolBuffer.putLenencBytes(0, byteChunk);
+
+        ByteChunk rv = protocolBuffer.getLenencBytes(0);
+        assertEquals(rv.getLength(), rv.getLength());
+        assertEquals(byteChunk, rv);
+
+        byteChunk.recycle();
+        rv.recycle();
     }
 
     @Test
     public void testWriteLenencBytes() {
+        byte[] bytes = {1, 2, 3, 4};
+        ByteChunk byteChunk = byteChunkAllocator.alloc(4);
+        byteChunk.append(bytes, 0, 4);
+
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeLenencBytes(new byte[] { 1, 2, 3, 4 });
+        protocolBuffer.writeLenencBytes(byteChunk);
     }
 
     @Test
     public void testReadLenencBytes() {
-        byte[] bytes = { 1, 2, 3, 4 };
+        byte[] bytes = {1, 2, 3, 4};
+        ByteChunk byteChunk = byteChunkAllocator.alloc(4);
+        byteChunk.append(bytes, 0, 4);
+
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeLenencBytes(bytes);
-        byte[] rv = protocolBuffer.readLenencBytes();
-        assertEquals(rv.length, bytes.length);
-        for (int i = 0; i < bytes.length; i++) {
-            assertEquals(bytes[i], rv[i]);
-        }
+        protocolBuffer.writeLenencBytes(byteChunk);
+
+        ByteChunk rv = protocolBuffer.readLenencBytes();
+        assertEquals(rv.getLength(), byteChunk.getLength());
+        assertEquals(byteChunk, rv);
+        rv.recycle();
+        byteChunk.recycle();
     }
 
     @Test
     public void testClear() {
+        byte[] bytes = {1, 2, 3, 4};
+        ByteChunk byteChunk = byteChunkAllocator.alloc(4);
+        byteChunk.append(bytes, 0, 4);
+
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeLenencBytes(new byte[] { 1, 2, 3, 4 });
+        protocolBuffer.writeLenencBytes(byteChunk);
+
         assertEquals(5, protocolBuffer.writeIndex());
         protocolBuffer.clear();
         assertEquals(0, protocolBuffer.readIndex());
         assertEquals(0, protocolBuffer.writeIndex());
+
+        byteChunk.recycle();
     }
 
     @Test
     public void testTransferToChannel() throws IOException {
+        byte[] bytes = {1, 2, 3, 4};
+        ByteChunk byteChunk = byteChunkAllocator.alloc(4);
+        byteChunk.append(bytes, 0, 4);
+
         SocketChannel socketChannel = mock(SocketChannel.class);
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeLenencBytes(new byte[] { 1, 2, 3, 4 });
+        protocolBuffer.writeLenencBytes(byteChunk);
+
         int writed = protocolBuffer.transferToChannel(socketChannel);
         assertTrue(writed != -1);
+        byteChunk.recycle();
     }
 
     @Test
     public void testTransferToChannelWith200Bytes() throws IOException {
+        byte[] bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+        ByteChunk byteChunk = byteChunkAllocator.alloc(10);
+        byteChunk.append(bytes, 0, 10);
+
         SocketChannel socketChannel = mock(SocketChannel.class);
         ProtocolBuffer protocolBuffer = allocator.allocate();
         for (int i = 0; i < 20; i++) {
-            protocolBuffer.writeBytes(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
+            protocolBuffer.writeBytes(byteChunk);
         }
         int writed = protocolBuffer.transferToChannel(socketChannel);
         assertTrue(writed != -1);
+        byteChunk.recycle();
     }
 
     @Test
     public void testTransferToChannelWithError() throws IOException {
+        ByteChunk byteChunk = byteChunkAllocator.alloc(4);
+        byteChunk.append("test".getBytes(), 0, 4);
+
         SocketChannel socketChannel = mock(SocketChannel.class);
         when(socketChannel.write((ByteBuffer) ArgumentMatchers.any())).thenReturn(-1);
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeFixString("test");
+        protocolBuffer.writeFixString(byteChunk);
         int writed = protocolBuffer.transferToChannel(socketChannel);
         assertEquals(-1, writed);
+        byteChunk.recycle();
     }
 
     @Test
     public void testTransferToChannelWith10Bytes() throws IOException {
+        byte[] bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+        ByteChunk byteChunk = byteChunkAllocator.alloc(10);
+        byteChunk.append(bytes, 0, 10);
+
         SocketChannel socketChannel = mock(SocketChannel.class);
         when(socketChannel.write((ByteBuffer) ArgumentMatchers.any())).thenReturn(10);
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeBytes(10, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
+        protocolBuffer.writeBytes(10, byteChunk);
         int writed = protocolBuffer.transferToChannel(socketChannel);
         assertEquals(10, writed);
+        byteChunk.recycle();
     }
 
     @Test
@@ -415,14 +529,14 @@ public class AdjustableProtocolBufferTest {
 
     @Test
     public void testTransferFromChannelFullByteBuffer() throws IOException {
-        final int[] readTime = { 1 };
+        final int[] readTime = {1};
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(15);
 
         SocketChannel socketChannel = mock(SocketChannel.class);
         when(socketChannel.read((ByteBuffer) ArgumentMatchers.any())).thenReturn(1);
 
         AdjustableProtocolBufferAllocator spyAllocator = Mockito.spy(
-                (AdjustableProtocolBufferAllocator) allocator);
+            (AdjustableProtocolBufferAllocator) allocator);
         when(spyAllocator.allocateByteBuffer()).thenReturn(byteBuffer);
 
         doAnswer(readBuffer -> {
@@ -436,7 +550,7 @@ public class AdjustableProtocolBufferTest {
             }
         }).when(socketChannel).read(byteBuffer);
 
-        ProtocolBuffer protocolBuffer = new AdjustableProtocolBuffer(spyAllocator);
+        ProtocolBuffer protocolBuffer = new AdjustableProtocolBuffer(spyAllocator,byteChunkAllocator);
         int readed = protocolBuffer.transferFromChannel(socketChannel);
         assertEquals(15, readed);
     }
@@ -452,79 +566,109 @@ public class AdjustableProtocolBufferTest {
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void testPutBytesWithWrongIndex() throws IOException {
+        byte[] bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+        ByteChunk byteChunk = byteChunkAllocator.alloc(10);
+        byteChunk.append(bytes, 0, 10);
+
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.putBytes(-1, 10, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
+        protocolBuffer.putBytes(-1, 10, byteChunk);
+        byteChunk.recycle();
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void testPutBytesWithWrongLength() throws IOException {
+        byte[] bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+        ByteChunk byteChunk = byteChunkAllocator.alloc(10);
+        byteChunk.append(bytes, 0, 10);
+
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.putBytes(0, 12, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
+        protocolBuffer.putBytes(0, 12, byteChunk);
+        byteChunk.recycle();
     }
 
     @Test(expected = IllegalStateException.class)
     public void testPutBytesWithRecyled() throws IOException {
+        byte[] bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+        ByteChunk byteChunk = byteChunkAllocator.alloc(10);
+        byteChunk.append(bytes, 0, 10);
+
         ProtocolBuffer protocolBuffer = allocator.allocate();
+
         allocator.recyle(protocolBuffer);
-        protocolBuffer.putBytes(-1, 10, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
+        protocolBuffer.putBytes(-1, 10, byteChunk);
+        byteChunk.recycle();
     }
 
     @Test
     public void testCompact() {
-        String data = "1234567890";
+        ByteChunk byteChunk = byteChunkAllocator.alloc(10);
+        byteChunk.append("1234567890".getBytes(), 0, 10);
+
         ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeFixString(data);
+        protocolBuffer.writeFixString(byteChunk);
         protocolBuffer.readFixInt(5);
         protocolBuffer.compact();
-        String rv = protocolBuffer.readFixString(5);
-        assertEquals("67890", rv);
+        ByteChunk rv = protocolBuffer.readFixString(5);
+        assertEquals("67890", rv.toString());
+        byteChunk.recycle();
+        rv.recycle();
     }
 
     @Test
     public void testCompactWithMultiBuffer() {
         String data = "123456789012345";
-        ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeFixString(data);
-        protocolBuffer.writeFixString(data);
-        protocolBuffer.writeFixString(data);
-        protocolBuffer.writeFixString(data);
+        ByteChunk byteChunk = byteChunkAllocator.alloc(data.length());
+        byteChunk.append(data.getBytes(),0,data.length());
 
-        String rv;
+        ProtocolBuffer protocolBuffer = allocator.allocate();
+        protocolBuffer.writeFixString(byteChunk);
+        protocolBuffer.writeFixString(byteChunk);
+        protocolBuffer.writeFixString(byteChunk);
+        protocolBuffer.writeFixString(byteChunk);
+
+        ByteChunk rv;
         rv = protocolBuffer.readFixString(15);
-        assertEquals("123456789012345", rv);
+        assertEquals("123456789012345", rv.toString());
         rv = protocolBuffer.readFixString(15);
-        assertEquals("123456789012345", rv);
+        assertEquals("123456789012345", rv.toString());
         rv = protocolBuffer.readFixString(16);
-        assertEquals("1234567890123451", rv);
+        assertEquals("1234567890123451", rv.toString());
 
         protocolBuffer.compact();
 
         rv = protocolBuffer.readFixString(14);
-        assertEquals("23456789012345", rv);
+        assertEquals("23456789012345", rv.toString());
+        rv.recycle();
+        byteChunk.recycle();
     }
 
     @Test
     public void testCompactWithLargeData() {
         String data = "123456789012345";
-        ProtocolBuffer protocolBuffer = allocator.allocate();
-        protocolBuffer.writeFixString(data);
-        protocolBuffer.writeFixString(data);
-        protocolBuffer.writeFixString(data);
-        protocolBuffer.writeFixString(data);
-        protocolBuffer.writeFixString(data);
-        protocolBuffer.writeFixString(data);
-        protocolBuffer.writeFixString(data);
-        protocolBuffer.writeFixString(data);
-        protocolBuffer.writeFixString(data);
-        protocolBuffer.writeFixString(data);
-        protocolBuffer.writeFixString(data);
-        protocolBuffer.writeFixString(data);
-        protocolBuffer.writeFixString(data);
+        ByteChunk byteChunk = byteChunkAllocator.alloc(data.length());
+        byteChunk.append(data.getBytes(),0,data.length());
 
-        String rv;
+        ProtocolBuffer protocolBuffer = allocator.allocate();
+        protocolBuffer.writeFixString(byteChunk);
+        protocolBuffer.writeFixString(byteChunk);
+        protocolBuffer.writeFixString(byteChunk);
+        protocolBuffer.writeFixString(byteChunk);
+        protocolBuffer.writeFixString(byteChunk);
+        protocolBuffer.writeFixString(byteChunk);
+        protocolBuffer.writeFixString(byteChunk);
+        protocolBuffer.writeFixString(byteChunk);
+        protocolBuffer.writeFixString(byteChunk);
+        protocolBuffer.writeFixString(byteChunk);
+        protocolBuffer.writeFixString(byteChunk);
+        protocolBuffer.writeFixString(byteChunk);
+        protocolBuffer.writeFixString(byteChunk);
+
+        ByteChunk rv;
         rv = protocolBuffer.readFixString(15);
-        assertEquals("123456789012345", rv);
+        assertEquals("123456789012345", rv.toString());
         protocolBuffer.compact();
+        rv.recycle();
+        byteChunk.recycle();
     }
 
     @Test

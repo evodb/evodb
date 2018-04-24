@@ -23,7 +23,10 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import top.evodb.core.memory.heap.ByteChunk;
 import top.evodb.core.protocol.MysqlPacket;
+import top.evodb.server.Server;
+import top.evodb.server.ServerContext;
 import top.evodb.server.exception.MysqlPacketFactoryException;
 import top.evodb.server.handler.client.ClientCloseHandler;
 import top.evodb.server.handler.client.ClientConnectHandler;
@@ -52,20 +55,29 @@ public class ClientConnection extends AbstractMysqlConnection {
 
     @Override
     public void close(short errCode, String reason) {
+        ByteChunk byteChunk = null;
         try {
+            LOGGER.debug("Ready to close connection:" + getName() + " reason:" + reason);
+            byteChunk = ServerContext.getContext().getByteChunkAllocator().alloc(reason.length());
+            byteChunk.append(reason);
+
             ErrorPacket errorPacket = getMysqlPacketFactory().getMysqlPacket(MysqlPacket.ERR_PACKET);
             Byte lastPacketId = (Byte) getAttribute(AbstractMysqlConnection.ATTR_PRE_PACKET_ID);
             lastPacketId = lastPacketId == null ? 1 : lastPacketId;
             removeAttributes(AbstractMysqlConnection.ATTR_PRE_PACKET_ID);
             errorPacket.capabilities = getCapability();
             errorPacket.errorCode = errCode;
-            errorPacket.message = reason;
+            errorPacket.message = byteChunk;
             errorPacket.setSequenceId(lastPacketId);
             protocolBuffer = errorPacket.write();
             asyncWrite(protocolBuffer);
             offerHandler(ClientCloseHandler.INSTANCE);
         } catch (MysqlPacketFactoryException | IOException e) {
             LOGGER.warn("close connection error.", e);
+        } finally {
+            if (byteChunk != null) {
+                byteChunk.recycle();
+            }
         }
     }
 

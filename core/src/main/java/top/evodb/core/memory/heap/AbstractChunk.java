@@ -24,7 +24,7 @@ import top.evodb.core.memory.BuddyAllocator;
 public abstract class AbstractChunk implements Cloneable {
     protected int start;
     protected int end;
-    private int offset;
+    protected int offset;
     protected int nodeIndex;
     protected boolean recyled;
     protected int limit;

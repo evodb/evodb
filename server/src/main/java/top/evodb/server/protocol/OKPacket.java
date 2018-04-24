@@ -17,8 +17,9 @@
 package top.evodb.server.protocol;
 
 
-
-
+import top.evodb.core.memory.heap.ByteChunk;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
+import top.evodb.core.memory.protocol.AbstractProtocolBuffer;
 import top.evodb.core.memory.protocol.ProtocolBuffer;
 import top.evodb.server.mysql.CapabilityFlags;
 import top.evodb.server.mysql.ServerStatus;
@@ -33,13 +34,32 @@ public class OKPacket extends AbstractMysqlPacket {
     public long lastInsertId;
     public short statusFlag;
     public short warnings;
-    public String info;
-    public String sessionStateChanges;
+    private ByteChunk info;
+    public ByteChunk sessionStateChanges;
     public int capabilityFlags;
+
+    private ByteChunkAllocator byteChunkAllocator;
 
     public OKPacket(ProtocolBuffer protocolBuffer, Integer startIndex, Integer endIndex) {
         super(protocolBuffer, startIndex, endIndex);
-        info = "";
+        byteChunkAllocator = ((AbstractProtocolBuffer) protocolBuffer).getByteChunkAllocator();
+        info = byteChunkAllocator.alloc(1);
+        info.append(" ".getBytes(), 0, 1);
+    }
+
+    @Override
+    public void destory() {
+        recyleByteChunk(info);
+        recyleByteChunk(sessionStateChanges);
+    }
+
+    public void setInfo(ByteChunk info) {
+        this.info.recycle();
+        this.info = info;
+    }
+
+    public ByteChunk getInfo() {
+        return info;
     }
 
     @Override
@@ -83,12 +103,12 @@ public class OKPacket extends AbstractMysqlPacket {
             statusFlag = (short) protocolBuffer.readFixInt(2);
         }
         if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.SESSION_TRACK)) {
-            info = protocolBuffer.readLenencString();
+            setInfo(protocolBuffer.readLenencString());
             if (BitUtil.checkBit(statusFlag, ServerStatus.SERVER_SESSION_STATE_CHANGED)) {
                 sessionStateChanges = protocolBuffer.readLenencString();
             }
         } else {
-            info = protocolBuffer.readNULString();
+            setInfo(protocolBuffer.readNULString());
         }
     }
 

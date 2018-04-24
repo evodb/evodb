@@ -20,6 +20,8 @@ import static org.junit.Assert.assertEquals;
 
 
 import org.junit.Test;
+import top.evodb.core.memory.heap.ByteChunk;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
 import top.evodb.core.memory.protocol.AdjustableProtocolBufferAllocator;
 import top.evodb.core.memory.protocol.ProtocolBufferAllocator;
 import top.evodb.core.protocol.MysqlPacket;
@@ -32,27 +34,34 @@ import top.evodb.server.mysql.ErrorCode;
  */
 public class ErrorPacketTest {
     private static final int CHUNK_SIZE = 15;
-    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
+    private ByteChunkAllocator byteChunkAllocator = new ByteChunkAllocator(1024 * 1024);
+    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE, byteChunkAllocator);
     private MysqlPacketFactory factory = new MysqlPacketFactory(allocator);
 
     @Test
     public void testWrite() throws MysqlPacketFactoryException {
+        ByteChunk message = byteChunkAllocator.alloc(4);
+        message.append("test");
         ErrorPacket errorPacket = factory.getMysqlPacket(MysqlPacket.ERR_PACKET);
         errorPacket.capabilities = CapabilityFlags.PROTOCOL_41;
         errorPacket.errorCode = ErrorCode.ER_ACCESS_DENIED_ERROR;
-        errorPacket.message = "test";
+        errorPacket.message = message;
         errorPacket.write();
+        message.recycle();
     }
 
     @Test
     public void testRead() throws MysqlPacketFactoryException {
+        ByteChunk message = byteChunkAllocator.alloc(4);
+        message.append("test");
+
         ErrorPacket errorPacket = factory.getMysqlPacket(MysqlPacket.ERR_PACKET);
         errorPacket.capabilities = CapabilityFlags.PROTOCOL_41;
         errorPacket.errorCode = ErrorCode.ER_ACCESS_DENIED_ERROR;
-        errorPacket.message = "test";
+        errorPacket.message = message;
         errorPacket.write();
         errorPacket.read();
-        assertEquals("test", errorPacket.message);
+        assertEquals("test", errorPacket.message.toString());
         assertEquals(ErrorCode.ER_ACCESS_DENIED_ERROR, errorPacket.errorCode);
     }
 }

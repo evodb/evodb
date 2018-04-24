@@ -16,6 +16,9 @@
 
 package top.evodb.server.protocol;
 
+import top.evodb.core.memory.heap.ByteChunk;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
+import top.evodb.core.memory.protocol.AbstractProtocolBuffer;
 import top.evodb.core.memory.protocol.ProtocolBuffer;
 import top.evodb.core.protocol.MysqlPacket;
 import top.evodb.server.mysql.CapabilityFlags;
@@ -28,12 +31,19 @@ import top.evodb.server.util.BitUtil;
 public class ErrorPacket extends AbstractMysqlPacket {
     public short errorCode;
     public int capabilities;
-    public String sqlState;
-    public String message;
+    public ByteChunk sqlState;
+    public ByteChunk message;
+    private ByteChunkAllocator byteChunkAllocator;
 
     public ErrorPacket(ProtocolBuffer protocolBuffer, Integer startIndex, Integer endIndex) {
         super(protocolBuffer, startIndex, endIndex);
         cmd = MysqlPacket.ERR_PACKET;
+        byteChunkAllocator = ((AbstractProtocolBuffer) protocolBuffer).getByteChunkAllocator();
+    }
+
+    @Override
+    public void destory() {
+
     }
 
     @Override
@@ -44,7 +54,11 @@ public class ErrorPacket extends AbstractMysqlPacket {
         protocolBuffer.writeByte(cmd);
         protocolBuffer.writeFixInt(2, errorCode);
         if (BitUtil.checkBit(capabilities, CapabilityFlags.PROTOCOL_41)) {
-            protocolBuffer.writeFixString(ErrorCode.getSqlState(errorCode));
+            String sqlState = ErrorCode.getSqlState(errorCode);
+            ByteChunk byteChunk = byteChunkAllocator.alloc(sqlState.length());
+            byteChunk.append(sqlState);
+            protocolBuffer.writeFixString(byteChunk);
+            byteChunk.recycle();
         }
         protocolBuffer.writeFixString(message);
         int packetLen = protocolBuffer.writeIndex() - MysqlPacket.PACKET_OFFSET - startIndex;

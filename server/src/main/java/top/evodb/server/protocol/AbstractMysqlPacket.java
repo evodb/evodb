@@ -17,6 +17,7 @@
 package top.evodb.server.protocol;
 
 
+import top.evodb.core.memory.heap.ByteChunk;
 import top.evodb.core.memory.protocol.ProtocolBuffer;
 import top.evodb.core.protocol.MysqlPacket;
 
@@ -38,6 +39,14 @@ public abstract class AbstractMysqlPacket implements MysqlPacket {
         this.startIndex = startIndex;
         this.endIndex = endIndex;
     }
+
+    public void recyleByteChunk(ByteChunk byteChunk) {
+        if (byteChunk != null) {
+            byteChunk.recycle();
+        }
+    }
+
+    abstract public void destory();
 
     @Override
     public byte getCmd() {

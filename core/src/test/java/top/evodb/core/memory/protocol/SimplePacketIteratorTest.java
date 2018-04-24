@@ -22,14 +22,16 @@ import static org.junit.Assert.assertTrue;
 
 
 import org.junit.Test;
+import top.evodb.core.memory.heap.ByteChunk;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
 
 /**
  * @author evodb
  */
 public class SimplePacketIteratorTest {
-
+    private ByteChunkAllocator byteChunkAllocator = new ByteChunkAllocator(1024 * 1024);
     private static final int CHUNK_SIZE = 15;
-    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
+    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE,byteChunkAllocator);
 
     @Test
     public void testGetDefaultPacketIterator() {
@@ -55,24 +57,31 @@ public class SimplePacketIteratorTest {
 
     @Test
     public void testHasPacketWithFullPacket() {
+        ByteChunk byteChunk = byteChunkAllocator.alloc(9);
+        byteChunk.append("123456789".getBytes(),0,9);
         ProtocolBuffer protocolBuffer = allocator.allocate();
         protocolBuffer.writeFixInt(3, 10);
         protocolBuffer.writeByte((byte) 0);
-        protocolBuffer.writeFixString("123456789");
+        protocolBuffer.writeFixString(byteChunk);
 
         PacketIterator packetIterator = protocolBuffer.packetIterator();
         assertTrue(packetIterator.hasPacket());
+        byteChunk.recycle();
     }
 
     @Test
     public void testHasPacketWithHalfPacket() {
+        ByteChunk byteChunk = byteChunkAllocator.alloc(1);
+        byteChunk.append("t".getBytes(),0,1);
+
         ProtocolBuffer protocolBuffer = allocator.allocate();
         protocolBuffer.writeFixInt(3, 14);
         protocolBuffer.writeByte((byte) 0);
         protocolBuffer.writeByte((byte) 0x00);
-        protocolBuffer.writeFixString("t");
+        protocolBuffer.writeFixString(byteChunk);
         PacketIterator packetIterator = protocolBuffer.packetIterator();
         assertTrue(packetIterator.hasPacket());
+        byteChunk.recycle();
     }
 
     @Test
@@ -87,18 +96,22 @@ public class SimplePacketIteratorTest {
 
     @Test
     public void testNextPacketWithFullPacket() {
+        ByteChunk byteChunk = byteChunkAllocator.alloc(5);
+        byteChunk.append("t".getBytes(),0,1);
+
+
         ProtocolBuffer protocolBuffer = allocator.allocate();
         /* packet 1 */
         protocolBuffer.writeFixInt(3, 7);
         protocolBuffer.writeByte((byte) 0);
         protocolBuffer.writeByte((byte) 0x00);
-        protocolBuffer.writeFixString("hello");
+        protocolBuffer.writeFixString(byteChunk);
 
         /* packet 2 */
         protocolBuffer.writeFixInt(3, 8);
         protocolBuffer.writeByte((byte) 0);
         protocolBuffer.writeByte((byte) 0x00);
-        protocolBuffer.writeFixString("hello2");
+        protocolBuffer.writeFixString(byteChunk);
 
         PacketIterator packetIterator = protocolBuffer.packetIterator();
         assertTrue(packetIterator.hasPacket());
@@ -115,22 +128,27 @@ public class SimplePacketIteratorTest {
         assertTrue(PacketDescriptor.NONE == packetDescriptor);
 
         packetIterator.reset();
+
+        byteChunk.recycle();
     }
 
     @Test
     public void testNextPacketWithFullPacketAndHalfPacket() {
+        ByteChunk byteChunk = byteChunkAllocator.alloc(5);
+        byteChunk.append("hello".getBytes(),0,9);
+
         ProtocolBuffer protocolBuffer = allocator.allocate();
         /* packet 1 */
         protocolBuffer.writeFixInt(3, 7);
         protocolBuffer.writeByte((byte) 0);
         protocolBuffer.writeByte((byte) 0x00);
-        protocolBuffer.writeFixString("hello");
+        protocolBuffer.writeFixString(byteChunk);
 
         /* packet 2,half */
         protocolBuffer.writeFixInt(3, 10);
         protocolBuffer.writeByte((byte) 0);
         protocolBuffer.writeByte((byte) 0x00);
-        protocolBuffer.writeFixString("hello2");
+        protocolBuffer.writeFixString(byteChunk);
 
         PacketIterator packetIterator = protocolBuffer.packetIterator();
         assertTrue(packetIterator.hasPacket());

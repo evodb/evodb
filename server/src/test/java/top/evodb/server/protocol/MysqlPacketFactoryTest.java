@@ -22,6 +22,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Assert;
 import org.junit.Test;
+import top.evodb.core.memory.heap.ByteChunk;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
 import top.evodb.core.memory.protocol.AdjustableProtocolBufferAllocator;
 import top.evodb.core.memory.protocol.ProtocolBuffer;
 import top.evodb.core.memory.protocol.ProtocolBufferAllocator;
@@ -36,7 +38,8 @@ import top.evodb.server.mysql.ServerStatus;
 public class MysqlPacketFactoryTest {
 
     private static final int CHUNK_SIZE = 15;
-    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
+    private ByteChunkAllocator byteChunkAllocator = new ByteChunkAllocator(1024 * 1024);
+    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE, byteChunkAllocator);
     private MysqlPacketFactory factory = new MysqlPacketFactory(allocator);
 
     @Test
@@ -57,19 +60,24 @@ public class MysqlPacketFactoryTest {
 
     @Test
     public void testGetMysqlPacketWithProtocolBuffer() throws MysqlPacketFactoryException {
+        ByteChunk test = byteChunkAllocator.alloc(4);
+        test.append("test");
+        ByteChunk sessionState = byteChunkAllocator.alloc("session state change".length());
+        sessionState.append("session state change");
+
         int capablityFlags = 0;
         capablityFlags |= CapabilityFlags.SESSION_TRACK;
         OKPacket okPacket = factory.getMysqlPacket(MysqlPacket.OK_PACKET);
-        okPacket.info = "test";
+        okPacket.setInfo(test);
         okPacket.capabilityFlags = capablityFlags;
         okPacket.statusFlag = ServerStatus.SERVER_SESSION_STATE_CHANGED;
-        okPacket.sessionStateChanges = "session state change";
+        okPacket.sessionStateChanges = sessionState;
         ProtocolBuffer protocolBuffer = okPacket.write();
 
         okPacket = factory.getMysqlPacket(protocolBuffer, 0);
         okPacket.capabilityFlags = capablityFlags;
         okPacket.read();
-        Assert.assertEquals("test", okPacket.info);
+        Assert.assertEquals("test", okPacket.getInfo().toString());
 
         Assert.assertEquals(MysqlPacket.OK_PACKET, okPacket.getCmd());
         Assert.assertEquals(0, okPacket.getSequenceId());

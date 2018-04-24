@@ -16,6 +16,10 @@
 
 package top.evodb.server;
 
+import top.evodb.core.memory.heap.ByteChunk;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
+import top.evodb.core.util.MemoryLeakDetector;
+import top.evodb.core.util.StringCache;
 import top.evodb.server.mysql.Charset;
 import top.evodb.server.util.IDGenerator;
 
@@ -28,10 +32,16 @@ public class ServerContext {
     private final IDGenerator idGenerator;
     private final Version version;
     private Charset charset;
+    private final StringCache stringCache;
+    private final ByteChunkAllocator byteChunkAllocator;
 
     private ServerContext() {
         idGenerator = IDGenerator.newInstance();
         version = new Version();
+        stringCache = StringCache.newInstance(20000);
+        byteChunkAllocator = new ByteChunkAllocator(1024 * 1024 * 10);
+        byteChunkAllocator.getMemoryLeakDetector().setDetectLevel(MemoryLeakDetector.DetectLevel.HIGH);
+        byteChunkAllocator.getMemoryLeakDetector().setPrintLog(true);
     }
 
     public static ServerContext getContext() {
@@ -58,5 +68,13 @@ public class ServerContext {
         charset = new Charset();
         charset.charsetIndex = 8;
         return charset;
+    }
+
+    public StringCache getStringCache() {
+        return stringCache;
+    }
+
+    public ByteChunkAllocator getByteChunkAllocator() {
+        return byteChunkAllocator;
     }
 }

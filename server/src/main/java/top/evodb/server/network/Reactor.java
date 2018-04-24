@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import top.evodb.core.memory.protocol.AdjustableProtocolBuffer;
 import top.evodb.core.memory.protocol.AdjustableProtocolBufferAllocator;
 import top.evodb.core.memory.protocol.ProtocolBufferAllocator;
+import top.evodb.server.ServerContext;
 import top.evodb.server.mysql.AbstractMysqlConnection;
 import top.evodb.server.protocol.MysqlPacketFactory;
 
@@ -53,11 +54,12 @@ public final class Reactor {
         currentReactorThread = 0;
         numOfReactorThreads = Runtime.getRuntime().availableProcessors();
         reactorThreads = new ReactorThread[numOfReactorThreads];
-        allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
+        allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE, ServerContext.getContext().getByteChunkAllocator());
         mysqlPacketFactory = new MysqlPacketFactory(allocator);
         for (int i = 0; i < reactorThreads.length; i++) {
             reactorThreads[i] = new ReactorThread(REACTOR_THREAD_NAME_PREFIX + i);
         }
+
     }
 
     public void start() {

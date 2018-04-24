@@ -20,30 +20,36 @@ import static org.junit.Assert.assertEquals;
 
 
 import org.junit.Test;
+import top.evodb.core.memory.heap.ByteChunk;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
 
 /**
  * @author evodb
  */
 public class PacketDescriptorTest {
 
+    private ByteChunkAllocator byteChunkAllocator = new ByteChunkAllocator(1024 * 1024);
     private static final int CHUNK_SIZE = 15;
-    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
+    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE,byteChunkAllocator);
 
 
     @Test
     public void testPacketDescriptorWithFullAndShortPacket() {
+        ByteChunk byteChunk = byteChunkAllocator.alloc(5);
+        byteChunk.append("hello".getBytes(),0,5);
+
         ProtocolBuffer protocolBuffer = allocator.allocate();
         /* packet 1 */
         protocolBuffer.writeFixInt(3, 7);
         protocolBuffer.writeByte((byte) 0);
         protocolBuffer.writeByte((byte) 0x00);
-        protocolBuffer.writeFixString("hello");
+        protocolBuffer.writeFixString(byteChunk);
 
         /* packet 2 */
         protocolBuffer.writeFixInt(3, 10);
         protocolBuffer.writeByte((byte) 0);
         protocolBuffer.writeByte((byte) 0x02);
-        protocolBuffer.writeFixString("hello2");
+        protocolBuffer.writeFixString(byteChunk);
 
         PacketIterator packetIterator = protocolBuffer.packetIterator();
         long packetDescriptor = packetIterator.nextPacket();
@@ -58,6 +64,8 @@ public class PacketDescriptorTest {
         assertEquals(2, PacketDescriptor.getCommandType(packetDescriptor));
         assertEquals(PacketDescriptor.PacketType.HALF, PacketDescriptor.getPacketType(packetDescriptor));
         assertEquals(10, PacketDescriptor.getPacketStartPos(packetDescriptor));
+
+        byteChunk.recycle();
     }
 
     @Test(expected = IllegalArgumentException.class)

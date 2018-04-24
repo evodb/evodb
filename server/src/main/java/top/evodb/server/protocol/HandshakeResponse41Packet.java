@@ -16,8 +16,12 @@
 
 package top.evodb.server.protocol;
 
+import top.evodb.core.memory.heap.ByteChunk;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
+import top.evodb.core.memory.protocol.AbstractProtocolBuffer;
 import top.evodb.core.memory.protocol.ProtocolBuffer;
 import top.evodb.core.protocol.MysqlPacket;
+import top.evodb.server.ServerContext;
 import top.evodb.server.mysql.CapabilityFlags;
 import top.evodb.server.util.BitUtil;
 
@@ -28,13 +32,23 @@ public class HandshakeResponse41Packet extends AbstractMysqlPacket {
     public int capability;
     public int maxPacketSize;
     public byte characterSet;
-    public String username;
-    public byte[] authResponse;
-    public String database;
-    public String authPluginName;
+    public ByteChunk username;
+    public ByteChunk authResponse;
+    public ByteChunk database;
+    public ByteChunk authPluginName;
+    private ByteChunkAllocator byteChunkAllocator;
 
     public HandshakeResponse41Packet(ProtocolBuffer protocolBuffer, Integer startIndex, Integer endIndex) {
         super(protocolBuffer, startIndex, endIndex);
+        byteChunkAllocator = ((AbstractProtocolBuffer) protocolBuffer).getByteChunkAllocator();
+    }
+
+    @Override
+    public void destory() {
+        recyleByteChunk(username);
+        recyleByteChunk(authResponse);
+        recyleByteChunk(database);
+        recyleByteChunk(authPluginName);
     }
 
     @Override
@@ -47,10 +61,10 @@ public class HandshakeResponse41Packet extends AbstractMysqlPacket {
         protocolBuffer.writeIndex(protocolBuffer.writeIndex() + 23);
         protocolBuffer.writeNULString(username);
         if (BitUtil.checkBit(capability, CapabilityFlags.PLUGIN_AUTH_LENENC_CLIENT_DATA)) {
-            protocolBuffer.writeLenencInt(authResponse.length);
+            protocolBuffer.writeLenencInt(authResponse.getLength());
             protocolBuffer.writeBytes(authResponse);
         } else if (BitUtil.checkBit(capability, CapabilityFlags.SECURE_CONNECTION)) {
-            protocolBuffer.writeByte((byte) authResponse.length);
+            protocolBuffer.writeLenencInt(authResponse.getLength());
             protocolBuffer.writeBytes(authResponse);
         } else {
             protocolBuffer.writeBytes(authResponse);
@@ -80,14 +94,14 @@ public class HandshakeResponse41Packet extends AbstractMysqlPacket {
         username = protocolBuffer.readNULString();
         if (BitUtil.checkBit(capability, CapabilityFlags.PLUGIN_AUTH_LENENC_CLIENT_DATA)) {
             int lengthOfAuthResponse = (int) protocolBuffer.readLenencInt();
-            authResponse = new byte[lengthOfAuthResponse];
+            authResponse = byteChunkAllocator.alloc(lengthOfAuthResponse);
             protocolBuffer.readBytes(authResponse);
         } else if (BitUtil.checkBit(capability, CapabilityFlags.SECURE_CONNECTION)) {
             byte lengthOfAuthResonse = protocolBuffer.readByte();
-            authResponse = new byte[lengthOfAuthResonse];
+            authResponse = byteChunkAllocator.alloc(lengthOfAuthResonse);
             protocolBuffer.readBytes(authResponse);
         } else {
-            authResponse = protocolBuffer.readNULString().getBytes();
+            authResponse = protocolBuffer.readNULString();
         }
         if (BitUtil.checkBit(capability, CapabilityFlags.CONNECT_WITH_DB)) {
             database = protocolBuffer.readNULString();

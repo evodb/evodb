@@ -35,6 +35,9 @@ public class LeakedAwareByteChunk extends ByteChunk {
         this.byteChunk = byteChunk;
         this.memoryLeak = memoryLeak;
         buf = byteChunk.buf;
+        start = byteChunk.getStart();
+        end = byteChunk.getEnd();
+        offset = byteChunk.getOffset();
     }
 
     public MemoryLeak getMemoryLeak() {
@@ -58,6 +61,7 @@ public class LeakedAwareByteChunk extends ByteChunk {
     @Override
     public void setOffset(int offset) {
         byteChunk.setOffset(offset);
+        this.offset = offset;
     }
 
     @Override
@@ -116,5 +120,15 @@ public class LeakedAwareByteChunk extends ByteChunk {
     @Override
     public boolean isRecyled() {
         return byteChunk.isRecyled();
+    }
+
+    @Override
+    public byte[] getByteArray() {
+        return byteChunk.getByteArray();
+    }
+
+    @Override
+    public String toString() {
+        return byteChunk.toString();
     }
 }

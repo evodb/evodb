@@ -38,6 +38,19 @@ public class ByteChunk extends AbstractChunk {
     protected ByteChunk() {
     }
 
+    public void append(byte b) {
+        checkState();
+        buf[getOffset()] = b;
+    }
+
+    public void append(ByteChunk byteChunk) {
+        append(byteChunk.buf, byteChunk.getStart(), byteChunk.getLength());
+    }
+
+    public void append(String str) {
+        append(str.getBytes(), 0, str.getBytes().length);
+    }
+
     public void append(byte[] bytes, int offset, int size) {
         checkState();
         int size0 = size;
@@ -69,12 +82,27 @@ public class ByteChunk extends AbstractChunk {
         }
     }
 
+    public byte[] getRaw() {
+        return buf;
+    }
+
     @Override
     public void recycle() {
         checkState();
         super.recycle();
         buddyAllocator.free(this);
         recyled = true;
+    }
+
+    /**
+     * Becareful GC!
+     *
+     * @return bytes
+     */
+    public byte[] getByteArray() {
+        byte[] bytes = new byte[getLength()];
+        System.arraycopy(buf, start, bytes, 0, getLength());
+        return bytes;
     }
 
     @Override

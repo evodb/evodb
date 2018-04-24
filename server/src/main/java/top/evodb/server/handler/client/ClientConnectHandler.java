@@ -19,6 +19,8 @@ package top.evodb.server.handler.client;
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import top.evodb.core.memory.heap.ByteChunk;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
 import top.evodb.core.memory.protocol.ProtocolBuffer;
 import top.evodb.server.ServerContext;
 import top.evodb.server.exception.MysqlPacketFactoryException;
@@ -35,24 +37,33 @@ import top.evodb.server.protocol.HandshakeV10Packet;
 public class ClientConnectHandler implements Handler {
     public static final ClientConnectHandler INSTANCE = new ClientConnectHandler();
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientConnectHandler.class);
+    private ByteChunkAllocator byteChunkAllocator = ServerContext.getContext().getByteChunkAllocator();
 
     private ClientConnectHandler() {
     }
 
     @Override
     public boolean handle(AbstractMysqlConnection mysqlConnection) {
+        HandshakeV10Packet handshakeV10Packet = null;
         try {
-            HandshakeV10Packet handshakeV10Packet = mysqlConnection.getMysqlPacketFactory().getMysqlPacket(HandshakeV10Packet.class);
+            ByteChunk serverVersion = byteChunkAllocator.alloc(ServerContext.getContext().getVersion().getServerVersion().length());
+            serverVersion.append(ServerContext.getContext().getVersion().getServerVersion());
+
+            handshakeV10Packet = mysqlConnection.getMysqlPacketFactory().getMysqlPacket(HandshakeV10Packet.class);
             handshakeV10Packet.capabilityFlags = Constants.SERVER_CAPABILITY;
             handshakeV10Packet.statusFlag = ServerStatus.SERVER_STATUS_AUTOCOMMIT;
             handshakeV10Packet.connectionId = ServerContext.getContext().newConnectId();
             handshakeV10Packet.characterSet = ServerContext.getContext().getCharset().charsetIndex;
-            handshakeV10Packet.serverVersion = ServerContext.getContext().getVersion().getServerVersion();
+            handshakeV10Packet.serverVersion = serverVersion;
             handshakeV10Packet.protocolVersion = ServerContext.getContext().getVersion().getProtocolVersion();
             ProtocolBuffer buffer = handshakeV10Packet.write();
-            byte[] authPluginData = new byte[20];
-            System.arraycopy(handshakeV10Packet.authPluginDataPart1, 0, authPluginData, 0, 8);
-            System.arraycopy(handshakeV10Packet.authPluginDataPart2, 0, authPluginData, 8, 12);
+            ByteChunk authPluginData = byteChunkAllocator.alloc(20);
+
+            authPluginData.append(handshakeV10Packet.authPluginDataPart1);
+            authPluginData.setOffset(authPluginData.getOffset() + handshakeV10Packet.authPluginDataPart1.getLength());
+
+            authPluginData.append(handshakeV10Packet.authPluginDataPart2);
+
             mysqlConnection.setAttribute(AbstractMysqlConnection.ATTR_AUTH_PLUGIN_DATA, authPluginData);
             mysqlConnection.asyncWrite(buffer);
             mysqlConnection.offerHandler(ClientAuthResponseHandler.INSTANCE);
@@ -62,6 +73,10 @@ public class ClientConnectHandler implements Handler {
         } catch (IOException e) {
             LOGGER.warn(mysqlConnection.getName() + " Network error.", e);
             mysqlConnection.close(ErrorCode.ER_HANDSHAKE_ERROR, "Handshake error.");
+        } finally {
+            if (handshakeV10Packet != null) {
+                handshakeV10Packet.destory();
+            }
         }
         return true;
     }

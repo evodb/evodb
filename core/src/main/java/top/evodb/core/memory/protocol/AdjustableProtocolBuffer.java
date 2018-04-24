@@ -19,6 +19,8 @@ package top.evodb.core.memory.protocol;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import top.evodb.core.memory.heap.ByteChunk;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
 
 /**
  * When the buffer space is insufficient automatically grow. When {@link ProtocolBuffer#compact()}
@@ -38,7 +40,8 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
     private int capacity;
     private boolean recyleFlag;
 
-    protected AdjustableProtocolBuffer(AdjustableProtocolBufferAllocator allocator) {
+    protected AdjustableProtocolBuffer(AdjustableProtocolBufferAllocator allocator, ByteChunkAllocator byteChunkAllocator) {
+        super(byteChunkAllocator);
         this.allocator = allocator;
         emptySlotIdx = 0;
         capacity = 0;
@@ -108,23 +111,23 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
     }
 
     @Override
-    public int getBytes(byte[] dest, int index) {
-        int length = dest.length;
+    public int getBytes(ByteChunk byteChunk, int index) {
+        int length = byteChunk.getLength();
         int readed = 0;
         check(index, length);
         ByteBuffer byteBuffer = fromSlot(index);
         int index0 = toInternalIndex(index);
-        int offset = 0;
+        int offset = byteChunk.getStart();
         byteBuffer.limit(chunkSize);
         byteBuffer.position(index0);
         for (; ; ) {
             int readableLength = byteBuffer.limit() - byteBuffer.position();
             if (readableLength >= length) {
-                byteBuffer.get(dest, offset, length);
+                byteBuffer.get(byteChunk.getRaw(), offset, length);
                 readed = length;
                 break;
             } else {
-                byteBuffer.get(dest, offset, readableLength);
+                byteBuffer.get(byteChunk.getRaw(), offset, readableLength);
                 readed += readableLength;
                 length -= readableLength;
                 index0 = toInternalIndex(index + readableLength);
@@ -149,24 +152,24 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
     }
 
     @Override
-    public ProtocolBuffer putBytes(int index, int length, byte[] bytes) {
+    public ProtocolBuffer putBytes(int index, int length, ByteChunk byteChunk) {
         ensureSpace(index, length);
         check(index, length);
-        if (length > 0 && length > bytes.length) {
+        if (length > 0 && length > byteChunk.getLength()) {
             throw new IndexOutOfBoundsException();
         }
         ByteBuffer byteBuffer = fromSlot(index);
         int index0 = toInternalIndex(index);
-        int offset = 0;
+        int offset = byteChunk.getStart();
         byteBuffer.limit(chunkSize);
         byteBuffer.position(index0);
         for (; ; ) {
             int writeableLength = byteBuffer.limit() - byteBuffer.position();
             if (writeableLength >= length) {
-                byteBuffer.put(bytes, offset, length);
+                byteBuffer.put(byteChunk.getRaw(), offset, length);
                 break;
             } else {
-                byteBuffer.put(bytes, offset, writeableLength);
+                byteBuffer.put(byteChunk.getRaw(), offset, writeableLength);
                 length -= writeableLength;
                 index0 = toInternalIndex(index + writeableLength);
                 offset += writeableLength;

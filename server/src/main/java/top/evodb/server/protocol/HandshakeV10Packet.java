@@ -16,6 +16,9 @@
 
 package top.evodb.server.protocol;
 
+import top.evodb.core.memory.heap.ByteChunk;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
+import top.evodb.core.memory.protocol.AbstractProtocolBuffer;
 import top.evodb.core.memory.protocol.ProtocolBuffer;
 import top.evodb.core.protocol.MysqlPacket;
 import top.evodb.server.mysql.CapabilityFlags;
@@ -28,21 +31,35 @@ import top.evodb.server.util.RandomUtil;
  */
 public class HandshakeV10Packet extends AbstractMysqlPacket {
     public byte protocolVersion;
-    public String serverVersion;
+    public ByteChunk serverVersion;
     public int connectionId;
-    public byte[] authPluginDataPart1;
-    public byte[] authPluginDataPart2;
+    public ByteChunk authPluginDataPart1;
+    public ByteChunk authPluginDataPart2;
     public int capabilityFlags;
     public byte characterSet;
     public short statusFlag;
-    public String authPluginName;
+    public ByteChunk authPluginName;
+    private ByteChunkAllocator byteChunkAllocator;
 
     public HandshakeV10Packet(ProtocolBuffer protocolBuffer, Integer startIndex, Integer endIndex) {
         super(protocolBuffer, startIndex, endIndex);
-        authPluginDataPart1 = RandomUtil.randomBytes(8);
-        authPluginDataPart2 = RandomUtil.randomBytes(12);
+        byteChunkAllocator = ((AbstractProtocolBuffer) protocolBuffer).getByteChunkAllocator();
+
+        authPluginDataPart1 = byteChunkAllocator.alloc(8);
+        authPluginDataPart1.append(RandomUtil.randomBytes(8), 0, 8);
+        authPluginDataPart2 = byteChunkAllocator.alloc(12);
+        authPluginDataPart2.append(RandomUtil.randomBytes(12), 0, 12);
         capabilityFlags = Constants.SERVER_CAPABILITY;
-        authPluginName = Constants.AUTH_PLUGIN_NAME;
+        authPluginName = byteChunkAllocator.alloc(Constants.AUTH_PLUGIN_NAME.length());
+        authPluginName.append(Constants.AUTH_PLUGIN_NAME.getBytes(), 0, Constants.AUTH_PLUGIN_NAME.length());
+    }
+
+    @Override
+    public void destory() {
+        recyleByteChunk(serverVersion);
+        recyleByteChunk(authPluginDataPart1);
+        recyleByteChunk(authPluginDataPart2);
+        recyleByteChunk(authPluginName);
     }
 
     @Override
@@ -83,7 +100,7 @@ public class HandshakeV10Packet extends AbstractMysqlPacket {
         protocolVersion = protocolBuffer.readByte();
         serverVersion = protocolBuffer.readNULString();
         connectionId = (int) protocolBuffer.readFixInt(4);
-        authPluginDataPart1 = new byte[8];
+        authPluginDataPart1 = byteChunkAllocator.alloc(8);
         protocolBuffer.readBytes(authPluginDataPart1);
         protocolBuffer.readByte();
 
@@ -98,7 +115,7 @@ public class HandshakeV10Packet extends AbstractMysqlPacket {
         protocolBuffer.readFixInt(5);
         protocolBuffer.readFixInt(5);
         if (BitUtil.checkBit(capabilityFlags, CapabilityFlags.SECURE_CONNECTION)) {
-            authPluginDataPart2 = new byte[12];
+            authPluginDataPart2 = byteChunkAllocator.alloc(12);
             protocolBuffer.readBytes(authPluginDataPart2);
             protocolBuffer.readByte();
         }

@@ -20,6 +20,8 @@ import static org.junit.Assert.assertEquals;
 
 
 import org.junit.Test;
+import top.evodb.core.memory.heap.ByteChunk;
+import top.evodb.core.memory.heap.ByteChunkAllocator;
 import top.evodb.core.memory.protocol.AdjustableProtocolBufferAllocator;
 import top.evodb.core.memory.protocol.ProtocolBufferAllocator;
 import top.evodb.server.ServerContext;
@@ -32,30 +34,35 @@ import top.evodb.server.mysql.ServerStatus;
  */
 public class HandshakeV10PacketTest {
     private static final int CHUNK_SIZE = 15;
-    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE);
+    private ByteChunkAllocator byteChunkAllocator = new ByteChunkAllocator(1024 * 1024);
+    private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE, byteChunkAllocator);
     private MysqlPacketFactory factory = new MysqlPacketFactory(allocator);
 
     @Test
     public void testWrite() throws MysqlPacketFactoryException {
+        ByteChunk serverVersion = byteChunkAllocator.alloc(ServerContext.getContext().getVersion().getServerVersion().length());
+        serverVersion.append(ServerContext.getContext().getVersion().getServerVersion());
         HandshakeV10Packet handshakeV10Packet = factory.getMysqlPacket(HandshakeV10Packet.class);
         handshakeV10Packet.capabilityFlags = Constants.SERVER_CAPABILITY;
         handshakeV10Packet.statusFlag = ServerStatus.SERVER_STATUS_AUTOCOMMIT;
         handshakeV10Packet.connectionId = ServerContext.getContext().newConnectId();
         handshakeV10Packet.characterSet = ServerContext.getContext().getCharset().charsetIndex;
-        handshakeV10Packet.serverVersion = ServerContext.getContext().getVersion().getServerVersion();
+        handshakeV10Packet.serverVersion = serverVersion;
         handshakeV10Packet.protocolVersion = ServerContext.getContext().getVersion().getProtocolVersion();
         handshakeV10Packet.write();
     }
 
     @Test
     public void testRead() throws MysqlPacketFactoryException {
+        ByteChunk serverVersion = byteChunkAllocator.alloc(ServerContext.getContext().getVersion().getServerVersion().length());
+        serverVersion.append(ServerContext.getContext().getVersion().getServerVersion());
         HandshakeV10Packet handshakeV10Packet = factory.getMysqlPacket(HandshakeV10Packet.class);
         int connectionId = ServerContext.getContext().newConnectId();
         handshakeV10Packet.capabilityFlags = Constants.SERVER_CAPABILITY;
         handshakeV10Packet.statusFlag = ServerStatus.SERVER_STATUS_AUTOCOMMIT;
         handshakeV10Packet.connectionId = connectionId;
         handshakeV10Packet.characterSet = ServerContext.getContext().getCharset().charsetIndex;
-        handshakeV10Packet.serverVersion = ServerContext.getContext().getVersion().getServerVersion();
+        handshakeV10Packet.serverVersion = serverVersion;
         handshakeV10Packet.protocolVersion = ServerContext.getContext().getVersion().getProtocolVersion();
         handshakeV10Packet.write();
 
@@ -63,9 +70,9 @@ public class HandshakeV10PacketTest {
         assertEquals(Constants.SERVER_CAPABILITY, handshakeV10Packet.capabilityFlags);
         assertEquals(ServerStatus.SERVER_STATUS_AUTOCOMMIT, handshakeV10Packet.statusFlag);
         assertEquals(connectionId, handshakeV10Packet.connectionId);
-        assertEquals(Constants.AUTH_PLUGIN_NAME, handshakeV10Packet.authPluginName);
+        assertEquals(Constants.AUTH_PLUGIN_NAME, handshakeV10Packet.authPluginName.toString());
         assertEquals(ServerContext.getContext().getCharset().charsetIndex, handshakeV10Packet.characterSet);
-        assertEquals(ServerContext.getContext().getVersion().getServerVersion(), handshakeV10Packet.serverVersion);
+        assertEquals(ServerContext.getContext().getVersion().getServerVersion(), handshakeV10Packet.serverVersion.toString());
         assertEquals(ServerContext.getContext().getVersion().getProtocolVersion(), handshakeV10Packet.protocolVersion);
 
     }

@@ -56,8 +56,8 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
     @Override
     protected ByteChunk doAlloc(int nodeIndex, int nodeSize, int reqSize) {
         synchronized (objCache) {
-            LinkedList linkedList = objCache.computeIfAbsent(nodeSize, k -> new LinkedList());
-            AbstractChunk chunk = (AbstractChunk) linkedList.poll();
+//            LinkedList linkedList = objCache.computeIfAbsent(nodeSize, k -> new LinkedList());
+            AbstractChunk chunk = null;//(AbstractChunk) linkedList.poll();
             if (nodeSize == 0) {
                 if (isAllowOverAlloc()) {
                     chunk = new ByteChunk(this, buf, offset, offset + nodeSize - 1, offset + reqSize, nodeIndex);

@@ -32,6 +32,7 @@ public class MemoryLeakDetector<T extends AbstractChunk> {
     private DetectLevel detectLevel = DetectLevel.DISABLE;
     private int detectRate = 100;
     private boolean memoryLeakOccurred;
+    private boolean printLog;
 
     public MemoryLeak open(T t) {
         MemoryLeak memoryLeak = new MemoryLeak(t, refQueue);
@@ -47,7 +48,9 @@ public class MemoryLeakDetector<T extends AbstractChunk> {
             }
             leaks.clear();
             memoryLeakOccurred = true;
-            LOGGER.warn("Memory leak detected.\n" + memoryLeak.getHint());
+            if (printLog) {
+                LOGGER.error("Memory leak detected.\n" + memoryLeak.getHint());
+            }
         }
     }
 
@@ -81,6 +84,10 @@ public class MemoryLeakDetector<T extends AbstractChunk> {
         return detectRate;
     }
 
+    public void setPrintLog(boolean printLog) {
+        this.printLog = printLog;
+    }
+
     public boolean isMemoryLeakOccurred() {
         return memoryLeakOccurred;
     }
@@ -92,4 +99,6 @@ public class MemoryLeakDetector<T extends AbstractChunk> {
     public static enum DetectLevel {
         HIGH, MIDDLE, DISABLE
     }
+
+
 }
