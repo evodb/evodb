@@ -75,4 +75,14 @@ public class StringCacheTest {
         assertEquals(2, stringCache.getCacheSize());
         assertTrue(str2 != str4);
     }
+
+    @Test
+    public void testGetStringWithLageStr() {
+        StringCache stringCache = StringCache.newInstance(2);
+        stringCache.setMaxStringSize(1);
+        ByteChunkAllocator buddyAllocator = new ByteChunkAllocator(16);
+        ByteChunk byteChunk = buddyAllocator.alloc(2);
+        byteChunk.append("12".getBytes(), 0, 2);
+        stringCache.getString(byteChunk);
+    }
 }
