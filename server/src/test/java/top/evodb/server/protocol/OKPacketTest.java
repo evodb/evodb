@@ -23,6 +23,7 @@ import top.evodb.core.memory.heap.ByteChunkAllocator;
 import top.evodb.core.memory.protocol.AdjustableProtocolBufferAllocator;
 import top.evodb.core.memory.protocol.ProtocolBufferAllocator;
 import top.evodb.core.protocol.MysqlPacket;
+import top.evodb.server.ServerContext;
 import top.evodb.server.exception.MysqlPacketFactoryException;
 import top.evodb.server.mysql.CapabilityFlags;
 import top.evodb.server.mysql.ServerStatus;
@@ -33,7 +34,7 @@ import top.evodb.server.mysql.ServerStatus;
 public class OKPacketTest {
 
     private static final int CHUNK_SIZE = 15;
-    private ByteChunkAllocator byteChunkAllocator = new ByteChunkAllocator(1024 * 1024);
+    private ByteChunkAllocator byteChunkAllocator = ServerContext.getContext().getByteChunkAllocator();
     private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE, byteChunkAllocator);
     private MysqlPacketFactory factory = new MysqlPacketFactory(allocator);
 

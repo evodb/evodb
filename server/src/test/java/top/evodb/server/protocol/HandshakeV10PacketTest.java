@@ -34,7 +34,7 @@ import top.evodb.server.mysql.ServerStatus;
  */
 public class HandshakeV10PacketTest {
     private static final int CHUNK_SIZE = 15;
-    private ByteChunkAllocator byteChunkAllocator = new ByteChunkAllocator(1024 * 1024);
+    private ByteChunkAllocator byteChunkAllocator = ServerContext.getContext().getByteChunkAllocator();
     private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE, byteChunkAllocator);
     private MysqlPacketFactory factory = new MysqlPacketFactory(allocator);
 

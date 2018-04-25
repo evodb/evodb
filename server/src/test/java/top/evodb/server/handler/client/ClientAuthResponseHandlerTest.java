@@ -31,6 +31,7 @@ import top.evodb.core.memory.protocol.ProtocolBuffer;
 import top.evodb.core.memory.protocol.ProtocolBufferAllocator;
 import top.evodb.core.protocol.MysqlPacket;
 import top.evodb.server.PortRandomUtil;
+import top.evodb.server.ServerContext;
 import top.evodb.server.exception.MysqlPacketFactoryException;
 import top.evodb.server.mysql.Constants;
 import top.evodb.server.network.Acceptor;
@@ -47,7 +48,7 @@ public class ClientAuthResponseHandlerTest {
     private static final int CHUNK_SIZE = 15;
     private Reactor reactor;
     private Acceptor acceptor;
-    private ByteChunkAllocator byteChunkAllocator = new ByteChunkAllocator(1024 * 1024);
+    private ByteChunkAllocator byteChunkAllocator = ServerContext.getContext().getByteChunkAllocator();
     private ProtocolBufferAllocator allocator = new AdjustableProtocolBufferAllocator(CHUNK_SIZE, byteChunkAllocator);
     private MysqlPacketFactory factory = new MysqlPacketFactory(allocator);
     private int port;

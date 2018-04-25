@@ -97,14 +97,14 @@ public abstract class BuddyAllocator<T extends AbstractChunk> {
     public void free(T t) {
         if (t.getAllocator() == this && !t.isRecyled()) {
             int index = t.getNodeIndex();
-            int nodeSize = t.getLength();
+            int nodeSize = t.getRawLength();
             index = t.getNodeIndex();
-            if (index == 0) {
-                nodeSize = size;
-            }
             tree[index] = nodeSize;
             while (index != 0) {
                 index = parent(index);
+                if(index > tree.length){
+                    System.out.println();
+                }
                 nodeSize <<= 1;
                 int leftSize = tree[left(index)];
                 int rightSize = tree[right(index)];
