@@ -102,9 +102,6 @@ public abstract class BuddyAllocator<T extends AbstractChunk> {
             tree[index] = nodeSize;
             while (index != 0) {
                 index = parent(index);
-                if(index > tree.length){
-                    System.out.println();
-                }
                 nodeSize <<= 1;
                 int leftSize = tree[left(index)];
                 int rightSize = tree[right(index)];
