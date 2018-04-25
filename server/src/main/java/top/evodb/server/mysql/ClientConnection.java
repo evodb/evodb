@@ -54,19 +54,19 @@ public class ClientConnection extends AbstractMysqlConnection {
 
     @Override
     public void close(short errCode, String reason) {
-        ByteChunk byteChunk = null;
+        ErrorPacket errorPacket = null;
         try {
             LOGGER.debug("Ready to close connection:" + getName() + " reason:" + reason);
-            byteChunk = ServerContext.getContext().getByteChunkAllocator().alloc(reason.length());
-            byteChunk.append(reason);
+            ByteChunk message = ServerContext.getContext().getByteChunkAllocator().alloc(reason.length());
+            message.append(reason);
 
-            ErrorPacket errorPacket = getMysqlPacketFactory().getMysqlPacket(MysqlPacket.ERR_PACKET);
+            errorPacket = getMysqlPacketFactory().getMysqlPacket(MysqlPacket.ERR_PACKET);
             Byte lastPacketId = (Byte) getAttribute(AbstractMysqlConnection.ATTR_PRE_PACKET_ID);
             lastPacketId = lastPacketId == null ? 1 : lastPacketId;
             removeAttributes(AbstractMysqlConnection.ATTR_PRE_PACKET_ID);
             errorPacket.capabilities = getCapability();
             errorPacket.errorCode = errCode;
-            errorPacket.message = byteChunk;
+            errorPacket.message = message;
             errorPacket.setSequenceId(lastPacketId);
             protocolBuffer = errorPacket.write();
             asyncWrite(protocolBuffer);
@@ -74,8 +74,8 @@ public class ClientConnection extends AbstractMysqlConnection {
         } catch (MysqlPacketFactoryException | IOException e) {
             LOGGER.warn("close connection error.", e);
         } finally {
-            if (byteChunk != null) {
-                byteChunk.recycle();
+            if (errorPacket != null) {
+                errorPacket.destory();
             }
         }
     }

@@ -43,7 +43,8 @@ public class ErrorPacket extends AbstractMysqlPacket {
 
     @Override
     public void destory() {
-
+        recyleByteChunk(sqlState);
+        recyleByteChunk(message);
     }
 
     @Override
