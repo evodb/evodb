@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.evodb.core.memory.heap.ByteChunk;
 import top.evodb.core.protocol.MysqlPacket;
-import top.evodb.server.Server;
 import top.evodb.server.ServerContext;
 import top.evodb.server.exception.MysqlPacketFactoryException;
 import top.evodb.server.handler.client.ClientCloseHandler;

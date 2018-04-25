@@ -18,7 +18,6 @@ package top.evodb.core.memory.protocol;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
-import top.evodb.core.memory.BuddyAllocator;
 import top.evodb.core.memory.heap.ByteChunkAllocator;
 
 /**

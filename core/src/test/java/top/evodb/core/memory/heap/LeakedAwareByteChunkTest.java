@@ -24,7 +24,7 @@ import top.evodb.core.memory.BuddyAllocator;
 import top.evodb.core.util.MemoryLeakDetector;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class LeakedAwareByteChunkTest {
 

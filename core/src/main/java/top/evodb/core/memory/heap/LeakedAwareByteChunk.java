@@ -20,7 +20,7 @@ import top.evodb.core.memory.BuddyAllocator;
 import top.evodb.core.util.MemoryLeak;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class LeakedAwareByteChunk extends ByteChunk {
     private ByteChunk byteChunk;

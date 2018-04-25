@@ -21,7 +21,7 @@ import java.lang.ref.WeakReference;
 import top.evodb.core.memory.heap.AbstractChunk;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class MemoryLeak<T extends AbstractChunk> extends WeakReference<T> {
     private String hint;

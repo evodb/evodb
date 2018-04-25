@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import top.evodb.core.memory.heap.AbstractChunk;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class MemoryLeakDetector<T extends AbstractChunk> {
     private static final Logger LOGGER = LoggerFactory.getLogger(MemoryLeakDetector.class);

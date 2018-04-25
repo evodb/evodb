@@ -21,7 +21,6 @@ import top.evodb.core.memory.heap.ByteChunkAllocator;
 import top.evodb.core.memory.protocol.AbstractProtocolBuffer;
 import top.evodb.core.memory.protocol.ProtocolBuffer;
 import top.evodb.core.protocol.MysqlPacket;
-import top.evodb.server.ServerContext;
 import top.evodb.server.mysql.CapabilityFlags;
 import top.evodb.server.util.BitUtil;
 

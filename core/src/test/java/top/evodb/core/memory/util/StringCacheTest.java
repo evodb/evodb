@@ -26,7 +26,7 @@ import top.evodb.core.memory.heap.ByteChunkAllocator;
 import top.evodb.core.util.StringCache;
 
 /**
- * @author ynfeng
+ * @author evodb
  */
 public class StringCacheTest {
 
