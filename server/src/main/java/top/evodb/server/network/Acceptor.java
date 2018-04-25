@@ -66,7 +66,7 @@ public final class Acceptor extends Thread {
 
     @Override
     public void run() {
-        while (!isInterrupted()) {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 try {
                     selector.select(SELECT_TIMEOUT);
