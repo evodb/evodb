@@ -151,6 +151,20 @@ public class AdjustableProtocolBuffer extends AbstractProtocolBuffer {
         return byteBuffer.get(index0);
     }
 
+
+    @Override
+    public ProtocolBuffer putByte(int index, byte val) {
+        int length = 1;
+        ensureSpace(index, length);
+        check(index, length);
+        ByteBuffer byteBuffer = fromSlot(index);
+        int index0 = toInternalIndex(index);
+        byteBuffer.limit(chunkSize);
+        byteBuffer.position(index0);
+        byteBuffer.put(val);
+        return this;
+    }
+
     @Override
     public ProtocolBuffer putBytes(int index, int length, ByteChunk byteChunk) {
         ensureSpace(index, length);

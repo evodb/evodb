@@ -29,36 +29,6 @@ import top.evodb.core.memory.BuddyAllocator;
 public class ByteChunkTest {
 
     @Test
-    public void testAlloc() {
-        BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
-        ByteChunk byteChunk1 = buddyAllocator.alloc(4);
-        ByteChunk byteChunk2 = buddyAllocator.alloc(4);
-        ByteChunk byteChunk3 = buddyAllocator.alloc(4);
-        ByteChunk byteChunk4 = buddyAllocator.alloc(4);
-
-        byteChunk1.recycle();
-        byteChunk2.recycle();
-        byteChunk3.recycle();
-        byteChunk4.recycle();
-
-//        byteChunk1 = buddyAllocator.alloc(1);
-//        byteChunk1 = buddyAllocator.alloc(1);
-//        byteChunk1 = buddyAllocator.alloc(1);
-//        byteChunk1 = buddyAllocator.alloc(1);
-
-//        byteChunk1 = buddyAllocator.alloc(4);
-//        byteChunk1 = buddyAllocator.alloc(1);
-//        byteChunk1 = buddyAllocator.alloc(1);
-//        byteChunk1 = buddyAllocator.alloc(1);
-//
-//        byteChunk1 = buddyAllocator.alloc(1);
-//        byteChunk1 = buddyAllocator.alloc(1);
-//        byteChunk1 = buddyAllocator.alloc(1);
-//        byteChunk1 = buddyAllocator.alloc(1);
-        System.out.println();
-    }
-
-    @Test
     public void testOffset() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
         ByteChunk byteChunk = buddyAllocator.alloc(10);

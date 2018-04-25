@@ -158,10 +158,12 @@ public class ByteChunkAllocatorTest {
     @Test
     public void testAllocFromCache() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
+        ((ByteChunkAllocator) buddyAllocator).setMaxObjCacheSize(1);
         ByteChunk byteChunk = buddyAllocator.alloc(16);
         byteChunk.recycle();
         ByteChunk byteChunk1 = buddyAllocator.alloc(16);
         assertTrue(byteChunk == byteChunk1);
+        assertEquals(1,((ByteChunkAllocator) buddyAllocator).getMaxObjCacheSize());
     }
 
 
