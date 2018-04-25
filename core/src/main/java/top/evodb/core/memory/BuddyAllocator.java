@@ -53,10 +53,20 @@ public abstract class BuddyAllocator<T extends AbstractChunk> {
             return doAlloc(0, 0, 0);
         }
         int nodeSize;
-        for (nodeSize = this.size; nodeSize != size0; nodeSize >>= 1) {
+        nodeSize = tree[index];
+        while (nodeSize != size0) {
             if (tree[left(index)] >= size0) {
                 index = left(index);
             } else {
+                index = right(index);
+            }
+            nodeSize = tree[index];
+        }
+        while (right(index) < tree.length &&
+            (tree[left(index)] == size0 || tree[right(index)] == size0)) {
+            if (tree[left(index)] == size0) {
+                index = left(index);
+            } else if (tree[right(index)] == size0) {
                 index = right(index);
             }
         }
@@ -69,17 +79,29 @@ public abstract class BuddyAllocator<T extends AbstractChunk> {
         return doAlloc(foundIndex, nodeSize, size);
     }
 
+    private void printTree() {
+        int col = 1;
+        int row = 1;
+        for (int i = 0; i < tree.length; i++) {
+            System.out.print(tree[i] + " ");
+            if (row == col) {
+                System.out.println();
+                col <<= 1;
+                row = 0;
+            }
+            row++;
+        }
+
+    }
+
     public void free(T t) {
         if (t.getAllocator() == this && !t.isRecyled()) {
             int index = t.getNodeIndex();
-            int nodeSize = 1;
-            for (; index != 0; index = parent(index)) {
-                nodeSize <<= 1;
-            }
+            int nodeSize = t.getLength();
+            index = t.getNodeIndex();
             if (index == 0) {
                 nodeSize = size;
             }
-            index = t.getNodeIndex();
             tree[index] = nodeSize;
             while (index != 0) {
                 index = parent(index);

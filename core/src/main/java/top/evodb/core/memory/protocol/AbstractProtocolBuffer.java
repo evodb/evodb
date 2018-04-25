@@ -315,6 +315,7 @@ public abstract class AbstractProtocolBuffer implements ProtocolBuffer {
 
     @Override
     public ProtocolBuffer putByte(int index, byte val) {
+        //TODO fix
         ByteChunk byteChunk = byteChunkAllocator.alloc(1);
         byteChunk.append(val);
         ProtocolBuffer rv = putBytes(index, byteChunk);
