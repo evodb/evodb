@@ -34,6 +34,7 @@ public class ByteChunkAllocatorTest {
     @Test(expected = AllocatorOutOfMemoryException.class)
     public void testAllocateWidth16Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(12);
+        ((ByteChunkAllocator) buddyAllocator).setAllowOverAlloc(false);
         assertEquals(12, buddyAllocator.alloc(12).getLength());
         assertNull(buddyAllocator.alloc(1));
     }
@@ -41,6 +42,7 @@ public class ByteChunkAllocatorTest {
     @Test(expected = AllocatorOutOfMemoryException.class)
     public void testAllocateWidth9Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
+        ((ByteChunkAllocator) buddyAllocator).setAllowOverAlloc(false);
         assertEquals(9, buddyAllocator.alloc(9).getLength());
         assertNull(buddyAllocator.alloc(1));
     }
@@ -69,6 +71,7 @@ public class ByteChunkAllocatorTest {
     @Test
     public void testAllocateWidth7Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
+        ((ByteChunkAllocator) buddyAllocator).setAllowOverAlloc(false);
         assertEquals(7, buddyAllocator.alloc(7).getLength());
         assertEquals(1, buddyAllocator.alloc(1).getLength());
     }
@@ -76,6 +79,7 @@ public class ByteChunkAllocatorTest {
     @Test(expected = AllocatorOutOfMemoryException.class)
     public void testAllocateWidth10Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
+        ((ByteChunkAllocator) buddyAllocator).setAllowOverAlloc(false);
         assertEquals(10, buddyAllocator.alloc(10).getLength());
         assertNull(buddyAllocator.alloc(1));
     }
@@ -83,6 +87,7 @@ public class ByteChunkAllocatorTest {
     @Test(expected = AllocatorOutOfMemoryException.class)
     public void testAllocateWidth8Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
+        ((ByteChunkAllocator) buddyAllocator).setAllowOverAlloc(false);
         assertEquals(8, buddyAllocator.alloc(8).getLength());
         assertEquals(8, buddyAllocator.alloc(8).getLength());
         assertNull(buddyAllocator.alloc(8));
@@ -91,6 +96,7 @@ public class ByteChunkAllocatorTest {
     @Test(expected = AllocatorOutOfMemoryException.class)
     public void testAllocateWidth4Bytes() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
+        ((ByteChunkAllocator) buddyAllocator).setAllowOverAlloc(false);
         assertEquals(4, buddyAllocator.alloc(4).getLength());
         assertEquals(4, buddyAllocator.alloc(4).getLength());
         assertEquals(4, buddyAllocator.alloc(4).getLength());
@@ -101,6 +107,8 @@ public class ByteChunkAllocatorTest {
     @Test(expected = AllocatorOutOfMemoryException.class)
     public void testAllocateWidth1Byte() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
+        ((ByteChunkAllocator) buddyAllocator).setAllowOverAlloc(false);
+
         assertEquals(1, buddyAllocator.alloc(1).getLength());
         assertEquals(1, buddyAllocator.alloc(1).getLength());
         assertEquals(1, buddyAllocator.alloc(1).getLength());
@@ -163,7 +171,7 @@ public class ByteChunkAllocatorTest {
         byteChunk.recycle();
         ByteChunk byteChunk1 = buddyAllocator.alloc(16);
         assertTrue(byteChunk == byteChunk1);
-        assertEquals(1,((ByteChunkAllocator) buddyAllocator).getMaxObjCacheSize());
+        assertEquals(1, ((ByteChunkAllocator) buddyAllocator).getMaxObjCacheSize());
     }
 
 
@@ -189,6 +197,7 @@ public class ByteChunkAllocatorTest {
     @Test(expected = AllocatorOutOfMemoryException.class)
     public void testAllocWithNotAllowOverAlloc() {
         BuddyAllocator<ByteChunk> buddyAllocator = new ByteChunkAllocator(16);
+        ((ByteChunkAllocator) buddyAllocator).setAllowOverAlloc(false);
         ByteChunk byteChunk = buddyAllocator.alloc(16);
         byteChunk = buddyAllocator.alloc(32);
         assertNull(byteChunk);

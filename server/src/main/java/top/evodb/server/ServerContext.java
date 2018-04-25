@@ -38,7 +38,8 @@ public class ServerContext {
         idGenerator = IDGenerator.newInstance();
         version = new Version();
         stringCache = StringCache.newInstance(20000);
-        byteChunkAllocator = new ByteChunkAllocator(1024 * 1024);
+        /* 10MB*/
+        byteChunkAllocator = new ByteChunkAllocator((1 << 20) * 10);
         byteChunkAllocator.getMemoryLeakDetector().setDetectLevel(MemoryLeakDetector.DetectLevel.HIGH);
         byteChunkAllocator.getMemoryLeakDetector().setPrintLog(true);
     }

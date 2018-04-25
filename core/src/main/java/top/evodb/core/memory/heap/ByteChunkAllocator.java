@@ -17,6 +17,8 @@
 package top.evodb.core.memory.heap;
 
 import java.util.LinkedList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import top.evodb.core.memory.AllocatorOutOfMemoryException;
 import top.evodb.core.memory.BuddyAllocator;
 import top.evodb.core.util.MemoryLeak;
@@ -28,11 +30,12 @@ import top.evodb.core.util.MemoryLeakDetector;
  * @author evodb
  */
 public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ByteChunkAllocator.class);
     private final byte[] buf;
     private final LinkedList objCache;
     private final MemoryLeakDetector memoryLeakDetector;
     private int detectCount;
-    private boolean allowOverAlloc;
+    private boolean allowOverAlloc = true;
     private int maxObjCacheSize = 20000;
     private int cacheSize = 0;
 
@@ -57,17 +60,20 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
 
     @Override
     protected ByteChunk doAlloc(int nodeIndex, int nodeSize, int reqSize) {
-        int offset = (nodeIndex + 1) * nodeSize - size;
-
         synchronized (objCache) {
             AbstractChunk chunk = (AbstractChunk) objCache.poll();
             if (nodeSize == 0) {
                 if (isAllowOverAlloc()) {
-                    chunk = new ByteChunk(this, buf, offset, offset + nodeSize - 1, offset + reqSize, nodeIndex);
+                    LOGGER.error("Heap memory is out,please check!!!", new AllocatorOutOfMemoryException());
+                    printTree();
+                    byte[] bytes = new byte[reqSize];
+                    chunk = new ByteChunk(this, bytes, 0, bytes.length - 1, bytes.length, -1);
+                    return (ByteChunk) chunk;
                 } else {
                     throw new AllocatorOutOfMemoryException();
                 }
             }
+            int offset = (nodeIndex + 1) * nodeSize - size;
             if (chunk == null) {
                 if (memoryLeakDetector.getDetectLevel() != MemoryLeakDetector.DetectLevel.DISABLE) {
                     if (memoryLeakDetector.getDetectLevel() == MemoryLeakDetector.DetectLevel.HIGH) {
@@ -90,7 +96,7 @@ public class ByteChunkAllocator extends BuddyAllocator<ByteChunk> {
                 if (chunk instanceof LeakedAwareByteChunk) {
                     ((LeakedAwareByteChunk) chunk).getMemoryLeak().generateTraceInfo(4);
                 }
-                chunk.reuse(offset, offset + reqSize - 1, offset+reqSize,nodeIndex);
+                chunk.reuse(offset, offset + nodeSize - 1, offset + reqSize, nodeIndex);
             }
             return (ByteChunk) chunk;
         }
