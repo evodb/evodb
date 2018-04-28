@@ -69,7 +69,7 @@ public class ClientAuthResponseHandler implements Handler {
                 mysqlConnection.setCharset(charset);
                 mysqlConnection.setAttribute(AbstractMysqlConnection.ATTR_PRE_PACKET_ID, lastPacketId);
 
-                if (!Constants.AUTH_PLUGIN_NAME.equals(stringCache.getString(handshakeResponse41Packet.authPluginName))) {
+                if (!Constants.AUTH_PLUGIN_NAME.equals(handshakeResponse41Packet.authPluginName.toString())) {
                     closeConnection(mysqlConnection, ErrorCode.ER_ACCESS_DENIED_ERROR, "Auth plugin not found.");
                     return true;
                 }
